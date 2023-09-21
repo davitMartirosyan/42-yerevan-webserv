@@ -5,19 +5,26 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/21 02:05:48 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/21 02:33:25 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/09/22 00:33:26 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/09/22 01:16:22 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-#include <string>
-#include <sys/socket.h>
-#include <fcntl.h>
+#include "Lib.hpp"
 
-int main(int ac, char ** av, char **env)
+int main(int argc, const char**argv, const char **env)
 {
-    (void)ac;
-    (void)av;
-    (void)env;
+	(void)argc;
+	(void)argv;
+	(void)env;
+
+	std::string t1 = "www.example.com:80/res/page1.php?user=bob#account";
+	std::string t2 = "https://www.example.com/res/page1.php?user=bob#account";
+	std::string t3 = "http://www.example.com/";
+	std::string t4 = "www.example.com/res/page1.php?user=bob#account";
+	std::string t5 = "www.example.com";
+	std::string t6 = "example.com";
+	
+	Urlx url(t1);
+	std::cout << url.getProto() << std::endl;
 }
