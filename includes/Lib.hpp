@@ -1,18 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Lib.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/21 17:41:37 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/21 17:45:53 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/09/21 17:42:02 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/09/21 17:45:24 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER
-#define SERVER
-#include "Lib.hpp"
-
+#ifndef LIB_HPP
+#define LIB_HPP
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <string>
+#include <iostream>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #endif
