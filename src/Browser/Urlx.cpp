@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 00:32:37 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/23 16:25:03 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/24 02:21:41 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 Urlx::Urlx(std::string const &url)
 {
     this->url = url;
+    this->generateParsedUrl();
 }
 
 std::string const &Urlx::getUrl( void ) const
@@ -24,26 +25,55 @@ std::string const &Urlx::getUrl( void ) const
 
 void Urlx::generateParsedUrl( void )
 {
-    size_t pos = url.find("://", 0, 3);
+    std::string tmpurl = url;
+    int pos = tmpurl.find("://", 0, 3);
+    std::string hostname;
+    std::string port;
+    std::string path;
     if (pos <= 6 && pos >= 3)
     {
-        parsedUrl.push_back(url.substr(0, pos));
+        parsedUrl.push_back(tmpurl.substr(0, pos));
+        pos += 3;
     }
     else
     {
         parsedUrl.push_back("nil");
         pos = 0;
     }
-    size_t begin = pos;
-    while (pos < url.size() && url[pos] != '/') pos++;
-    std::string hostname_port = url.substr(begin, pos);
-    std::cout << hostname_port << std::endl;
+    tmpurl = url.substr(pos);
+    hostname = tmpurl.substr(0, tmpurl.find("/"));
+    if (hostname.find(":") != std::string::npos)
+    {
+        parsedUrl.push_back(hostname.substr(0, hostname.find(":")));
+        parsedUrl.push_back(hostname.substr(hostname.find(":")+1, hostname.find("/")));
+    }
+    else
+    {
+        parsedUrl.push_back(hostname.substr(0, hostname.find(":")));
+        parsedUrl.push_back("nil");
+    }
+    tmpurl = tmpurl.substr(hostname.size());
+    if (tmpurl.find("#") != std::string::npos)
+        parsedUrl.push_back(tmpurl.substr(0, tmpurl.find("#")));
+    else
+        parsedUrl.push_back("nil");
 }
 
-std::string const &Urlx::getProto( void ) const
+std::string const &Urlx::protocol( void ) const
 {
-    return (this->parsedUrl[0]);
+    return (parsedUrl[0]);
 }
-
+std::string const &Urlx::domain( void ) const
+{
+    return (parsedUrl[1]);
+}
+std::string const &Urlx::port( void ) const
+{
+    return (parsedUrl[2]);
+}
+std::string const &Urlx::path( void ) const
+{
+    return (parsedUrl[3]);
+}
 
 Urlx::~Urlx(){}
