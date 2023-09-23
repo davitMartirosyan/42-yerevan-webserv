@@ -6,56 +6,43 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 00:32:37 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/22 01:15:35 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/23 16:25:03 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Lib.hpp"
 
-
 Urlx::Urlx(std::string const &url)
 {
-    protocols.push_back("http://");
-    protocols.push_back("https://");
-    protocols.push_back("ftp://");
-    theUrl = url;
-    size_t pos;
-    for(size_t i = 0; i < protocols.size(); i++)
-    {
-        pos = theUrl.find(protocols[i]);
-        if (pos != std::string::npos)
-        {
-            proto = theUrl.substr(pos, protocols[i].size() - 3);
-            break;
-        }
-    }
-    if (pos == std::string::npos)
-        proto = "http";
+    this->url = url;
 }
 
 std::string const &Urlx::getUrl( void ) const
 {
-    return (this->theUrl);
+    return (this->url);
+}
+
+void Urlx::generateParsedUrl( void )
+{
+    size_t pos = url.find("://", 0, 3);
+    if (pos <= 6 && pos >= 3)
+    {
+        parsedUrl.push_back(url.substr(0, pos));
+    }
+    else
+    {
+        parsedUrl.push_back("nil");
+        pos = 0;
+    }
+    size_t begin = pos;
+    while (pos < url.size() && url[pos] != '/') pos++;
+    std::string hostname_port = url.substr(begin, pos);
+    std::cout << hostname_port << std::endl;
 }
 
 std::string const &Urlx::getProto( void ) const
 {
-    return (this->proto);
-}
-
-std::string const &Urlx::getHostname( void ) const
-{
-    return (this->hostname);
-}
-
-std::string const &Urlx::getPort( void ) const
-{
-    return (this->port);
-}
-
-std::string const &Urlx::getPath( void ) const
-{
-    return (this->path);
+    return (this->parsedUrl[0]);
 }
 
 
