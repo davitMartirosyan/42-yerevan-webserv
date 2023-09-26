@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 17:42:02 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/25 19:37:52 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/26 22:43:36 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,10 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <vector>
+#include <map>
 #include <fstream>
 
 //User-defined
+#include "HttpRequest.hpp"
 #include "Urlx.hpp"
-
 #endif
