@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 22:34:43 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/27 01:14:17 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/28 20:59:18 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void HttpRequest::parseHttpRequest(std::string &req)
 {
     std::cout << "_______________________" << std::endl;
     getRequestLine(req);
-    getHeaderPairs(req);
+    tokenPairs(req);
 }
 void HttpRequest::getRequestLine(std::string &req)
 {   
@@ -70,25 +70,31 @@ void HttpRequest::getRequestLine(std::string &req)
     }
 }
 
-void HttpRequest::getHeaderPairs(std::string &req)
+void HttpRequest::tokenPairs(std::string &req)
 {
-    size_t lineCount = 0;
-    size_t i = -1;
-    while (++i < req.size())
-        if (req[i] == '\n')
-            lineCount++;
-    lineCount--;
+    std::string line;
+    std::stringstream iostream(req);
+    while(std::getline(iostream, line))
+    {
+        size_t semi = line.find(":");
+        if (semi != std::string::npos)
+        {
+            std::string key = line.substr(0, semi);
+            std::string value = line.substr(semi + 1);
+            header.insert(std::make_pair(trim(key), trim(value)));
+        }
+    }
 }
 
 std::string HttpRequest::rtrim(const std::string &s)
 {
-    size_t end = s.find_last_not_of(" \n\t\f\v");
+    size_t end = s.find_last_not_of(" \n\t\f\v\r");
     return (end == std::string::npos ? "" : s.substr(0, end + 1));
 }
 
 std::string HttpRequest::ltrim(const std::string &s)
 {
-    size_t start = s.find_first_not_of(" \n\t\f\v");
+    size_t start = s.find_first_not_of(" \n\t\f\v\r");
     return (start == std::string::npos ? s : s.substr(start));
 }
 

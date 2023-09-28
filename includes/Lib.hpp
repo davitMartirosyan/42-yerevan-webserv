@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 17:42:02 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/26 22:43:36 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/28 20:54:54 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 
 //User-defined
 #include "HttpRequest.hpp"
