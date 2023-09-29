@@ -6,15 +6,15 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 22:34:43 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/28 20:59:18 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/30 00:36:33 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Lib.hpp"
+#include "../includes/HttpRequest.hpp"
 
 HttpRequest::HttpRequest(std::string const &request) : requestLine(), header()
 {
-    std::cout << request;
+    std::cout << request << std::endl;
     req = request;
     parseHttpRequest(req);
 }
@@ -23,26 +23,33 @@ HttpRequest::~HttpRequest()
 {
 }
 
-std::string const &HttpRequest::getMethod( void ) const
+std::string const &HttpRequest::method( void ) const
 {
-    return (this->requestMethod);
+    return (this->requestLine[0]);
 }
 
-std::string const &HttpRequest::getUrl( void ) const
+std::string const &HttpRequest::url( void ) const
 {
-    return (this->requestUrl);
+    return (this->requestLine[1]);
 }
 
-std::string const &HttpRequest::getHttpVersion( void ) const
+std::string const &HttpRequest::httpVersion( void ) const
 {
-    return (this->requestUrl);
+    return (this->requestLine[2]);
+}
+
+std::string const &HttpRequest::getBody( void ) const
+{
+    return (this->body);
 }
 
 void HttpRequest::parseHttpRequest(std::string &req)
 {
     std::cout << "_______________________" << std::endl;
     getRequestLine(req);
-    tokenPairs(req);
+    getHeader(req);
+    if (req.size() > 2)
+        getBody(req);
 }
 void HttpRequest::getRequestLine(std::string &req)
 {   
@@ -70,7 +77,7 @@ void HttpRequest::getRequestLine(std::string &req)
     }
 }
 
-void HttpRequest::tokenPairs(std::string &req)
+void HttpRequest::getHeader(std::string &req)
 {
     std::string line;
     std::stringstream iostream(req);
@@ -82,8 +89,15 @@ void HttpRequest::tokenPairs(std::string &req)
             std::string key = line.substr(0, semi);
             std::string value = line.substr(semi + 1);
             header.insert(std::make_pair(trim(key), trim(value)));
+            req.erase(0, key.size()+value.size()+2);
         }
     }
+}
+
+void HttpRequest::getBody(std::string &req)
+{
+    req.erase(0, 2);
+    body = req;
 }
 
 std::string HttpRequest::rtrim(const std::string &s)

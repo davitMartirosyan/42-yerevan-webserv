@@ -6,26 +6,28 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:21:43 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/28 20:54:45 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/30 00:34:34 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef HTTP_REQUEST_HPP
+#define HTTP_REQUEST_HPP
 #include "Lib.hpp"
-#include "Urlx.hpp"
 
 class HttpRequest
 {
     public:
         HttpRequest( std::string const &request);
         ~HttpRequest();
-        std::string const &getMethod( void ) const;
-        std::string const &getUrl( void ) const;
-        std::string const &getHttpVersion( void ) const;
+        std::string const &method( void ) const;
+        std::string const &url( void ) const;
+        std::string const &httpVersion( void ) const;
+        std::string const &getBody( void ) const;
     private:
         void parseHttpRequest(std::string &req);
         void getRequestLine(std::string &req);
-        void tokenPairs(std::string &req);
+        void getHeader(std::string &req);
+        void getBody(std::string &req);
     private:
         std::string rtrim(const std::string &s);
         std::string ltrim(const std::string &s);
@@ -36,7 +38,5 @@ class HttpRequest
     private:
         std::string req;
         std::string body;
-        std::string requestMethod;
-        std::string requestUrl;
-        std::string requestHttpVersion;
 };
+#endif

@@ -6,11 +6,11 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 00:32:37 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/24 02:21:41 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/29 23:02:24 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Lib.hpp"
+#include "../includes/Urlx.hpp"
 
 Urlx::Urlx(std::string const &url)
 {
