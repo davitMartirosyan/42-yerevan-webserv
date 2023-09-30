@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 00:33:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/30 01:33:23 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/30 15:33:31 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ int main(int ac, const char**av, const char **env)
 	(void)ac;
 	(void)av;
 	(void)env;
-	
 	int server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in addr;
 	int len = sizeof(addr);
@@ -28,7 +27,6 @@ int main(int ac, const char**av, const char **env)
 	size_t valread;
 	char http[1024] = {0};
 	std::string response;
-	
 	(void)valread;
 	setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
 	addr.sin_family = AF_INET;
@@ -46,13 +44,26 @@ int main(int ac, const char**av, const char **env)
 
 		
 		HttpRequest req(request);
-			std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=" << std::endl;
-		// std::cout << req.getBody() << std::endl;
+		std::string path = req.url();
+		std::string realPath = "tmp/www";
+		if (path == "/")
+			path += "index.html";
+		realPath += path;
+		std::cout << realPath << std::endl;
+
+		std::cout << Meta.mimeType(realPath) << std::endl;
 		////////////////////////////
-		//////////////////////////
+		////////////////////////////
+		////////////////////////////
+		////////////////////////////
+		////////////////////////////
+		////////////////////////////
+		////////////////////////////
 		response += "HTTP/1.1 200 OK\r\n";
-		response += "Content-Type: text/html\r\n\r\n";
-		response += responseBody("tmp/www/index.html");
+		response += "Content-Type: ";
+		response += Meta.mimeType(realPath);
+		response += "\r\n\r\n";
+		response += responseBody(realPath);
 		response += "\r\n";
 		send(accept_socket, response.c_str(), response.size(), 0);
 		response.erase();

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 22:29:03 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/30 00:18:10 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/30 14:17:11 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ class HttpMetaProvider
     public:
         HttpMetaProvider( void );
         ~HttpMetaProvider();
-        std::string mimeTypeExtension(std::string const &ext);
+        std::string mimeType(std::string const &ext);
         std::string httpMethod(std::string const &method);
     private:
         void Mimes( void );

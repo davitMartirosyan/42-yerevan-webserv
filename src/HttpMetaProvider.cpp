@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 22:37:48 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/30 00:21:10 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/30 14:28:46 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ HttpMetaProvider::~HttpMetaProvider()
 void HttpMetaProvider::Mimes( void )
 {
     types.insert(std::make_pair( ".txt", "text/plain"));
+    types.insert(std::make_pair(".php", "text/html"));
     types.insert(std::make_pair( ".html", "text/html"));
     types.insert(std::make_pair( ".htm", "text/html"));
     types.insert(std::make_pair( ".css", "text/css"));
@@ -88,9 +89,10 @@ void HttpMetaProvider::Methods( void )
     methods.push_back("PROPPATCH");
 }
 
-std::string HttpMetaProvider::mimeTypeExtension(std::string const &ext)
+std::string HttpMetaProvider::mimeType(std::string const &ext)
 {
-    std::map<std::string, std::string>::iterator it = types.find(ext);
+    std::string extension = ext.substr(ext.find_last_of("."));
+    std::map<std::string, std::string>::iterator it = types.find(extension);
     if (it != types.end())
         return (it->second);
     else
