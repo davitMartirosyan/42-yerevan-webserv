@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 22:37:48 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/30 14:28:46 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/30 22:51:31 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ void HttpMetaProvider::Mimes( void )
     types.insert(std::make_pair( ".js", "text/javascript"));
     types.insert(std::make_pair( ".xml", "text/xml"));
     types.insert(std::make_pair( ".csv", "text/csv"));
+    types.insert(std::make_pair( ".ico", "image/x-icon"));
     types.insert(std::make_pair( ".jpg", "image/jpeg"));
     types.insert(std::make_pair( ".jpeg", "image/jpeg"));
     types.insert(std::make_pair( ".png", "image/png"));
@@ -91,7 +92,8 @@ void HttpMetaProvider::Methods( void )
 
 std::string HttpMetaProvider::mimeType(std::string const &ext)
 {
-    std::string extension = ext.substr(ext.find_last_of("."));
+    size_t last_dot = ext.find_last_of(".");
+    std::string extension = ext.substr(last_dot != std::string::npos ? last_dot : 0);
     std::map<std::string, std::string>::iterator it = types.find(extension);
     if (it != types.end())
         return (it->second);

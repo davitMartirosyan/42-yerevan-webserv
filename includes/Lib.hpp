@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 17:42:02 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/30 00:17:56 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/30 23:22:58 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -27,7 +28,6 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
-
 //User-defined
 #include "HttpMetaProvider.hpp"
 #include "HttpRequest.hpp"

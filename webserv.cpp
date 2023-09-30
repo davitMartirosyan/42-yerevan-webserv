@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 00:33:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/30 15:33:31 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/09/30 23:41:33 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int main(int ac, const char**av, const char **env)
 	int len = sizeof(addr);
 	int opt = 1;
 	size_t valread;
-	char http[1024] = {0};
+	char http[1028] = {0};
 	std::string response;
 	(void)valread;
 	setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
@@ -37,50 +37,46 @@ int main(int ac, const char**av, const char **env)
 	while (1)
 	{
 		int accept_socket = accept(server_socket, (struct sockaddr*)&addr, (socklen_t*)&len);
-		valread = read(accept_socket, http, 1024);
+		valread = recv(accept_socket, http, 1028, 0);
+		
 		std::string request = http;
 		/////////Parsing Request/////////////
 		/////////////////////////////////
 
-		
-		HttpRequest req(request);
-		std::string path = req.url();
-		std::string realPath = "tmp/www";
-		if (path == "/")
-			path += "index.html";
-		realPath += path;
-		std::cout << realPath << std::endl;
-
-		std::cout << Meta.mimeType(realPath) << std::endl;
-		////////////////////////////
-		////////////////////////////
-		////////////////////////////
-		////////////////////////////
-		////////////////////////////
-		////////////////////////////
-		////////////////////////////
-		response += "HTTP/1.1 200 OK\r\n";
-		response += "Content-Type: ";
-		response += Meta.mimeType(realPath);
-		response += "\r\n\r\n";
-		response += responseBody(realPath);
-		response += "\r\n";
-		send(accept_socket, response.c_str(), response.size(), 0);
+		if (!request.empty())
+		{
+			HttpRequest req(request);
+			std::string path = req.url();
+			std::string realPath = "tmp/www";
+			if (path == "/")
+				path += "index.html";
+			realPath += path;
+			response += "HTTP/1.1 200 OK\r\n";
+			response += "Connection: close\r\n";
+			response += "Content-Type: " +  Meta.mimeType(realPath) + "\r\n\r\n";
+			response += responseBody(realPath);
+			send(accept_socket, response.c_str(), response.size(), 0);
+		}
 		response.erase();
 		close(accept_socket);
 	}
 }
 
 
-std::string responseBody(std::string body)
+std::string responseBody(std::string path)
 {
 	std::fstream index;
 	std::string line;
 	std::string content;
-	index.open(body.c_str());
-	while (getline(index, line, '\0')){
-		content += line;
+	index.open(path.c_str());
+	if (index.is_open())
+	{
+		while (getline(index, line, '\0')){
+			content += line;
+		}
+		index.close();
+		return (content);
 	}
-	index.close();
-	return (content);
+	return ("<h1>404</h1>");
+
 }
