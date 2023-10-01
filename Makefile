@@ -1,6 +1,6 @@
 NAME = webserv
 CC = c++ -I ./includes/
-CC_FLAGS = -std=c++98 -Wall -Wextra -Werror
+CC_FLAGS = -std=c++98 #-Wall -Wextra -Werror
 SRCS = $(shell find src/ -type f -name "*.cpp") $(NAME).cpp
 OBJS = $(SRCS:.cpp=.o)
 INCLUDES = $(shell find includes/ -type f -name "*.hpp")

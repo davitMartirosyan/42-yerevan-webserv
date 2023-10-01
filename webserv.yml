@@ -41,3 +41,32 @@
 		response.clear();
 		close(accept_socket);
 	}
+
+
+
+	while (1)
+	{
+		int accept_socket = accept(server_socket, (struct sockaddr*)&addr, (socklen_t*)&len);
+		valread = recv(accept_socket, http, 1028, 0);
+		
+		std::string request = http;
+		/////////Parsing Request/////////////
+		/////////////////////////////////
+
+		if (!request.empty())
+		{
+			HttpRequest req(request);
+			std::string path = req.url();
+			std::string realPath = "tmp/www";
+			if (path == "/")
+				path += "index.html";
+			realPath += path;
+			response += "HTTP/1.1 200 OK\r\n";
+			response += "Connection: close\r\n";
+			response += "Content-Type: " +  Meta.mimeType(realPath) + "\r\n\r\n";
+			response += responseBody(realPath);
+			send(accept_socket, response.c_str(), response.size(), 0);
+		}
+		response.erase();
+		close(accept_socket);
+	}

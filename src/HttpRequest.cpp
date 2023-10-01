@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 22:34:43 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/30 22:30:07 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/01 18:06:01 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,6 @@
 
 HttpRequest::HttpRequest(std::string const &request) : requestLine(), header()
 {
-    std::cout << "********************" << std::endl;
-    std::cout << request;
-    std::cout << "********************" << std::endl;
-
     req = request;
     if (!req.empty())
      parseHttpRequest(req);

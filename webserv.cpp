@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 00:33:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/30 23:41:33 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/01 21:55:42 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define PORT 8080
 std::string responseBody(std::string body);
 HttpMetaProvider Meta;
+const int MAX_BUFFER_SIZE = 1024;
 
 int main(int ac, const char**av, const char **env)
 {
@@ -24,41 +25,42 @@ int main(int ac, const char**av, const char **env)
 	struct sockaddr_in addr;
 	int len = sizeof(addr);
 	int opt = 1;
+	char http[MAX_BUFFER_SIZE];
 	size_t valread;
-	char http[1028] = {0};
 	std::string response;
-	(void)valread;
 	setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_port = htons(PORT);
 	bind(server_socket, (struct sockaddr*)&addr, sizeof(addr));
 	listen(server_socket, 3);
+	
 	while (1)
 	{
 		int accept_socket = accept(server_socket, (struct sockaddr*)&addr, (socklen_t*)&len);
-		valread = recv(accept_socket, http, 1028, 0);
+		std::string request = "";
+		int	bytes = read(accept_socket, http, MAX_BUFFER_SIZE);
+		request += http;
+		std::memset(http, 0, sizeof(http));
 		
-		std::string request = http;
-		/////////Parsing Request/////////////
-		/////////////////////////////////
-
 		if (!request.empty())
 		{
 			HttpRequest req(request);
 			std::string path = req.url();
-			std::string realPath = "tmp/www";
 			if (path == "/")
 				path += "index.html";
-			realPath += path;
+			std::string realPath = "tmp/www/" + path;
 			response += "HTTP/1.1 200 OK\r\n";
 			response += "Connection: close\r\n";
-			response += "Content-Type: " +  Meta.mimeType(realPath) + "\r\n\r\n";
+			response += "Content-Type: " + Meta.mimeType(realPath) + "\r\n";
+			response += "\r\n";
 			response += responseBody(realPath);
 			send(accept_socket, response.c_str(), response.size(), 0);
 		}
 		response.erase();
 		close(accept_socket);
+		write(1, request.c_str(), request.size());
+		write(1, "\n", 1);
 	}
 }
 

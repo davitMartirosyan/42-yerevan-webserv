@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 22:37:48 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/09/30 22:51:31 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/01 17:42:50 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@ HttpMetaProvider::~HttpMetaProvider()
 
 void HttpMetaProvider::Mimes( void )
 {
-    types.insert(std::make_pair( ".txt", "text/plain"));
+    types.insert(std::make_pair(".txt", "text/plain"));
     types.insert(std::make_pair(".php", "text/html"));
-    types.insert(std::make_pair( ".html", "text/html"));
-    types.insert(std::make_pair( ".htm", "text/html"));
-    types.insert(std::make_pair( ".css", "text/css"));
-    types.insert(std::make_pair( ".js", "text/javascript"));
+    types.insert(std::make_pair(".html", "text/html"));
+    types.insert(std::make_pair(".htm", "text/html"));
+    types.insert(std::make_pair(".css", "text/css"));
+    types.insert(std::make_pair(".js", "text/javascript"));
     types.insert(std::make_pair( ".xml", "text/xml"));
     types.insert(std::make_pair( ".csv", "text/csv"));
     types.insert(std::make_pair( ".ico", "image/x-icon"));
@@ -112,4 +112,3 @@ std::string HttpMetaProvider::httpMethod(std::string const &method)
     }
     return ("UNKNOWN");
 }
-
