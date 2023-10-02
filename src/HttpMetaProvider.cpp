@@ -6,11 +6,11 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 22:37:48 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/01 17:42:50 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/02 16:37:10 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/HttpMetaProvider.hpp"
+#include "HttpMetaProvider.hpp"
 
 HttpMetaProvider::HttpMetaProvider( void )
 {

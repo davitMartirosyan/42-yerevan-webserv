@@ -1,32 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Lib.hpp                                            :+:      :+:    :+:   */
+/*   HTTPRequestParser.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/21 17:42:02 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/02 17:23:21 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/10/02 16:52:23 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/10/02 17:09:10 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIB_HPP
-#define LIB_HPP
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <string>
-#include <cstring>
-#include <iostream>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <vector>
-#include <map>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <algorithm>
+#ifndef HTTPREQUEST_PARSER_HPP
+#define HTTPREQUEST_PARSER_HPP
+#include "Lib.hpp"
+
+class HTTPRequestParser
+{
+    public:
+        HTTPRequestParser( void );
+        ~HTTPRequestParser();
+};
+
 
 #endif

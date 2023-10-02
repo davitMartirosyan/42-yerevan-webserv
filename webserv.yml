@@ -70,3 +70,52 @@
 		response.erase();
 		close(accept_socket);
 	}
+
+
+
+
+		(void)ac;
+	(void)av;
+	(void)env;
+	int opt = 1;
+	char http[MAX_BUFFER_SIZE];
+	size_t valread;
+	int len = sizeof(addr);
+	std::string response;
+
+	int server_socket = socket(AF_INET, SOCK_STREAM, 0);
+	struct sockaddr_in addr;
+	setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_port = htons(PORT);
+	bind(server_socket, (struct sockaddr*)&addr, sizeof(addr));
+	listen(server_socket, 3);
+	
+	while (1)
+	{
+		int accept_socket = accept(server_socket, (struct sockaddr*)&addr, (socklen_t*)&len);
+		std::string request = "";
+		int	bytes = read(accept_socket, http, MAX_BUFFER_SIZE);
+		request += http;
+		std::memset(http, 0, sizeof(http));
+		
+		if (!request.empty())
+		{
+			HttpRequest req(request);
+			std::string path = req.url();
+			if (path == "/")
+				path += "index.html";
+			std::string realPath = "tmp/www/" + path;
+			response += "HTTP/1.1 200 OK\r\n";
+			response += "Connection: close\r\n";
+			response += "Content-Type: " + Meta.mimeType(realPath) + "\r\n";
+			response += "\r\n";
+			response += responseBody(realPath);
+			send(accept_socket, response.c_str(), response.size(), 0);
+		}
+		response.erase();
+		close(accept_socket);
+		write(1, request.c_str(), request.size());
+		write(1, "\n", 1);
+	}
