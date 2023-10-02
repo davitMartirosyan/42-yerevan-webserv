@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 16:45:11 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/02 18:02:44 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/02 20:30:10 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ HTTPServer::HTTPServer(int domain, int type, int protocol)
     this->type = type;
     this->protocol = protocol;
     this->sock = socket(domain, type, protocol);
+    int opt = 1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
     if (sock < 0)
     {
         perror("Could not Create new Socket: ");
@@ -39,7 +41,6 @@ void HTTPServer::bindServer(std::string const &ip, int port)
         perror("Could not bind ip and port: ");
         exit(EXIT_FAILURE);
     }
-    
 }
 
 void HTTPServer::startListening(int backlog)

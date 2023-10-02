@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 00:33:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/02 18:10:35 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/02 20:32:17 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ std::string responseBody(std::string body);
 int main(int ac, const char**av, const char **env)
 {
 	HTTPServer server(AF_INET, SOCK_STREAM, 0);
+	
 	server.bindServer("127.0.0.1", 8080);
 	server.startListening(5);
 	std::cout << "======== Server started =========" << std::endl;

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 16:44:02 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/02 18:09:29 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/02 20:12:54 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define HTTPSERVER_HPP
 #include "Lib.hpp"
 #include "HTTPRequestParser.hpp"
+#include "HTTPResponse.hpp"
 
 class HTTPServer
 {
@@ -22,6 +23,7 @@ class HTTPServer
         ~HTTPServer();
     public: //interface
         HTTPRequestParser httpReq;
+        HTTPResponse httpResp;
     public:
         void bindServer(std::string const &ip, int port);
         void startListening(int backlog);
