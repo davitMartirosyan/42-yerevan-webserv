@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 00:33:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/02 20:32:17 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/03 22:23:41 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,36 +15,18 @@
 #include "HTTPServer.hpp"
 HttpMetaProvider Meta;
 
-std::string responseBody(std::string body);
-
 int main(int ac, const char**av, const char **env)
 {
-	HTTPServer server(AF_INET, SOCK_STREAM, 0);
-	
-	server.bindServer("127.0.0.1", 8080);
-	server.startListening(5);
-	std::cout << "======== Server started =========" << std::endl;
-	while (1)
-	{
-		
-	}
-	std::cout << "======== Server stopped =========" << std::endl;
-}
-
-std::string responseBody(std::string path)
-{
-	std::fstream index;
-	std::string line;
-	std::string content;
-	index.open(path.c_str());
-	if (index.is_open())
-	{
-		while (getline(index, line, '\0')){
-			content += line;
-		}
-		index.close();
-		return (content);
-	}
-	return ("<h1>404</h1>");
 
 }
+
+// struct addrinfo {
+// 	int	ai_flags;	/* AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST */
+// 	int	ai_family;	/* PF_xxx */
+// 	int	ai_socktype;	/* SOCK_xxx */
+// 	int	ai_protocol;	/* 0 or IPPROTO_xxx for IPv4 and IPv6 */
+// 	socklen_t ai_addrlen;	/* length of ai_addr */
+// 	char	*ai_canonname;	/* canonical name for hostname */
+// 	struct	sockaddr *ai_addr;	/* binary address */
+// 	struct	addrinfo *ai_next;	/* next structure in linked list */
+// };
