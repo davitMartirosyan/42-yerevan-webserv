@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/21 17:42:02 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/03 21:33:13 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/06 00:31:50 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,5 +29,7 @@
 #include <sstream>
 #include <algorithm>
 #include <netdb.h>
+#include <exception>
+#include <stdlib.h>
 
 #endif

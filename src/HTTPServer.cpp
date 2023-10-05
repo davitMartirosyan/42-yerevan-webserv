@@ -6,49 +6,33 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/02 16:45:11 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/02 20:30:10 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/06 01:21:28 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPServer.hpp"
 
-HTTPServer::HTTPServer(int domain, int type, int protocol)
+HTTPServer::HTTPServer(std::string const &ipv4, int domain, int type, int protocol, int port, int backlog)
 {
+    int opt = 1;
     this->domain = domain;
     this->type = type;
     this->protocol = protocol;
-    this->sock = socket(domain, type, protocol);
-    int opt = 1;
-    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
-    if (sock < 0)
-    {
-        perror("Could not Create new Socket: ");
-        exit(EXIT_FAILURE);
-    }
+    this->port = port;
+    this->server_socket = socket(domain, type, protocol);
+    this->backlog = backlog;
+    setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+    if (server_socket < 0)
+        throw ServerException("Socket");
+    remoteAddr.sin_family = domain;
+    remoteAddr.sin_addr.s_addr = inet_addr(ipv4.c_str());
+    remoteAddr.sin_port = htons(port);
+    if (bind(server_socket, (struct sockaddr*)&remoteAddr, sizeof(remoteAddr)) < 0)
+        throw ServerException("Bind");
+    if (listen(server_socket, backlog) < 0)
+        throw ServerException("Listen");
 }
 
 HTTPServer::~HTTPServer()
 {
-}
-
-void HTTPServer::bindServer(std::string const &ip, int port)
-{
-    remoteAddr.sin_family = domain;
-    remoteAddr.sin_addr.s_addr = inet_addr(ip.c_str());
-    remoteAddr.sin_port = htons(port);
-    if (bind(sock, (struct sockaddr*)&remoteAddr, sizeof(remoteAddr)) < 0)
-    {
-        perror("Could not bind ip and port: ");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void HTTPServer::startListening(int backlog)
-{
-    this->backlog = backlog;
-    if (listen(sock, backlog) < 0)
-    {
-        perror("Could not start listening: ");
-        exit(EXIT_FAILURE);
-    }
 }

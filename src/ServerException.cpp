@@ -1,25 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HTTPRequestParser.hpp                              :+:      :+:    :+:   */
+/*   ServerException.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/02 16:52:23 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/02 17:09:10 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/10/06 00:05:29 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/10/06 00:52:39 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HTTPREQUEST_PARSER_HPP
-#define HTTPREQUEST_PARSER_HPP
-#include "Lib.hpp"
+#include "ServerException.hpp"
 
-class HTTPRequestParser
+ServerException::ServerException(const char *msg) : message(msg)
 {
-    public:
-        HTTPRequestParser( void );
-        ~HTTPRequestParser();
-};
+}
+ServerException::~ServerException() throw()
+{
+}
 
-
-#endif
+const char *ServerException::what( void ) const throw()
+{
+    perror(message.c_str());
+    return (NULL);
+}

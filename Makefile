@@ -21,4 +21,4 @@ clean:
 
 re:fclean all
 
-.PHONNY: all fclean re clean 
+.PHONNY: all fclean re clean
