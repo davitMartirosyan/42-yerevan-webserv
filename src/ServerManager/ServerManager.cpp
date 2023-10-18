@@ -1,39 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HTTPRequest.cpp                                    :+:      :+:    :+:   */
+/*   ServerManager.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/05 22:30:29 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/05 22:48:30 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/10/14 00:26:50 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "HTTPRequest.hpp"
+#include "ServerManager.hpp"
 
-HTTPRequest::HTTPRequest( void )
+ServerManager::ServerManager(const char *config)
 {
-    request_buffer = new char[150000];
-    content_length = 0;
+    std::cout << config << std::endl;
+    srvsCount = 3; // իմիտացիա ենք անում յանի 3 հատ սերվերի դիրեկտիվ
+                    // ենք քթել կոնֆիգ ֆայլում
 }
 
-HTTPRequest::~HTTPRequest()
+ServerManager::~ServerManager()
 {
-    delete request_buffer;
+    
 }
 
-std::string const &HTTPRequest::getMethod( void )
+void ServerManager::createServerInstances( void )
 {
-    return (method);
-}
-
-std::string const &HTTPRequest::getPath( void )
-{
-    return (path);
-}
-
-std::string const &HTTPRequest::getVersion( void )
-{
-    return (version);
+       
 }

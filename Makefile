@@ -1,24 +1,22 @@
 NAME = webserv
-CC = c++ -I ./includes/
-CC_FLAGS = -std=c++98 #-Wall -Wextra -Werror
-SRCS = $(shell find src/ -type f -name "*.cpp") $(NAME).cpp
-OBJS = $(SRCS:.cpp=.o)
-INCLUDES = $(shell find includes/ -type f -name "*.hpp")
+CPP = c++
+CPP_FLAGS = -I includes/ -I src/HTTPServer/ -I src/ServerManager/ -std=c++98 #-Wall -Wextra -Werror
+SRC = $(shell find -name "*.cpp")
+OBJ = $(SRC:.cpp=.o)
+HEADER = $(shell find -name "*.hpp")
+all : $(NAME)
 
-all: $(NAME)
+$(NAME) : $(OBJ)
+	$(CPP) $(CPP_FLAGS) $(OBJ) -o $(NAME)
 
-$(NAME) : $(OBJS) $(INCLUDES)
-	$(CC) $(CC_FLAGS) $(OBJS) -o $(NAME)
+%.o : %.cpp $(HEADER)
+	$(CPP) $(CPP_FLAGS) -c $< -o $@
 
-%.o : %.cpp $(INCLUDES)
-	$(CC) $(CC_FLAGS) -c $< -o $@
+fclean : clean
+	rm -rf $(NAME)
 
-fclean: clean
-	@rm -rf $(NAME)
+clean :
+	rm -rf $(OBJ)
+re : fclean all
 
-clean:
-	@rm -rf $(OBJS)
-
-re:fclean all
-
-.PHONNY: all fclean re clean
+.PHONNY: clean fclean all re

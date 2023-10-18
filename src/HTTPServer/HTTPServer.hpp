@@ -5,40 +5,44 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/02 16:44:02 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/06 13:08:22 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/10/19 01:07:45 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPSERVER_HPP
 #define HTTPSERVER_HPP
-#include "Lib.hpp"
-#include "HTTPRequest.hpp"
-#include "ServerException.hpp"
+#include "Libs.hpp"
 
-class HTTPServer
+class Location
 {
     public:
-        HTTPServer(std::string const &ipv4, int domain, int type, int protocol, int port, int backlog);
+        Location( void );
+        virtual ~Location();
+    protected:
+        std::string root;
+        std::string path;
+    protected:
+        virtual std::string const &getRoot( void ) const = 0;
+        virtual std::string const &getPath( void ) const = 0;
+};
+
+
+class HTTPServer : public Location
+{
+    public:
+        HTTPServer( void );
         ~HTTPServer();
-    public: //external interface
-        HTTPRequest request;
-    public: //interface
-        int getServerSocket( void ) const;
     private:
-        std::map<unsigned int, HTTPRequest> clients;
-    private:
-        struct  sockaddr_in remoteAddr;
-    private:
-        std::string ipv4;
-    private:
-        int server_socket;
-        int domain;
-        int type;
-        int protocol;
-        int port;
+        int fd;
         int backlog;
+        int autoindex;
+    private:
+        std::string listen;
+        std::vector<std::string> server_names;
+        std::string root;
+        std::vector<std::string> locations;
+        std::vector<std::string> index;
 };
 
 #endif
-

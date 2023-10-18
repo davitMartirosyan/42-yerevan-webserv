@@ -1,29 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*   ServerManager.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/16 23:13:49 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/10/13 23:52:27 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/10/14 00:26:53 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef TCP_HPP
+#define TCP_HPP
 #include "Libs.hpp"
-#include "ServerManager.hpp"
-#define PORT 8080
+#include "HTTPServer.hpp"
 
-
-int main(int ac, char **av)
+class ServerManager
 {
-    struct addrinfo hints, *res, *p;
-    int getaddr = getaddrinfo("127.0.0.1", "http", &hints, &res);
-    if (getaddr != 0)
-        std::cout << "error" << std::endl;
-    void *addr;
-    struct sockaddr_in* ipv4 = (struct sockaddr_in*)res->ai_addr;
-    addr = &(ipv4->sin_addr);
-    std::cout << htonl(ipv4->sin_addr.s_addr) << std::endl;
-}
+    public:
+        ServerManager(const char *config); // Իմիտացիա ենք անում յանի ստեղ կոնֆիգ ֆայլը parse ա լինում :D
+        ~ServerManager();
+    public:
+        void createServerInstances( void );
+    private:
+        int srvsCount;
+        std::map<int, HTTPServer> srvs;
+};
 
+#endif

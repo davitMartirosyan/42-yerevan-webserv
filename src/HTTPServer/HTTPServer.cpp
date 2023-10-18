@@ -1,26 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerException.cpp                                :+:      :+:    :+:   */
+/*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/06 00:05:29 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/06 00:52:39 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/10/19 01:02:02 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServerException.hpp"
+#include "HTTPServer.hpp"
 
-ServerException::ServerException(const char *msg) : message(msg)
+HTTPServer::HTTPServer( void )
 {
-}
-ServerException::~ServerException() throw()
-{
-}
-
-const char *ServerException::what( void ) const throw()
-{
-    perror(message.c_str());
-    return (NULL);
+    std::cout << a << std::endl;
 }
