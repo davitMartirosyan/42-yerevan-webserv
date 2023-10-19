@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/16 23:13:49 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/19 17:36:06 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Libs.hpp"
 #include "ServerManager.hpp"
 #define PORT 8080
-
 
 int main(int ac, char **av)
 {
@@ -24,6 +23,10 @@ int main(int ac, char **av)
     void *addr;
     struct sockaddr_in* ipv4 = (struct sockaddr_in*)res->ai_addr;
     addr = &(ipv4->sin_addr);
-    std::cout << htonl(ipv4->sin_addr.s_addr) << std::endl;
+    int ip = ipv4->sin_addr.s_addr;
+    std::cout << ip << std::endl;
+    std::cout <<( ip >> 8 )<< std::endl;
+    std::cout <<( ip >> 16 )<< std::endl;
+    std::cout <<( ip >> 24 )<< std::endl;
 }
 
