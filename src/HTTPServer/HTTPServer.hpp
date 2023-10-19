@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/19 17:21:55 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/19 23:40:01 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "Libs.hpp"
 #include "../Location/Location.hpp"
 
-class HTTPServer : public Conf
+class HTTPServer : public ConfigRoutes
 {
     public:
         HTTPServer( void );
@@ -24,7 +24,7 @@ class HTTPServer : public Conf
         int fd;
         int backlog;
     private:
-        std::vector<Location> locations;
+        std::map<std::string, Location> locations; // <path, LocationDirective>
 };
 
 #endif
