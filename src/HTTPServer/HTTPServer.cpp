@@ -3,21 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/19 17:22:05 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/21 11:35:07 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPServer.hpp"
 
-HTTPServer::HTTPServer( void )
+HTTPServer::HTTPServer(int sock)
 {
-    
+    fd = sock;
 }
 
 HTTPServer::~HTTPServer()
 {
     
+}
+
+int HTTPServer::getServerSocket( void )
+{
+    return (fd);
 }

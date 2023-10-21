@@ -1,0 +1,23 @@
+    struct addrinfo hints, *res, *p;
+    int getaddr = getaddrinfo("127.0.0.1", "http", &hints, &res);
+    if (getaddr != 0)
+        std::cout << "error" << std::endl;
+        
+    void *addr;
+    struct sockaddr_in* ipv4 = (struct sockaddr_in*)res->ai_addr;
+    uint32_t ip = htonl(ipv4->sin_addr.s_addr);
+    
+    std::cout << inet_addr_pton(ip) << std::endl;
+
+
+    const char* inet_addr_pton(uint32_t ipv)
+{
+    char* ip = new char[16];
+    std::stringstream ss;
+    ss << ((int)(ipv >> 24) & 0XFF) << "." << ((int)(ipv >> 16) & 0XFF) << "." << ((int)(ipv >> 8) & 0XFF) << "." << ((int)(ipv) & 0XFF);
+    int i = -1;
+    while (++i < ss.str().size())
+        ip[i] = ss.str().c_str()[i];
+    ip[i] = '\0';
+    return (ip);
+}
