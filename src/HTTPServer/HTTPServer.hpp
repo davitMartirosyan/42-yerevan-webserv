@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/21 11:35:24 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/22 09:53:43 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,24 @@
 #include "Libs.hpp"
 #include "../Location/Location.hpp"
 
-class HTTPServer : public http_core_module_conf_t
+class HTTPServer : public IListener, public http_core_module_conf
 {
     public:
-        HTTPServer(int sock);
+        HTTPServer(std::string const &ip, std::string const &port);
         ~HTTPServer();
-    public:
         int getServerSocket( void );
+    public: //ip port interface
+        virtual void setListenerIpPort(std::string const &ip, std::string const &port);
+        virtual std::string const &getIp( void ) const;
+        virtual std::string const &getPort( void ) const;
     private:
         int fd;
         int backlog;
     private:
+        std::vector<std::string> server_name;
+    private:
         // std::map<int, Client> clnt;              [Clients]
-        std::map<std::string, Location> locations; // <path, LocationDirective>
+        std::map<std::string, Location> locations; // <prefix, LocationDirective>
     private:
         struct addrinfo address_info;
         struct sockaddr_in socket_info;

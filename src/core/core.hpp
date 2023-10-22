@@ -1,24 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*   core.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/22 10:15:28 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/10/22 09:23:04 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/10/22 09:36:34 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef CORE_HPP
+#define CORE_HPP
 #include "Libs.hpp"
-#include "ServerManager.hpp"
-#define PORT 8080
 
-const char* inet_addr_pton(uint32_t ipv);
-
-int main(int ac, char **av)
+struct IListener
 {
-    HTTPServer srv("127.0.0.1", "8080");
-    srv.pushMethods("get");
-    std::cout << 
-}
+	protected:
+		virtual void setListenerIpPort(std::string const &ip, std::string const &port) = 0;
+		virtual std::string const &getIp( void ) const = 0;
+		virtual std::string const &getPort( void ) const = 0;
+		std::string ip;
+		std::string port;
+};
+
+
+
+
+#endif

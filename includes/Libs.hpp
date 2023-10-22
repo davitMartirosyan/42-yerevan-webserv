@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 06:37:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/21 11:30:38 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/22 09:26:41 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,16 +34,7 @@
 #define DFLT "./conf/webserv.conf"
 #define READ_BUFFER     150000
 #define WRITE_BUFFER    150000
-
-typedef struct http_core_module_conf_t
-{
-    protected:
-        std::string root;                                       // [root]               www/server1/
-        std::vector<std::string> index;                         // [index]              index.html barev.html index.html ....
-        std::vector<std::string> methods;                       // [allow_methods]      GET | POST | DELETE
-        std::map<std::string, std::string> error_page;          // [error_page]         404 [root]/error_pages/404.html 
-        bool autoindex;                                          // [autoindex]          on (1) | off (0)
-        unsigned long long int client_body_size;                // [client_body_size]   200m -> 200000000byte -> 200mb
-}http_core_module_conf_t;
+#include "../http_core_module_conf/http_core_module_conf.hpp"
+#include "../core/core.hpp"
 
 #endif
