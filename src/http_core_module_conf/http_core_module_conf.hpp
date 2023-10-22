@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 01:49:46 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/22 10:17:01 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/22 15:26:23 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ struct http_core_module_conf
         std::vector<std::string> getIndexeFiles( void ) const;
         
     protected:
+    
         std::string root;                                       // [root]               www/server1/
         std::vector<std::string> index;                         // [index]              index.html barev.html index.htm ....
         std::vector<std::string> methods;                       // [allow_methods]      GET | POST | DELETE
