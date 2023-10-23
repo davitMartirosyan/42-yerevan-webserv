@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 06:37:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/22 09:26:41 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/22 23:58:07 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,4 +37,6 @@
 #include "../http_core_module_conf/http_core_module_conf.hpp"
 #include "../core/core.hpp"
 
+typedef std::vector<std::string> methods_t;
+typedef std::vector<std::string> indexes_t;
 #endif
