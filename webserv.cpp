@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/23 12:37:25 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/23 23:58:45 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,12 @@ int main(int ac, char **av)
 {
     HTTPServer srv("127.0.0.1", "8080");
     srv.pushIndex("index.html");
+    srv.pushIndex("home.html");
     srv.pushMethods("GET");
     srv.pushMethods("POST");
     srv.pushMethods("DELETE");
     srv.setRoot("www/nginx/");
-    methods_t methods = srv.getMethods();
-    indexes_t index = srv.getIndexFiles();
+    srv.setAutoindex("off");
+    std::cout << srv.getAutoindex() << std::endl;
 }
 

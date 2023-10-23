@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   http_core_module_conf.hpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 01:49:46 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/23 12:35:02 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/23 23:57:29 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,21 @@ struct http_core_module_conf
 {
     public:
         int getClientBodySize( void );
-        std::string const &getRootPath( void );
         std::string const &getRoot( void ) const;
         std::vector<std::string> getIndexFiles( void ) const;
         std::vector<std::string> getMethods( void ) const;
-        const char* findIndexFile(std::string const &filename) const;
+        bool getAutoindex( void ) const;
+    public:
+        const char* findIndex(std::string const &filename) const;
+        const char* findMethod(std::string const &method) const;
+        const char* findErrorPage(std::string const &status_code);
     public:
         void pushIndex(std::string const &fileNameExample);
         void pushMethods(std::string const &method);
+        void pushErrPage(std::string const &key, std::string const &errpage_filename);
         void setRoot(std::string const &root);
+        void setAutoindex(std::string const &sw);
+        void setSize(unsigned long long int bodySize);
     protected:
         std::string root;                                       // [root]               www/server1/
         std::vector<std::string> index;                         // [index]              index.html barev.html index.htm ....
@@ -35,5 +41,4 @@ struct http_core_module_conf
         bool autoindex;                                         // [autoindex]          on (true) | off (false)
         unsigned long long int client_body_size;                // [client_body_size]   200m -> 200.000.000byte -> 200mb
 };
-
 #endif
