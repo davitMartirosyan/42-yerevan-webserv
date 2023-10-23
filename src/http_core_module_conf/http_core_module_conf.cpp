@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   http_core_module_conf.cpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 01:47:02 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/22 23:54:51 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/23 12:37:16 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,4 +43,23 @@ std::vector<std::string> http_core_module_conf::getIndexFiles( void ) const
 std::vector<std::string> http_core_module_conf::getMethods( void ) const
 {
 	return (this->methods);
+}
+
+void http_core_module_conf::setRoot(std::string const &root)
+{
+	this->root = root;
+}
+
+std::string const &http_core_module_conf::getRoot( void ) const
+{
+	return (this->root);
+}
+
+const char* http_core_module_conf::findIndexFile(std::string const &filename) const
+{
+	size_t i = 0;
+	for(; i < index.size(); i++)
+		if (index[i] == filename)
+			return (index[i].c_str());
+	return (NULL);
 }
