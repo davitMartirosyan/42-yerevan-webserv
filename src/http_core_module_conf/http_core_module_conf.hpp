@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   http_core_module_conf.hpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 01:49:46 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/23 23:57:29 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/24 09:59:17 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@
 struct http_core_module_conf
 {
     public:
-        int getClientBodySize( void );
         std::string const &getRoot( void ) const;
         std::vector<std::string> getIndexFiles( void ) const;
         std::vector<std::string> getMethods( void ) const;
+        int getClientBodySize( void );
         bool getAutoindex( void ) const;
     public:
         const char* findIndex(std::string const &filename) const;

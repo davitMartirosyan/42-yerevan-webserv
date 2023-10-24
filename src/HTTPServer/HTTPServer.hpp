@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/23 12:27:03 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/24 10:44:49 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define HTTPSERVER_HPP
 #include "Libs.hpp"
 #include "../Location/Location.hpp"
+#include "../Client/Client.hpp"
 
 class HTTPServer : public IListener, public http_core_module_conf
 {
@@ -29,15 +30,14 @@ class HTTPServer : public IListener, public http_core_module_conf
         int fd;
         int backlog;
     private:
-        std::vector<std::string> server_name;
+        std::vector<std::string> ServerName;
     private:
-        // std::map<int, Client> clnt;              [Clients]
-        std::map<std::string, Location> locations; // <prefix, LocationDirective>
+        std::map<int, Client> clnt;                     // [Clients]
+        std::map<std::string, Location> locations;      // <prefix, LocationDirective>
     private:
-        struct addrinfo address_info;
-        struct sockaddr_in socket_info;
-        struct sockaddr socket_address;
-    private:
+        struct addrinfo ServerAddress;
+        struct sockaddr_in SocketInfo;
+        struct sockaddr SocketAddress;
 };
 
 #endif

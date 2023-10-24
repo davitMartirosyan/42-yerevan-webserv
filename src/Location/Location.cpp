@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 01:38:14 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/22 01:38:53 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/24 10:12:51 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 Location::Location( void )
 {
-	root = "images/";
+	
 }
 
 Location::~Location()
