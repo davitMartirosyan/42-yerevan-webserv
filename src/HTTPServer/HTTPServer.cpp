@@ -6,19 +6,15 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/22 23:51:37 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/25 23:39:54 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPServer.hpp"
 
-HTTPServer::HTTPServer(std::string const &ip, std::string const &port)
+HTTPServer::HTTPServer( void )
 {
-    setListenerIpPort(ip, port);
-    root = "www/server1/";
-    autoindex = true;
-    client_body_size = 2000;
-    locations.insert(std::make_pair("/", Location()));
+    
 }
 
 HTTPServer::~HTTPServer()
@@ -31,19 +27,32 @@ int HTTPServer::getServerSocket( void )
     return (fd);
 }
 
-
-std::string const &HTTPServer::getIp( void ) const
+void HTTPServer::setPort(std::string const &port)
 {
-    return (ip);
+    std::cout << port.size() << std::endl;
+    if (port.size() > 5)
+        throw HTTPCoreException("Port: is to long");
+    for(size_t i = 0; i < port.size(); i++)
+        if (!std::isdigit(port[i]))
+            throw HTTPCoreException("Port: Non digit character");
+    this->port = (uint16_t)std::atoi(port.c_str());
 }
 
-std::string const &HTTPServer::getPort( void ) const
+uint16_t HTTPServer::getPort( void ) const
 {
-    return (port);
+    return (this->port);
 }
 
-void HTTPServer::setListenerIpPort(std::string const &ip, std::string const &port)
+void HTTPServer::setIp(std::string const &ipv)
 {
-    this->ip = ip;
-    this->port = port;
+    if (ipv.size() > 15)
+        throw HTTPCoreException("Ip: Syntax Error");
+    for(size_t i = 0; i < ipv.size(); i++)
+        if (ipv[i] != '.' || !std::isdigit(ipv[i]))
+            throw HTTPCoreException("Ip: Non ip character [0-9][.][0-9][.][0.9][.][0-9]");
+}
+
+uint32_t HTTPServer::getIp( void ) const
+{
+    return (this->ip);
 }

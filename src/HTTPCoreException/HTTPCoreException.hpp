@@ -1,24 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Location.hpp                                       :+:      :+:    :+:   */
+/*   HTTPCoreException.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/19 16:03:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/25 22:23:28 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/10/25 22:53:23 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/10/25 23:17:40 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LOCATION_HPP
-#define LOCATION_HPP
+#ifndef HTTP_CORE_EXCEPTIONS_HPP
+#define HTTP_CORE_EXCEPTIONS_HPP
 #include "Libs.hpp"
 
-class Location : public ServerCore
+class HTTPCoreException : public std::exception
 {
-    public:
-        Location( void );
-        ~Location();
+	public:
+		HTTPCoreException(const char *msg);
+		virtual ~HTTPCoreException() throw();
+		virtual const char* what( void ) const throw();
+	private:
+		std::string err;
 };
 
 #endif

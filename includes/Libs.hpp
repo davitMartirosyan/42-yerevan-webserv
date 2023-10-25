@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Libs.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 06:37:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/24 10:21:11 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/26 00:28:44 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <stdexcept>
 #include <cstring>
 #include <errno.h>
 #include <stdlib.h>
@@ -34,7 +35,8 @@
 #define DFLT "./conf/webserv.conf"
 #define READ_BUFFER     150000
 #define WRITE_BUFFER    150000
-#include "../http_core_module_conf/http_core_module_conf.hpp"
+#include "../HTTPCoreException/HTTPCoreException.hpp"
+#include "../ServerCore/ServerCore.hpp"
 #include "../core/core.hpp"
 
 typedef std::vector<std::string> methods_t;

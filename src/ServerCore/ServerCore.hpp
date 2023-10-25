@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   http_core_module_conf.hpp                          :+:      :+:    :+:   */
+/*   ServerCore.hpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -14,7 +14,7 @@
 #define HTTP_CORE_HPP
 #include "Libs.hpp"
 
-struct http_core_module_conf
+struct ServerCore
 {
     public:
         std::string const &getRoot( void ) const;
