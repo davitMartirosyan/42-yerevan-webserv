@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:10 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/24 10:44:21 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/25 15:17:14 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ class Client
         Client( void );
         ~Client();
     private:
+        
+    private:
         int fd;
         const char* http;
     private:
@@ -31,7 +33,9 @@ class Client
     private:
         unsigned long int bodySize;
     private:
-        struct sockaddr_in ClientAddress;
+        struct sockaddr_in ClientInfo;
+        struct sockaddr ClientAddress;
+        struct sockaddr_storage addressStorage;
 };
 
 #endif
