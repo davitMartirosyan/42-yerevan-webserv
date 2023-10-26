@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Libs.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 06:37:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/26 00:32:50 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/26 14:06:35 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,7 @@
 #include <sys/select.h>
 #include <map>
 #include <vector>
-#define CONFIGS "./conf/"
-#define DFLT "./conf/webserv.conf"
-#define READ_BUFFER     150000
-#define WRITE_BUFFER    150000
-#include "../HTTPCoreException/HTTPCoreException.hpp"
-#include "../ServerCore/ServerCore.hpp"
-#include "../core/core.hpp"
+#include "DefaultSetup.hpp"
 
 typedef std::vector<std::string> methods_t;
 typedef std::vector<std::string> indexes_t;

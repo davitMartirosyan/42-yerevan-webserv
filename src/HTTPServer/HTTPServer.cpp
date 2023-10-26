@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/25 23:39:54 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/26 17:21:19 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ int HTTPServer::getServerSocket( void )
 
 void HTTPServer::setPort(std::string const &port)
 {
-    std::cout << port.size() << std::endl;
     if (port.size() > 5)
         throw HTTPCoreException("Port: is to long");
     for(size_t i = 0; i < port.size(); i++)
@@ -45,11 +44,34 @@ uint16_t HTTPServer::getPort( void ) const
 
 void HTTPServer::setIp(std::string const &ipv)
 {
+    size_t n = 0;
+    size_t k = 0;
+    std::string octet;
+    
     if (ipv.size() > 15)
         throw HTTPCoreException("Ip: Syntax Error");
-    for(size_t i = 0; i < ipv.size(); i++)
-        if (ipv[i] != '.' || !std::isdigit(ipv[i]))
-            throw HTTPCoreException("Ip: Non ip character [0-9][.][0-9][.][0.9][.][0-9]");
+    for(size_t i = 0; i <= ipv.size(); i++)
+    {
+        if (std::isdigit(ipv[i]))
+        {
+            n++;
+            octet += ipv[i];
+        }
+        else if (ipv[i] == '.' || i >= ipv.size())
+        {
+            if (ipv[i] == '.')
+                k++;
+            if (n > 3 || std::atoi(octet.c_str()) > 255)
+                throw HTTPCoreException("Octet: > 255");
+            octet.clear();
+            n = 0;
+        }
+        else
+            throw HTTPCoreException("Ip: Syntax Error");
+
+    }
+    if (k != 3)
+        throw HTTPCoreException("Dots: syntax error");
 }
 
 uint32_t HTTPServer::getIp( void ) const

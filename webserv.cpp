@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/26 00:32:50 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/26 17:18:53 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,15 @@ int main(int ac, char **av)
 {
     try
     {
-        HTTPServer src;
-        src.setPort("8080");
-        std::cout << src.getPort() << std::endl;
+        HTTPServer srv;
+        srv.setIp("127.0.255.1");
+        srv.setPort("5000");
     }
-    catch(std::exception const &e)
+    catch(const std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        std::cout << e.what() << '\n';
     }
-    std::string ip = "127.0.0.1";
+    
 }
 
 
