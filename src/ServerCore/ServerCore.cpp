@@ -86,12 +86,17 @@ void ServerCore::pushErrPage(std::string const &key, std::string const &errpage_
 	error_page.insert(std::make_pair(key, errpage_filename));
 }
 
-void ServerCore::setSize(unsigned long long int bodySize)
+void ServerCore::setSize(std::string const &bodySize)
 {
-	client_body_size = bodySize;
+	unsigned long long int toLong = std::strtoull(bodySize.c_str(), NULL, 10);
+	if (errno == ERANGE && toLong == ULLONG_MAX)
+		this->client_body_size = 200;
+	else
+		this->client_body_size = toLong * 1048576 / 1;
 }
 
 bool ServerCore::getAutoindex( void ) const
 {
 	return (autoindex);
 }
+

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/26 17:21:19 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/27 11:02:06 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,4 +77,25 @@ void HTTPServer::setIp(std::string const &ipv)
 uint32_t HTTPServer::getIp( void ) const
 {
     return (this->ip);
+}
+
+void HTTPServer::pushLocation(std::string const &prefix, Location locationDirective)
+{
+    this->locations.insert(std::make_pair(prefix, locationDirective));
+}
+
+const Location* HTTPServer::find(std::string const &prefix) const
+{
+    std::map<std::string, Location>::const_iterator route = locations.find(prefix);
+    if (route != locations.end())
+        return (&route->second);
+    return (NULL);
+}
+
+Location* HTTPServer::find(std::string const &prefix)
+{
+    std::map<std::string, Location>::iterator route = locations.find(prefix);
+    if (route != locations.end())
+        return (&route->second);
+    return (NULL);
 }

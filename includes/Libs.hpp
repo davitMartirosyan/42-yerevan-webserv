@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 06:37:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/26 14:06:35 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/27 10:11:53 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <limits.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdexcept>

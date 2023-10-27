@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/25 23:35:34 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/27 11:00:49 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,16 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
 		virtual void setIp(std::string const &ipv);
 		virtual uint32_t getIp( void ) const;
 		virtual uint16_t getPort( void ) const;
+    public:
+        void pushLocation(std::string const &prefix, Location locationDirective);
+    public:
+        const Location *find(std::string const &prefix) const;
+        Location *find(std::string const &prefix);
+
     private:
         std::vector<std::string> ServerName;
     private:
         std::map<int, Client> clnt;                     // [Clients]
-        std::map<std::string, Location> locations;      // <prefix, LocationDirective>
+        std::map<std::string, Location> locations;      // <prefix, LocationDirective>  location / {Location}
 };
 #endif

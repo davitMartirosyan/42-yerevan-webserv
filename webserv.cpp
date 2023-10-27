@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/26 17:18:53 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/27 11:06:37 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,21 @@ int main(int ac, char **av)
         HTTPServer srv;
         srv.setIp("127.0.255.1");
         srv.setPort("5000");
+        srv.setRoot("www/server1/");
+        srv.setSize("200mb");
+        srv.setAutoindex("on");
+        srv.pushIndex("index.html");
+        srv.pushMethods("GET");
+        srv.pushMethods("POST");
+        
+        
+        Location rootLocation; // "/";
+        rootLocation.pushIndex("pics.html");
+        rootLocation.pushMethods("GET");
+        rootLocation.setAutoindex("off");
+
+        
+        srv.pushLocation("/pictures", rootLocation);   
     }
     catch(const std::exception& e)
     {

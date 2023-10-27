@@ -32,7 +32,7 @@ struct ServerCore
         void pushErrPage(std::string const &key, std::string const &errpage_filename);
         void setRoot(std::string const &root);
         void setAutoindex(std::string const &sw);
-        void setSize(unsigned long long int bodySize);
+        void setSize(std::string const &bodySize);
     protected:
         std::string root;                                       // [root]               www/server1/
         std::vector<std::string> index;                         // [index]              index.html barev.html index.htm ....
