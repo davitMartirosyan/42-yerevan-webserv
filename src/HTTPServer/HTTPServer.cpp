@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/27 11:02:06 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/28 15:44:09 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,17 @@ void HTTPServer::setPort(std::string const &port)
         if (!std::isdigit(port[i]))
             throw HTTPCoreException("Port: Non digit character");
     this->port = (uint16_t)std::atoi(port.c_str());
+    this->portNumber = port;
 }
 
 uint16_t HTTPServer::getPort( void ) const
 {
     return (this->port);
+}
+
+const char* HTTPServer::getNPort( void ) const
+{
+    return (this->portNumber.c_str());
 }
 
 void HTTPServer::setIp(std::string const &ipv)
@@ -72,11 +78,12 @@ void HTTPServer::setIp(std::string const &ipv)
     }
     if (k != 3)
         throw HTTPCoreException("Dots: syntax error");
+    this->ipv4 = ipv;
 }
 
-uint32_t HTTPServer::getIp( void ) const
+const char* HTTPServer::getIp( void ) const
 {
-    return (this->ip);
+    return (this->ipv4.c_str());
 }
 
 void HTTPServer::pushLocation(std::string const &prefix, Location locationDirective)

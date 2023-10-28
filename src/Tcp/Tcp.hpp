@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Tcp.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:32:40 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/26 14:03:02 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/28 13:09:51 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ class Tcp
 		~Tcp();
 	public:
 		void up( void );
+	public:
+        const char* pton(uint32_t ipv) const;
 	protected:
 		int fd;
 		int backlog;
