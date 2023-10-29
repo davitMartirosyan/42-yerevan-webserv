@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DefaultSetup.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 14:06:06 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/26 14:08:28 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/29 23:31:01 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,9 @@
 #define DEFAULT_HTTP_PORT       8080
 #define CONFIGS "./conf/"
 #define DFLT "./conf/webs erv.conf"
-#include "../HTTPCoreException/HTTPCoreException.hpp"
-#include "../ServerCore/ServerCore.hpp"
-#include "../core/core.hpp"
+#include "../src/HTTPCoreException/HTTPCoreException.hpp"
+#include "../src/ServerCore/ServerCore.hpp"
+#include "../src/core/core.hpp"
+typedef int sock_t;
 
 #endif

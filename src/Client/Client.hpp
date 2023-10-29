@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:10 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/25 15:17:14 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/29 15:27:46 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,12 @@
 class Client
 {
     public:
-        Client( void );
+        Client(sock_t clfd);
         ~Client();
+    public:
+        sock_t getFd( void ) const;
     private:
-        
-    private:
-        int fd;
+        sock_t fd;
         const char* http;
     private:
         std::string httpRequest;

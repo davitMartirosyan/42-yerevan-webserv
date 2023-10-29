@@ -6,18 +6,18 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/28 21:19:12 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/29 23:40:18 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Libs.hpp"
 #include "ServerManager.hpp"
-#define PORT 8080
-#include <limits.h>
+
+
 int main(int ac, char **av)
 {
     try
-    {
+    {   
         HTTPServer srv;
         srv.setIp("127.0.0.1");
         srv.setPort("8080");
@@ -34,41 +34,10 @@ int main(int ac, char **av)
         rootLocation.setAutoindex("off");
         srv.pushLocation("/pictures", rootLocation);
         
-        struct addrinfo addr, *res;
-        addr.ai_family = PF_UNSPEC;
-        addr.ai_socktype = SOCK_STREAM;
-        addr.ai_flags = AI_PASSIVE;
+        if (srv.up(srv.getIp(), srv.getPort(), 5) != 0)
+            std::cout << gai_strerror(srv.err()) << std::endl;
 
-        if (getaddrinfo(srv.getIp(), srv.getNPort(), &addr, &res) < 0)
-            perror("getaddr");
-        struct sockaddr_in* a = (struct sockaddr_in*)res->ai_addr;
-        // std::cout << htonl(a->sin_addr.s_addr) << std::endl;
-        // int fd;
-
-        // if (!res)
-        // {
-        //     perror("asjgdagsd");
-        //     std::cout << "e.what" << std::endl;
-        //     exit(1);
-        // }
-
-        // if ((fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0)
-        // {
-        //     perror("socket"); 
-        // }
-
-        // if (bind(fd, (struct sockaddr *)res->ai_addr, res->ai_addrlen) < 0)
-        //     perror("asdasdasd");
-
-        // if (listen(fd, 100))
-        //     perror("asjdgagsdgasdasd");
-
-        // [0] -> 128          // 00000000 00000000 00000000 10000000
-        // [1] -> 32768        // 00000000 00000000 10000000 00000000
-        // [2] -> 8388608      // 00000000 10000000 00000000 00000000
-        // [3] -> 2147483648   // 10000000 00000000 00000000 00000000
-
-
+        // Tcp::up(HTTPServer const &srvRef);
     }
     catch(const std::exception& e)
     {
@@ -78,3 +47,32 @@ int main(int ac, char **av)
 
 // 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
 
+
+// struct sockaddr
+//   {
+//     __SOCKADDR_COMMON (sa_);	/* Common data: address family and length.  */
+//     char sa_data[14];		/* Address data.  */
+//   };
+
+// struct sockaddr_in
+//   {
+//     __SOCKADDR_COMMON (sin_);
+//     in_port_t sin_port;			/* Port number.  */
+//     struct in_addr sin_addr;		/* Internet address.  */
+//     /* Pad to size of `struct sockaddr'.  */
+//     unsigned char sin_zero[sizeof (struct sockaddr) - __SOCKADDR_COMMON_SIZE - sizeof (in_port_t) - sizeof (struct in_addr)];
+//   };
+
+
+
+// struct addrinfo
+// {
+//   int ai_flags;			/* Input flags.  */
+//   int ai_family;		/* Protocol family for socket.  */
+//   int ai_socktype;		/* Socket type.  */
+//   int ai_protocol;		/* Protocol for socket.  */
+//   socklen_t ai_addrlen;		/* Length of socket address.  */
+//   struct sockaddr *ai_addr;	/* Socket address for socket.  */
+//   char *ai_canonname;		/* Canonical name for service location.  */
+//   struct addrinfo *ai_next;	/* Pointer to next in list.  */
+// };

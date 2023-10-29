@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/28 15:44:09 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/29 23:30:36 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,12 @@ void HTTPServer::setPort(std::string const &port)
     this->portNumber = port;
 }
 
-uint16_t HTTPServer::getPort( void ) const
+uint16_t HTTPServer::getNPort( void ) const
 {
     return (this->port);
 }
 
-const char* HTTPServer::getNPort( void ) const
+const char* HTTPServer::getPort( void ) const
 {
     return (this->portNumber.c_str());
 }
@@ -84,6 +84,11 @@ void HTTPServer::setIp(std::string const &ipv)
 const char* HTTPServer::getIp( void ) const
 {
     return (this->ipv4.c_str());
+}
+
+uint32_t HTTPServer::getNIp( void ) const
+{
+    return (this->ip);
 }
 
 void HTTPServer::pushLocation(std::string const &prefix, Location locationDirective)
