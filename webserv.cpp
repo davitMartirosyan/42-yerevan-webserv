@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/29 23:40:18 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/29 23:41:08 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ int main(int ac, char **av)
             std::cout << gai_strerror(srv.err()) << std::endl;
 
         // Tcp::up(HTTPServer const &srvRef);
+        
     }
     catch(const std::exception& e)
     {
