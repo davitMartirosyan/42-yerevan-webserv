@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/31 14:05:34 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 00:51:52 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,11 @@ int main(int ac, char **av)
         rootLocation.pushIndex("pics.html");
         rootLocation.pushMethods("GET");
         rootLocation.setAutoindex("off");
-        srv.pushLocation("/pictures", rootLocation);
-        
+        srv.push("/pictures", rootLocation);
+        srv.push("www.example.com");
         try
         {
-            srv.up(srv);
+            srv.up();
         }
         catch(std::exception const &e)
         {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/31 14:05:43 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 00:51:52 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,9 +86,16 @@ uint32_t HTTPServer::getNIp( void ) const
     return (this->n_ip);
 }
 
-void HTTPServer::pushLocation(std::string const &prefix, Location locationDirective)
+void HTTPServer::push(std::string const &prefix, Location locationDirective)
 {
     this->locations.insert(std::make_pair(prefix, locationDirective));
+}
+
+void HTTPServer::push(std::string const &srvName)
+{
+    std::vector<std::string>::iterator it = std::find(ServerName.begin(), ServerName.end(), srvName);
+    if (it == ServerName.end())
+        ServerName.push_back(srvName);
 }
 
 const Location* HTTPServer::find(std::string const &prefix) const
@@ -99,23 +106,21 @@ const Location* HTTPServer::find(std::string const &prefix) const
     return (NULL);
 }
 
-int HTTPServer::up(HTTPServer const &srv)
+std::vector<std::string> const &HTTPServer::getServerNames( void ) const
+{
+    return (ServerName);
+}
+
+void HTTPServer::up( void )
 {
     int addrinfo = 0;
-	std::cout << ip << ":" << port << std::endl;
-	rules.ai_family = PF_UNSPEC;
-	rules.ai_flags = AI_PASSIVE;
-	rules.ai_socktype = SOCK_STREAM;
-	rules.ai_protocol = 0;
-	rules.ai_canonname = NULL;
-	if ((addrinfo = getaddrinfo(ip.c_str(), port.c_str(), &rules, &addrList)) < 0)
-		return (addrinfo);
-	else
-	{
-		Socket = (struct sockaddr_in*)addrList->ai_addr;
-        fd = socket(addrList->ai_family, addrList->ai_socktype, addrList->ai_protocol);
-        if (fd < 0)
-            
-	}
-	return (0);
+    const char* givenIp = ip.c_str() != NULL ? ip.c_str() : "0.0.0.0";
+    const char* givenPort = port.c_str() != NULL ? port.c_str() : "8080";
+    Tcp::setup(givenIp, givenPort);
+    Tcp::createSocket();
+    Tcp::bindSocket();
+    Tcp::listenSocket();
+    std::cout << ServerName[0] << ": Up" << std::endl;
+    std::cout << givenIp <<  ":" << givenPort << std::endl;
+    freeaddrinfo(addrList);
 }

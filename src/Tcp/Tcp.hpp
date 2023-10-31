@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:32:40 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/31 00:13:51 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 00:26:14 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,18 @@ class Tcp
 		// int up(const char* ip, const char* port, int backlog);
         const char* pton(uint32_t ipv) const;
 	protected:
+		void setup(const char* ip, const char* port);
+		void createSocket( void );
+		void bindSocket( void );
+		void listenSocket( void );
+	protected:
 		int fd;
 		int backlog;
 	protected:
 		struct addrinfo rules;
 		struct addrinfo* addrList;
 		struct sockaddr_in *Socket;
-		struct sockaddr SocketAddress;
+		struct sockaddr *SocketAddress;
 		struct sockaddr_storage SocketStorage;
 };
 

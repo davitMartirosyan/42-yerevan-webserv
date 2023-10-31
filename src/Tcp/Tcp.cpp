@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:34:14 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/31 00:20:47 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 00:51:52 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,3 +36,39 @@ const char* Tcp::pton(uint32_t ipv) const
     ip[i] = '\0';
     return (ip);
 }
+
+void Tcp::setup(const char* ip, const char* port)
+{
+    int addrinfo = 0;
+	rules.ai_family = PF_UNSPEC;
+	rules.ai_flags = AI_PASSIVE;
+	rules.ai_socktype = SOCK_STREAM;
+	rules.ai_protocol = 0;
+	rules.ai_canonname = NULL;
+	if ((addrinfo = getaddrinfo(ip, port, &rules, &addrList)) < 0)
+    {
+        freeaddrinfo(addrList);
+        throw HTTPCoreException(gai_strerror(addrinfo));
+    }
+    SocketAddress = addrList->ai_addr;
+}
+
+void Tcp::createSocket( void )
+{
+    fd = socket(addrList->ai_family, addrList->ai_socktype, addrList->ai_protocol);
+    if (fd < 0)
+        throw HTTPCoreException(strerror(errno)); 
+}
+
+void Tcp::bindSocket( void )
+{
+    if (bind(fd, SocketAddress, addrList->ai_addrlen) < 0)
+        throw HTTPCoreException(strerror(errno));
+}
+
+void Tcp::listenSocket( void )
+{
+    if (listen(fd, 32) < 0)
+        throw HTTPCoreException(strerror(errno));
+}
+

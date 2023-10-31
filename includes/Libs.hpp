@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Libs.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 06:37:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/27 10:11:53 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 00:51:52 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <algorithm>
 #include <limits.h>
 #include <arpa/inet.h>
 #include <netdb.h>
