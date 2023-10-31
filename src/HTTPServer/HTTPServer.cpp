@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/29 23:30:36 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/31 00:22:38 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,6 @@ HTTPServer::~HTTPServer()
     
 }
 
-int HTTPServer::getServerSocket( void )
-{
-    return (fd);
-}
-
 void HTTPServer::setPort(std::string const &port)
 {
     if (port.size() > 5)
@@ -34,18 +29,18 @@ void HTTPServer::setPort(std::string const &port)
     for(size_t i = 0; i < port.size(); i++)
         if (!std::isdigit(port[i]))
             throw HTTPCoreException("Port: Non digit character");
-    this->port = (uint16_t)std::atoi(port.c_str());
-    this->portNumber = port;
+    this->n_port = (uint16_t)std::atoi(port.c_str());
+    this->port = port;
 }
 
 uint16_t HTTPServer::getNPort( void ) const
 {
-    return (this->port);
+    return (this->n_port);
 }
 
 const char* HTTPServer::getPort( void ) const
 {
-    return (this->portNumber.c_str());
+    return (this->port.c_str());
 }
 
 void HTTPServer::setIp(std::string const &ipv)
@@ -78,17 +73,17 @@ void HTTPServer::setIp(std::string const &ipv)
     }
     if (k != 3)
         throw HTTPCoreException("Dots: syntax error");
-    this->ipv4 = ipv;
+    this->ip = ipv;
 }
 
 const char* HTTPServer::getIp( void ) const
 {
-    return (this->ipv4.c_str());
+    return (this->ip.c_str());
 }
 
 uint32_t HTTPServer::getNIp( void ) const
 {
-    return (this->ip);
+    return (this->n_ip);
 }
 
 void HTTPServer::pushLocation(std::string const &prefix, Location locationDirective)
@@ -104,10 +99,21 @@ const Location* HTTPServer::find(std::string const &prefix) const
     return (NULL);
 }
 
-Location* HTTPServer::find(std::string const &prefix)
+int HTTPServer::up(HTTPServer const &srv)
 {
-    std::map<std::string, Location>::iterator route = locations.find(prefix);
-    if (route != locations.end())
-        return (&route->second);
-    return (NULL);
+    int addrinfo = 0;
+	std::cout << ip << ":" << port << std::endl;
+	rules.ai_family = PF_UNSPEC;
+	rules.ai_flags = AI_PASSIVE;
+	rules.ai_socktype = SOCK_STREAM;
+	rules.ai_protocol = 0;
+	rules.ai_canonname = NULL;
+	if ((addrinfo = getaddrinfo(ip.c_str(), port.c_str(), &rules, &addrList)) < 0)
+		return (addrinfo);
+	else
+	{
+		Socket = (struct sockaddr_in*)addrList->ai_addr;
+		Socket->sin_family = addrList->ai_family;
+	}
+	return (0);
 }

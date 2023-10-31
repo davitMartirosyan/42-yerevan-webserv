@@ -6,13 +6,12 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/29 23:42:55 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/31 00:20:05 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Libs.hpp"
 #include "ServerManager.hpp"
-
 
 int main(int ac, char **av)
 {
@@ -34,11 +33,7 @@ int main(int ac, char **av)
         rootLocation.setAutoindex("off");
         srv.pushLocation("/pictures", rootLocation);
         
-        if (srv.up(srv.getIp(), srv.getPort(), 5) != 0)
-            std::cout << gai_strerror(srv.err()) << std::endl;
-
-        // Tcp::up(HTTPServer const &srvRef);
-        
+        srv.up(srv);
     }
     catch(const std::exception& e)
     {

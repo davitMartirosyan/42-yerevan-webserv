@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 09:23:04 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/29 15:48:34 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/31 00:15:21 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,15 @@ struct IListener
 		virtual void setIp(std::string const &ipv) = 0;
 		virtual void setPort(std::string const &port) = 0;
 		virtual const char* getIp( void ) const = 0;
+		virtual const char* getPort( void ) const = 0;
         virtual uint32_t getNIp( void ) const = 0;
 		virtual uint16_t getNPort( void ) const = 0;
-		virtual const char* getPort( void ) const = 0;
 	protected:
-		std::string portNumber;
-		std::string ipv4;
+		std::string ip;
+		std::string port;
 	protected:
-		uint16_t port;
-		uint32_t ip;
+		uint16_t n_port;
+		uint32_t n_ip;
 };
 
 
