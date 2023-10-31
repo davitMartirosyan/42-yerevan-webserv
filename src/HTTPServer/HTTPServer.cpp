@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/31 00:22:38 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/31 14:05:43 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,9 @@ int HTTPServer::up(HTTPServer const &srv)
 	else
 	{
 		Socket = (struct sockaddr_in*)addrList->ai_addr;
-		Socket->sin_family = addrList->ai_family;
+        fd = socket(addrList->ai_family, addrList->ai_socktype, addrList->ai_protocol);
+        if (fd < 0)
+            
 	}
 	return (0);
 }

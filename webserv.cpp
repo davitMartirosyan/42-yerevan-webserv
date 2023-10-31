@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/31 07:46:45 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/10/31 14:05:34 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,14 @@ int main(int ac, char **av)
         rootLocation.setAutoindex("off");
         srv.pushLocation("/pictures", rootLocation);
         
-        srv.up(srv);
+        try
+        {
+            srv.up(srv);
+        }
+        catch(std::exception const &e)
+        {
+            std::cout << e.what() << std::endl;
+        }
     }
     catch(const std::exception& e)
     {
