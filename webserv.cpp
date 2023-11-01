@@ -18,8 +18,8 @@ int main(int ac, char **av)
     try
     {   
         HTTPServer srv;
-        srv.setIp("127.0.0.1");
-        srv.setPort("8080");
+        srv.setIp("0.0.0.0");
+        srv.setPort("80");
         srv.setRoot("www/server1/");
         srv.setSize("200mb");
         srv.setAutoindex("on");

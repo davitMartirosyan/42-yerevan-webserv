@@ -62,6 +62,8 @@ void Tcp::createSocket( void )
 
 void Tcp::bindSocket( void )
 {
+    int l = 1;
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &l, sizeof(l));
     if (bind(fd, SocketAddress, addrList->ai_addrlen) < 0)
         throw HTTPCoreException(strerror(errno));
 }
@@ -80,5 +82,12 @@ sock_t Tcp::accept( void )
     if (client < 0)
         throw HTTPCoreException(strerror(errno));
     std::cout << client << std::endl;
+    char http[10];
+    std::string req;
+    while((recv(client, http, 10, 0)) > 0)
+    {
+        req.append(http);
+    }
+    std::cout << req << std::endl;
     return (client);
 }
