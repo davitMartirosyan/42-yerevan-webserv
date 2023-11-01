@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Tcp.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:34:14 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/01 00:53:07 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 08:42:38 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ Tcp::Tcp( void )
 	memset(&this->rules, 0, sizeof(rules));
 	memset(&this->Socket, 0, sizeof(Socket));
 	memset(&this->SocketAddress, 0, sizeof(SocketAddress));
-	memset(&this->SocketStorage, 0, sizeof(SocketStorage));
+	memset(&this->clntAddr, 0, sizeof(clntAddr));
 }
 
 Tcp::~Tcp()
@@ -72,3 +72,13 @@ void Tcp::listenSocket( void )
         throw HTTPCoreException(strerror(errno));
 }
 
+sock_t Tcp::accept( void )
+{
+    socklen_t clntSize = sizeof(clntAddr);
+    std::cout << fd << std::endl;
+    sock_t client = ::accept(fd, (struct sockaddr *)&clntAddr, &clntSize);
+    if (client < 0)
+        throw HTTPCoreException(strerror(errno));
+    std::cout << client << std::endl;
+    return (client);
+}

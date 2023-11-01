@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:10 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/29 15:27:46 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 08:07:16 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ class Client
         ~Client();
     public:
         sock_t getFd( void ) const;
+    public:
+        void setFd(sock_t fd);
     private:
         sock_t fd;
         const char* http;

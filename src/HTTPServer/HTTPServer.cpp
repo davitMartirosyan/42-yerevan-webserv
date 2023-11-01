@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/01 00:53:07 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 08:45:50 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,13 +114,13 @@ std::vector<std::string> const &HTTPServer::getServerNames( void ) const
 void HTTPServer::up( void )
 {
     int addrinfo = 0;
-    const char* givenIp = ip.c_str() != NULL ? ip.c_str() : "0.0.0.0";
-    const char* givenPort = port.c_str() != NULL ? port.c_str() : "8080";
+    const char* givenIp = !ip.empty() ? ip.c_str() : "0.0.0.0";
+    const char* givenPort = !port.empty() ? port.c_str() : "8080";
     Tcp::setup(givenIp, givenPort);
     Tcp::createSocket();
     Tcp::bindSocket();
     Tcp::listenSocket();
-    std::cout << ServerName[0] << ": Up" << std::endl;
     std::cout << givenIp <<  ":" << givenPort << std::endl;
+    std::cout << ServerName[0] << ": Up" << std::endl;
     freeaddrinfo(addrList);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/01 00:53:07 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 07:58:49 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,13 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
 		virtual uint16_t getNPort( void ) const;
     public:
         void push(std::string const &prefix, Location locationDirective);
+        void push(sock_t, Client);
         void push(std::string const &srvName);
     public:
         const Location *find(std::string const &prefix) const;
         std::vector<std::string> const &getServerNames( void ) const;
     private:
         std::vector<std::string> ServerName;
-    private:
         std::map<sock_t, Client> clnt;                     // [Clients]
         std::map<std::string, Location> locations;      // <prefix, LocationDirective>  location / {Location}
 };
