@@ -32,7 +32,7 @@ int main(int ac, char **av)
         rootLocation.pushMethods("GET");
         rootLocation.setAutoindex("off");
         srv.push("/pictures", rootLocation);
-        srv.push("www.example.com");
+        srv.push("aws.amazon.webserv.com");
         try
         {
             srv.up();
@@ -42,29 +42,14 @@ int main(int ac, char **av)
             std::cout << e.what() << std::endl;
         }
 
-
         while (1)
         {
-            sock_t newClient = srv.accept();
-            std::cout << newClient << std::endl;
-            if (newClient > 0)
+            sock_t client = srv.accept();
+            if (client > 0)
             {
-                if (!srv.exist(newClient))
-                {
-                    std::cout << "does not exist" << std::endl;
-                    Client client(newClient);
-                    // srv.push(newClient, client);
-                    // srv.request(client);
-                    // srv.push(newClient, client);
-                    // int buf = 0;
-                    // char http[1000];
-                    // std::string hreq;
-                    // buf = recv(client.getFd(), http, sizeof(http), 0);
-                    // hreq.append(http);
-                    // std::cout << hreq << std::endl;
-                }
-                else
-                    std::cout << "Client Exist" << std::endl;
+                Client cl(client);
+                srv.request(cl);
+                
             }
         }
     }

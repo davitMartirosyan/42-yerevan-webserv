@@ -15,10 +15,11 @@
 
 #define READ_BUFFER             150000
 #define WRITE_BUFFER            150000
-#define DEFAULT_HTTP_PERM_PORT  80
-#define DEFAULT_HTTP_PORT       8080
+#define DEFAULT_HTTP_PERM_PORT  "80"
+#define DEFAULT_HTTP_PORT       "8080"
+#define DEFAULT_MASK            "0.0.0.0"
 #define CONFIGS "./conf/"
-#define DFLT "./conf/webs erv.conf"
+#define DFLT CONFIGS"webserv.conf"
 #include "../src/HTTPCoreException/HTTPCoreException.hpp"
 #include "../src/ServerCore/ServerCore.hpp"
 #include "../src/core/core.hpp"

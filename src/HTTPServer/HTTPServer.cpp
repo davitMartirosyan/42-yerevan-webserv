@@ -114,8 +114,8 @@ std::vector<std::string> const &HTTPServer::getServerNames( void ) const
 void HTTPServer::up( void )
 {
     int addrinfo = 0;
-    const char* givenIp = !ip.empty() ? ip.c_str() : "0.0.0.0";
-    const char* givenPort = !port.empty() ? port.c_str() : "8080";
+    const char* givenIp = !ip.empty() ? ip.c_str() : DEFAULT_MASK;
+    const char* givenPort = !port.empty() ? port.c_str() : DEFAULT_HTTP_PORT;
     Tcp::setup(givenIp, givenPort);
     Tcp::createSocket();
     Tcp::bindSocket();
@@ -135,14 +135,10 @@ bool HTTPServer::exist(sock_t fd)
     return (clnt.find(fd) != clnt.end());
 }
 
-// void HTTPServer::request(Client &cl)
-// {
-//     int buf = 0;
-//     char http[READ_BUFFER];
-//     while ((buf = recv(cl.getFd(), http, sizeof(http), 0)) > 0)
-//     {
-//         cl.append(http);
-//     }
-//     std::cout << "hasa" << std::endl;
-//     std::cout << cl.getHttpRequest() << std::endl;   
-// }
+void HTTPServer::request(Client &cl)
+{
+    int buf = 0;
+    char http[READ_BUFFER];
+    buf = recv(cl.getFd(), http, sizeof(http), 0);
+    std::cout << "hasa" << std::endl;
+}

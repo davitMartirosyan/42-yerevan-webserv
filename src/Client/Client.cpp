@@ -29,13 +29,3 @@ sock_t Client::getFd( void ) const
 Client::~Client()
 {
 }
-
-void Client::setFd(sock_t fd)
-{
-    this->fd = fd;
-}
-
-void Client::append(char *http)
-{
-    httpRequest.append(http);
-}

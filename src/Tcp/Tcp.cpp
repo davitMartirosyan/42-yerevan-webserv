@@ -78,7 +78,6 @@ sock_t Tcp::accept( void )
 {
     socklen_t clntSize = sizeof(clntAddr);
     sock_t client = ::accept(fd, (struct sockaddr *)&clntAddr, &clntSize);
-    fcntl(client, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
     if (client < 0)
         return (-1);
     return (client);

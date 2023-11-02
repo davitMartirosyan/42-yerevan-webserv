@@ -19,8 +19,6 @@ class HTTPRequest
 	public:
 		HTTPRequest( void );
 		~HTTPRequest();
-	public:
-		std::string const &getHttpRequest( void ) const;
     protected:
 		const char* http;
         std::string httpRequest;

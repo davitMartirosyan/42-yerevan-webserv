@@ -14,7 +14,6 @@
 #define CLIENT_HPP
 #include "Libs.hpp"
 #include "../HTTPRequest/HTTPRequest.hpp"
-#include "../Tcp/Tcp.hpp"
 
 class Client : public HTTPRequest
 {
@@ -24,10 +23,6 @@ class Client : public HTTPRequest
         ~Client();
     public:
         sock_t getFd( void ) const;
-    public:
-        void setFd(sock_t fd);
-        void append(char *http);
-        void parseRequest( void );
     private:
         sock_t fd;
     private:

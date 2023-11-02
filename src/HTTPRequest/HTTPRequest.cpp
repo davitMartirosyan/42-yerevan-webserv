@@ -20,7 +20,3 @@ HTTPRequest::~HTTPRequest()
 {
 }
 
-std::string const &HTTPRequest::getHttpRequest( void ) const
-{
-	return (this->httpRequest);
-}
