@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 00:41:12 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 23:50:13 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,4 +28,9 @@ sock_t Client::getFd( void ) const
 
 Client::~Client()
 {
+}
+
+void Client::request(ServerManager &mgn)
+{
+    (void)mgn;
 }

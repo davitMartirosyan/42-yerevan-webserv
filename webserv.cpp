@@ -6,42 +6,67 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 22:14:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/03 00:20:44 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Libs.hpp"
 #include "ServerManager.hpp"
-#include "HTTPServer.hpp"
+
 int main(int ac, char **av)
 {
+    (void)ac;
+    (void)av;
     try
     {   
-        HTTPServer srv;
-        srv.setIp("0.0.0.0");
-        srv.setPort("80");
-        srv.setRoot("www/server1/");
-        srv.setSize("200mb");
-        srv.setAutoindex("on");
-        srv.pushIndex("index.html");
-        srv.pushMethods("GET");
-        srv.pushMethods("POST");
-        srv.push("aws.amazon.webserv.com");
+
+        ServerManager mgn("conf/webserv.conf");
+        HTTPServer srv, srv1;
+        ///////////////////////////////////IN PARSING//////////////////////////////////
         
-        Location rootLocation; // "/";
-        rootLocation.setRoot("/");
-        rootLocation.pushIndex("pics.html");
-        rootLocation.pushMethods("GET");
-        rootLocation.setAutoindex("off");
+            srv.setIp("0.0.0.0");
+            srv.setPort("80");
+            srv.setRoot("www/server1/");
+            srv.setSize("200mb");
+            srv.setAutoindex("on");
+            srv.pushIndex("index.html");
+            srv.pushMethods("GET");
+            srv.pushMethods("POST");
+            srv.push("aws.amazon.webserv.com");
+            
+            Location rootLocation; // "/";
+            rootLocation.setRoot("/");
+            rootLocation.pushIndex("pics.html");
+            rootLocation.pushMethods("GET");
+            rootLocation.setAutoindex("off");
+            
+            mgn.push_back(srv);
+            
+        ///////////////////////////////////////////////////////////////////////////////
         
-        srv.push("/pictures", rootLocation);
-        
-        
+        try
+        {
+            for(size_t i = 0; i < mgn.size(); i++)
+            {
+                mgn[i].up();
+                int cl = mgn[i].accept();
+                if (!mgn[i].exist(cl))
+                {
+                    std::cout << "not exist" << std::endl;
+                }
+            }
+        }
+        catch(std::exception const &e)
+        {
+            std::cout << e.what() << std::endl;
+        }
     }
     catch(const std::exception& e)
     {
         std::cout << e.what() << '\n';
     }
+
+   
 }
 
 // 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

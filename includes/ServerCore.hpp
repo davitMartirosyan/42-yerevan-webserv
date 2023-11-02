@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HTTP_CORE_HPP
-#define HTTP_CORE_HPP
+#ifndef SRV_CORE_HPP
+#define SRV_CORE_HPP
 #include "Libs.hpp"
 
 struct ServerCore

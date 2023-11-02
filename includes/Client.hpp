@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:10 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 22:14:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 23:48:57 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,11 @@
 #define CLIENT_HPP
 #include "Libs.hpp"
 #include "HTTPRequest.hpp"
+#include "ServerManager.hpp"
+// #include "HTTPServer.hpp"
+
+// class HTTPServer;
+class ServerManager;
 
 class Client : public HTTPRequest
 {
@@ -21,6 +26,8 @@ class Client : public HTTPRequest
         Client( void );
         Client(sock_t clfd);
         ~Client();
+    public:
+        void request(ServerManager &mgn);
     public:
         sock_t getFd( void ) const;
     private:

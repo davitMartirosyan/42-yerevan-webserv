@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 09:23:04 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 22:14:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 23:03:07 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,12 @@ struct IListener
         virtual uint32_t getNIp( void ) const = 0;
 		virtual uint16_t getNPort( void ) const = 0;
 	protected:
-		std::string ip;
-		std::string port;
-	protected:
-		uint16_t n_port;
-		uint32_t n_ip;
+        std::string ip;
+        std::string port;
+    protected:
+        uint16_t n_port;
+        uint32_t n_ip;
+
 };
 
 

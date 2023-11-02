@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 21:31:51 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 23:41:45 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,6 @@ std::vector<std::string> const &HTTPServer::getServerNames( void ) const
 
 void HTTPServer::up( void )
 {
-    int addrinfo = 0;
     const char* givenIp = !ip.empty() ? ip.c_str() : DEFAULT_MASK;
     const char* givenPort = !port.empty() ? port.c_str() : DEFAULT_HTTP_PORT;
     Tcp::setup(givenIp, givenPort);
@@ -144,3 +143,97 @@ void HTTPServer::request(Client &cl)
     std::cout << http << std::endl;
     std::cout << "hasa" << std::endl;
 }
+
+
+
+//ServerCore////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+/***************************************************************** */
+
+// int HTTPServer::getClientBodySize( void )
+// {
+// 	return (client_body_size);
+// }
+
+// void HTTPServer::pushIndex(std::string const &fileNameExample)
+// {
+// 	index.push_back(fileNameExample);
+// }
+
+// void HTTPServer::pushMethods(std::string const &method)
+// {
+// 	std::string capitalized = method;
+// 	for(size_t i = 0; i < method.size(); i++)
+// 		capitalized[i] = std::toupper(capitalized[i]);
+// 	methods.push_back(capitalized);
+// }
+
+// std::vector<std::string> HTTPServer::getIndexFiles( void ) const
+// {
+// 	return (this->index);
+// }
+
+// std::vector<std::string> HTTPServer::getMethods( void ) const
+// {
+// 	return (this->methods);
+// }
+
+// void HTTPServer::setRoot(std::string const &root)
+// {
+// 	this->root = root;
+// }
+
+// std::string const &HTTPServer::getRoot( void ) const
+// {
+// 	return (this->root);
+// }
+
+// const char* HTTPServer::findIndex(std::string const &filename) const
+// {
+// 	size_t i = 0;
+// 	for(; i < index.size(); i++)
+// 		if (index[i] == filename)
+// 			return (index[i].c_str());
+// 	return (NULL);
+// }
+
+// const char* HTTPServer::findMethod(std::string const &method) const
+// {
+// 	size_t i = 0;
+// 	for(; i < methods.size(); i++)
+// 		if (methods[i] == method)
+// 			return (methods[i].c_str());
+// 	return (NULL);
+// }
+
+// const char* HTTPServer::findErrorPage(std::string const &status_code)
+// {
+// 	std::map<std::string, std::string>::iterator it = error_page.find(status_code);
+// 	if (it != error_page.end())
+// 		return (it->second.c_str());
+// 	return (NULL);
+// }
+
+// void HTTPServer::setAutoindex(std::string const &sw)
+// {
+// 	(sw == "on") ? this->autoindex = 1 : this->autoindex = 0;
+// }
+
+// void HTTPServer::pushErrPage(std::string const &key, std::string const &errpage_filename)
+// {
+// 	error_page.insert(std::make_pair(key, errpage_filename));
+// }
+
+// void HTTPServer::setSize(std::string const &bodySize)
+// {
+// 	unsigned long long int toLong = std::strtoull(bodySize.c_str(), NULL, 10);
+// 	if (errno == ERANGE && toLong == ULLONG_MAX)
+// 		this->client_body_size = 200;
+// 	else
+// 		this->client_body_size = toLong * 1048576 / 1;
+// }
+
+// bool HTTPServer::getAutoindex( void ) const
+// {
+// 	return (autoindex);
+// }

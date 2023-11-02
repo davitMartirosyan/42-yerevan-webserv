@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:34:14 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/01 22:24:00 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 23:42:51 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ const char* Tcp::pton(uint32_t ipv) const
     std::stringstream ss;
     ss << ((int)(ipv >> 24) & 0XFF) << "." << ((int)(ipv >> 16) & 0XFF) << "." << ((int)(ipv >> 8) & 0XFF) << "." << ((int)(ipv) & 0XFF);
     int i = -1;
-    while (++i < ss.str().size())
+    while (++i < (int)ss.str().size())
         ip[i] = ss.str().c_str()[i];
     ip[i] = '\0';
     return (ip);

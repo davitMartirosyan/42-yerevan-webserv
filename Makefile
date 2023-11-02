@@ -1,6 +1,6 @@
 NAME = webserv
 CPP = c++
-CPP_FLAGS = -I includes/ -std=c++98 #-fsanitize=address -g #-Wall -Wextra -Werror
+CPP_FLAGS = -I includes/ -std=c++98 #-fsanitize=address -g -Wall -Wextra -Werror
 SRC = $(shell find . -name "*.cpp")
 OBJ = $(SRC:.cpp=.o)
 HEADER = $(shell find . -name "*.hpp")

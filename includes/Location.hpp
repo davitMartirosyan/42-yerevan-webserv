@@ -6,13 +6,14 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 16:03:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 22:14:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 23:01:11 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LOCATION_HPP
-#define LOCATION_HPP
+#pragma once
 #include "Libs.hpp"
+#include "ServerCore.hpp"
+
 
 class Location : public ServerCore
 {
@@ -20,5 +21,3 @@ class Location : public ServerCore
         Location( void );
         ~Location();
 };
-
-#endif

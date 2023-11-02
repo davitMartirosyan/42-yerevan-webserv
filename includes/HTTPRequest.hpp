@@ -6,12 +6,12 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 22:14:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 23:11:51 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HTTPREQUEST_HPP
-#define HTTPREQUEST_HPP
+#ifndef REQ_HPP
+#define REQ_HPP
 #include "Libs.hpp"
 
 class HTTPRequest
