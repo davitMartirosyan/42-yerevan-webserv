@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/01 07:58:49 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 00:45:52 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include "../Location/Location.hpp"
 #include "../Client/Client.hpp"
 #include "../Tcp/Tcp.hpp"
-
 
 class HTTPServer : public Tcp, public IListener, public ServerCore
 {
@@ -34,11 +33,15 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
 		virtual uint16_t getNPort( void ) const;
     public:
         void push(std::string const &prefix, Location locationDirective);
-        void push(sock_t, Client);
+        void push(sock_t clFd, Client &clt);
         void push(std::string const &srvName);
     public:
         const Location *find(std::string const &prefix) const;
+        bool exist(sock_t fd);
+        // const Client* find(sock_t fd) const;
         std::vector<std::string> const &getServerNames( void ) const;
+    public:
+        void request(Client &cl);
     private:
         std::vector<std::string> ServerName;
         std::map<sock_t, Client> clnt;                     // [Clients]

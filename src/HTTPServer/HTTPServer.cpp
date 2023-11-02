@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/01 08:45:50 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 00:53:40 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,3 +124,25 @@ void HTTPServer::up( void )
     std::cout << ServerName[0] << ": Up" << std::endl;
     freeaddrinfo(addrList);
 }
+
+void HTTPServer::push(sock_t clFd, Client &clt)
+{
+    clnt.insert(std::make_pair(clFd, clt));
+}
+
+bool HTTPServer::exist(sock_t fd)
+{
+    return (clnt.find(fd) != clnt.end());
+}
+
+// void HTTPServer::request(Client &cl)
+// {
+//     int buf = 0;
+//     char http[READ_BUFFER];
+//     while ((buf = recv(cl.getFd(), http, sizeof(http), 0)) > 0)
+//     {
+//         cl.append(http);
+//     }
+//     std::cout << "hasa" << std::endl;
+//     std::cout << cl.getHttpRequest() << std::endl;   
+// }

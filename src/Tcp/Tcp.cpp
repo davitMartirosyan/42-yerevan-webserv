@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Tcp.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:34:14 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/01 08:42:38 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/01 22:24:00 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,17 +77,9 @@ void Tcp::listenSocket( void )
 sock_t Tcp::accept( void )
 {
     socklen_t clntSize = sizeof(clntAddr);
-    std::cout << fd << std::endl;
     sock_t client = ::accept(fd, (struct sockaddr *)&clntAddr, &clntSize);
+    fcntl(client, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
     if (client < 0)
-        throw HTTPCoreException(strerror(errno));
-    std::cout << client << std::endl;
-    char http[10];
-    std::string req;
-    while((recv(client, http, 10, 0)) > 0)
-    {
-        req.append(http);
-    }
-    std::cout << req << std::endl;
+        return (-1);
     return (client);
 }

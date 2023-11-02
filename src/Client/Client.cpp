@@ -3,19 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/01 08:07:09 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 00:41:12 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
+Client::Client( void )
+{
+}
+
 Client::Client(sock_t clfd)
 {
     this->fd = clfd;
-    this->http = new char[READ_BUFFER];
 }
 
 sock_t Client::getFd( void ) const
@@ -25,10 +28,14 @@ sock_t Client::getFd( void ) const
 
 Client::~Client()
 {
-    delete [] this->http;
 }
 
 void Client::setFd(sock_t fd)
 {
     this->fd = fd;
+}
+
+void Client::append(char *http)
+{
+    httpRequest.append(http);
 }
