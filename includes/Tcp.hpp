@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Tcp.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:32:40 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/01 08:24:37 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 21:55:32 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef TCP_HPP
 #define TCP_HPP
 #include "Libs.hpp"
-#include "../Client/Client.hpp"
 
 class Tcp
 {

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 00:53:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 21:31:51 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,5 +140,7 @@ void HTTPServer::request(Client &cl)
     int buf = 0;
     char http[READ_BUFFER];
     buf = recv(cl.getFd(), http, sizeof(http), 0);
+    http[buf] = '\0';
+    std::cout << http << std::endl;
     std::cout << "hasa" << std::endl;
 }

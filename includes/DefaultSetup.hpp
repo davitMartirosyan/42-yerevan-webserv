@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 14:06:06 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/10/29 23:31:01 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 21:54:41 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,13 @@
 #define DEFAULT_MASK            "0.0.0.0"
 #define CONFIGS "./conf/"
 #define DFLT CONFIGS"webserv.conf"
-#include "../src/HTTPCoreException/HTTPCoreException.hpp"
-#include "../src/ServerCore/ServerCore.hpp"
-#include "../src/core/core.hpp"
+
 typedef int sock_t;
+
+#include "ServerManager.hpp"
+#include "ServerCore.hpp"
+#include "HTTPServer.hpp"
+#include "HTTPCoreException.hpp"
+#include "core.hpp"
 
 #endif

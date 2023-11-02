@@ -1,34 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
+/*   HTTPCoreException.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/24 10:29:10 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 00:40:16 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/10/25 22:53:23 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/11/02 21:52:23 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#ifndef HTTP_CORE_EXCEPTIONS_HPP
+#define HTTP_CORE_EXCEPTIONS_HPP
 #include "Libs.hpp"
-#include "../HTTPRequest/HTTPRequest.hpp"
 
-class Client : public HTTPRequest
+class HTTPCoreException : public std::exception
 {
-    public:
-        Client( void );
-        Client(sock_t clfd);
-        ~Client();
-    public:
-        sock_t getFd( void ) const;
-    private:
-        sock_t fd;
-    private:
-        struct sockaddr_in ClientInfo;
-        struct sockaddr ClientAddress;
-        struct sockaddr_storage addressStorage;
+	public:
+		HTTPCoreException(const char *msg);
+		virtual ~HTTPCoreException() throw();
+		virtual const char* what( void ) const throw();
+	private:
+		std::string err;
 };
 
 #endif

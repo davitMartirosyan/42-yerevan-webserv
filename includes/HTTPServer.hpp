@@ -6,16 +6,16 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 00:45:52 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 22:14:40 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPSERVER_HPP
 #define HTTPSERVER_HPP
 #include "Libs.hpp"
-#include "../Location/Location.hpp"
-#include "../Client/Client.hpp"
-#include "../Tcp/Tcp.hpp"
+#include "Location.hpp"
+#include "Client.hpp"
+#include "Tcp.hpp"
 
 class HTTPServer : public Tcp, public IListener, public ServerCore
 {
@@ -38,7 +38,6 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
     public:
         const Location *find(std::string const &prefix) const;
         bool exist(sock_t fd);
-        // const Client* find(sock_t fd) const;
         std::vector<std::string> const &getServerNames( void ) const;
     public:
         void request(Client &cl);

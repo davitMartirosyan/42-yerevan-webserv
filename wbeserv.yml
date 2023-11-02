@@ -21,3 +21,23 @@
     ip[i] = '\0';
     return (ip);
 }
+
+
+        // try
+        // {
+        //     srv.up();
+        // }
+        // catch(std::exception const &e)
+        // {
+        //     std::cout << e.what() << std::endl;
+        // }
+        
+        // while (1)
+        // {
+        //     sock_t client = srv.accept();
+        //     if (client > 0)
+        //     {
+        //         Client cl(client);
+        //         srv.request(cl);
+        //     }
+        // }

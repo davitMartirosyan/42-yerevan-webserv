@@ -6,13 +6,13 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 00:58:06 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/02 22:14:40 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Libs.hpp"
 #include "ServerManager.hpp"
-
+#include "HTTPServer.hpp"
 int main(int ac, char **av)
 {
     try
@@ -26,32 +26,17 @@ int main(int ac, char **av)
         srv.pushIndex("index.html");
         srv.pushMethods("GET");
         srv.pushMethods("POST");
+        srv.push("aws.amazon.webserv.com");
+        
         Location rootLocation; // "/";
         rootLocation.setRoot("/");
         rootLocation.pushIndex("pics.html");
         rootLocation.pushMethods("GET");
         rootLocation.setAutoindex("off");
+        
         srv.push("/pictures", rootLocation);
-        srv.push("aws.amazon.webserv.com");
-        try
-        {
-            srv.up();
-        }
-        catch(std::exception const &e)
-        {
-            std::cout << e.what() << std::endl;
-        }
-
-        while (1)
-        {
-            sock_t client = srv.accept();
-            if (client > 0)
-            {
-                Client cl(client);
-                srv.request(cl);
-                
-            }
-        }
+        
+        
     }
     catch(const std::exception& e)
     {
@@ -60,7 +45,6 @@ int main(int ac, char **av)
 }
 
 // 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
-
 // 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
 // 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
 
