@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/03 00:20:44 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/04 17:08:27 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,12 @@ int main(int ac, char **av)
     {   
 
         ServerManager mgn("conf/webserv.conf");
-        HTTPServer srv, srv1;
         ///////////////////////////////////IN PARSING//////////////////////////////////
-        
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+            HTTPServer srv;
             srv.setIp("0.0.0.0");
-            srv.setPort("80");
+            srv.setPort("8080");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -38,34 +39,18 @@ int main(int ac, char **av)
             rootLocation.setRoot("/");
             rootLocation.pushIndex("pics.html");
             rootLocation.pushMethods("GET");
-            rootLocation.setAutoindex("off");
-            
-            mgn.push_back(srv);
-            
+            rootLocation.setAutoindex("off"); 
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
         
-        try
-        {
-            for(size_t i = 0; i < mgn.size(); i++)
-            {
-                mgn[i].up();
-                int cl = mgn[i].accept();
-                if (!mgn[i].exist(cl))
-                {
-                    std::cout << "not exist" << std::endl;
-                }
-            }
-        }
-        catch(std::exception const &e)
-        {
-            std::cout << e.what() << std::endl;
-        }
+        srv.up(mgn);
+            mgn.push_back(srv);
     }
-    catch(const std::exception& e)
+    catch(std::exception const &e)
     {
-        std::cout << e.what() << '\n';
+        std::cout << e.what() << std::endl;
     }
-
    
 }
 

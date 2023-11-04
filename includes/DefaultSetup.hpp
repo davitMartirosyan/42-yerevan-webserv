@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 14:06:06 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 23:00:36 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/04 14:16:41 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #define CONFIGS "./conf/"
 #define DFLT CONFIGS"webserv.conf"
 
-typedef int sock_t;
+typedef int         sock_t;
 #include "HTTPCoreException.hpp"
 
 #endif

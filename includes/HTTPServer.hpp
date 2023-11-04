@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 23:12:58 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/04 15:38:34 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@
 #include "Location.hpp"
 #include "Client.hpp"
 #include "ServerCore.hpp"
+#include "ServerManager.hpp"
 
+class ServerManager;
 class Location;
 class Client;
 class HTTPServer : public Tcp, public IListener, public ServerCore 
@@ -27,7 +29,7 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
         HTTPServer( void );
         ~HTTPServer();
     public:
-		 void up( void );
+		 void up(ServerManager const &mgn);
     public:
         void push(std::string const &prefix, Location locationDirective);
         void push(sock_t clFd, Client &clt);
@@ -42,7 +44,6 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
         std::vector<std::string> ServerName;
         std::map<sock_t, Client> clnt;                   // [Clients]
         std::map<std::string, Location> locations;      // <prefix, LocationDirective>  location / {Location}
-
     public: //ip port interface
 		virtual void setPort(std::string const &port);
 		virtual void setIp(std::string const &ipv);
@@ -50,6 +51,9 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
 		virtual const char* getPort( void ) const;
         virtual uint32_t getNIp( void ) const;
 		virtual uint16_t getNPort( void ) const;
+    public:
+        bool operator==(HTTPServer const &);
+        
 };
 
 #endif

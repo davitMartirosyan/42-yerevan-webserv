@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 23:41:45 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/04 16:30:01 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 
 HTTPServer::HTTPServer( void )
 {
-    
+    //defualt initializations
+    this->port = DEFAULT_HTTP_PORT;
+    this->ip = DEFAULT_MASK;
 }
 
 HTTPServer::~HTTPServer()
@@ -40,7 +42,7 @@ uint16_t HTTPServer::getNPort( void ) const
 
 const char* HTTPServer::getPort( void ) const
 {
-    return (this->port.c_str());
+    return (port.c_str());
 }
 
 void HTTPServer::setIp(std::string const &ipv)
@@ -111,17 +113,21 @@ std::vector<std::string> const &HTTPServer::getServerNames( void ) const
     return (ServerName);
 }
 
-void HTTPServer::up( void )
+void HTTPServer::up(ServerManager const &mgn)
 {
-    const char* givenIp = !ip.empty() ? ip.c_str() : DEFAULT_MASK;
-    const char* givenPort = !port.empty() ? port.c_str() : DEFAULT_HTTP_PORT;
-    Tcp::setup(givenIp, givenPort);
-    Tcp::createSocket();
-    Tcp::bindSocket();
-    Tcp::listenSocket();
-    std::cout << givenIp <<  ":" << givenPort << std::endl;
-    std::cout << ServerName[0] << ": Up" << std::endl;
-    freeaddrinfo(addrList);
+    if (!mgn.used(this))
+    {
+        const char* givenIp = ip.c_str();
+        const char* givenPort = port.c_str();
+        Tcp::setup(givenIp, givenPort);
+        Tcp::createSocket();
+        Tcp::bindSocket();
+        Tcp::listenSocket();
+        std::cout << givenIp <<  ":" << givenPort << std::endl;
+        freeaddrinfo(addrList); 
+    }
+    else
+        std::cout << "{Already:used}" << std::endl;
 }
 
 void HTTPServer::push(sock_t clFd, Client &clt)
@@ -141,10 +147,15 @@ void HTTPServer::request(Client &cl)
     buf = recv(cl.getFd(), http, sizeof(http), 0);
     http[buf] = '\0';
     std::cout << http << std::endl;
-    std::cout << "hasa" << std::endl;
 }
 
-
+bool HTTPServer::operator==(HTTPServer const &sibling)
+{
+    if (std::strcmp(this->getIp(), sibling.getIp()) == 0 \
+        && std::strcmp(this->getPort(),sibling.getPort()) == 0)
+      return (true);  
+    return (false);
+}
 
 //ServerCore////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////

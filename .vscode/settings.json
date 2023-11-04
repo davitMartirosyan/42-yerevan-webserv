@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.bem": "cuda-cpp",
         "ostream": "cpp",
         "iosfwd": "cpp",
         "__bit_reference": "cpp",
@@ -63,6 +64,15 @@
         "unordered_map": "cpp",
         "utility": "cpp",
         "vector": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "*.tcc": "cpp",
+        "clocale": "cpp",
+        "cmath": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "memory_resource": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "numbers": "cpp"
     }
 }
