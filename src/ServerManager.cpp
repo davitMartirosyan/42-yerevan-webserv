@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/04 16:52:25 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/05 17:20:46 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,13 @@ void ServerManager::set_r(sock_t fd)
 
 int ServerManager::used(HTTPServer *srv) const
 {
-    for(size_t i = 0; this->size(); i++)
-        if ( std::strcmp((*this)[i].getPort(), srv->getPort()) == 0)
-            return (-1);
+    if (!this->empty())
+    {
+        std::cout << "ooooppppsss" << std::endl;
+        for(size_t i = 0; this->size(); i++)
+            if (std::strcmp((*this)[i].getPort(), srv->getPort()) == 0)
+                return (-1);
+    }
     return (0);
 }
 
@@ -58,3 +62,8 @@ fd_set ServerManager::e_set( void ) const
 {
     return (s_except);
 }
+
+// void ServerManager::push(HTTPServer const &srv)
+// {
+//     srvs.push_back(srv);
+// }

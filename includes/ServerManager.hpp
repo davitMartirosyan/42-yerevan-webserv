@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:52:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/04 16:55:48 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/05 17:05:07 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,10 @@ class ServerManager : public std::vector<HTTPServer>
         ~ServerManager();
     public:
         int used(HTTPServer *srv) const;
+    public:
+        // void push(HTTPServer const &srv);
     private:
-        std::vector<HTTPServer> srvs;
+        // std::vector<HTTPServer> srvs;
     public:
         void set_w(sock_t fd);
         void set_r(sock_t fd);

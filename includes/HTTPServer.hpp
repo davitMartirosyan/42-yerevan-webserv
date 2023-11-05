@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/04 15:38:34 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/05 17:09:56 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
 		virtual uint16_t getNPort( void ) const;
     public:
         bool operator==(HTTPServer const &);
-        
 };
 
 #endif

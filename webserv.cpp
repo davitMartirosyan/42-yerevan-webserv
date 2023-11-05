@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/04 17:08:27 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/05 17:14:40 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
             srv.setIp("0.0.0.0");
-            srv.setPort("8080");
+            srv.setPort("5555");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -44,8 +44,15 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
         
+        HTTPServer srv1;
+        
         srv.up(mgn);
             mgn.push_back(srv);
+        
+        srv1.setPort("1010");
+        srv1.up(mgn);
+            mgn.push_back(srv1);
+        
     }
     catch(std::exception const &e)
     {
@@ -53,6 +60,9 @@ int main(int ac, char **av)
     }
    
 }
+
+
+
 
 // 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
 // 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
