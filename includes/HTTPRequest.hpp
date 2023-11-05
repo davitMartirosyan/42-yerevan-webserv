@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 23:11:51 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/05 20:44:59 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@ class HTTPRequest
 		~HTTPRequest();
     protected:
 		const char* http;
+        std::string method;
+        std::string path;
+        std::string version;
         std::string httpRequest;
         std::string requestLine;
         std::string body;

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:34:14 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/05 17:19:29 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/05 20:48:15 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,8 @@ void Tcp::bindSocket( void )
 {
     int l = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &l, sizeof(l));
-    if (fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) < 0)
-        throw HTTPCoreException(strerror(errno));
+    // if (fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) < 0)
+    //     throw HTTPCoreException(strerror(errno));
     if (bind(fd, SocketAddress, addrList->ai_addrlen) < 0)
         throw HTTPCoreException(strerror(errno));
 }
