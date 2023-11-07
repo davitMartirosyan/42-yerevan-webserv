@@ -6,13 +6,13 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:34:14 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/05 20:48:15 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/08 01:32:35 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Tcp.hpp"
 
-Tcp::Tcp( void )
+Tcp::Tcp( void ) : fd(-1), backlog(-1)
 {
 	memset(&this->rules, 0, sizeof(rules));
 	memset(&this->Socket, 0, sizeof(Socket));
@@ -57,7 +57,7 @@ void Tcp::createSocket( void )
 {
     fd = socket(addrList->ai_family, addrList->ai_socktype, addrList->ai_protocol);
     if (fd < 0)
-        throw HTTPCoreException(strerror(errno)); 
+        throw HTTPCoreException(strerror(errno));
 }
 
 void Tcp::bindSocket( void )

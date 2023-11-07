@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/05 21:03:14 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/08 02:13:17 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
-            srv.setIp("0.0.0.0");
-            srv.setPort("22");
+            srv.setIp("127.0.0.1");
+            srv.setPort("8080");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -43,13 +43,50 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
-        
-      srv.up(mgn);
-        mgn.push_back(srv);
-        sock_t cl = srv.accept();
-        if (cl > 0)
+        srv.up(mgn);
+            mgn.push_back(srv);
+        // for(size_t i = 0; i < 3; i++)
+        // {
+        //     HTTPServer s1;
+        //     s1.setPort(ports[i]);
+        //     s1.up(mgn);
+        //         mgn.push_back(s1);
+        // }
+            
+        mgn.set();
+        // mgn.printFds();
+
+        fd_set s_rd = mgn.r_set();
+        fd_set s_wr = mgn.w_set();
+        fd_set s_ex = mgn.e_set();
+        struct timeval tv;
+        tv.tv_sec = 3;
+        tv.tv_usec = 0;
+        while (mgn.getmax())
         {
-            std::cout << cl << std::endl;
+            s_rd = mgn.r_set();
+            s_wr = mgn.w_set();
+            s_ex = mgn.e_set();
+            int i_o = select(mgn.getmax() + 1, &s_rd, &s_wr, NULL, &tv);
+            
+            if (i_o > 0)
+            {
+                for(int i = 0; i <= mgn.getmax(); i++)
+                {
+                    if (FD_ISSET(i, &s_rd))
+                    {
+                        if (mgn.find(i) > 0)
+                        {
+                            //new connection via server FD socket;
+                        }
+                        else
+                        {
+                            //reading from client socket
+                        }
+                    }
+                }
+            }
+
         }
     }
     catch(std::exception const &e)

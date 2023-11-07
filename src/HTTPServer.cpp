@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/05 20:46:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/08 02:02:26 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,9 +113,13 @@ std::vector<std::string> const &HTTPServer::getServerNames( void ) const
     return (ServerName);
 }
 
-void HTTPServer::up(ServerManager const &mgn)
+sock_t HTTPServer::getfd( void ) const
 {
+    return (this->fd);
+}
 
+void HTTPServer::up(ServerManager &mgn)
+{
     if (!mgn.used(this))
     {
         const char* givenIp = ip.c_str();
@@ -124,11 +128,13 @@ void HTTPServer::up(ServerManager const &mgn)
         Tcp::createSocket();
         Tcp::bindSocket();
         Tcp::listenSocket();
+        mgn.setmax(fd);
         std::cout << givenIp <<  ":" << givenPort << std::endl;
         freeaddrinfo(addrList);
     }
     else
         std::cout << "{Already:used}" << std::endl;
+    
 }
 
 void HTTPServer::push(sock_t clFd, Client &clt)

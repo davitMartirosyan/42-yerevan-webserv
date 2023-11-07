@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/05 20:47:42 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/08 02:04:36 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,53 @@ ServerManager::~ServerManager()
     
 }
 
+void ServerManager::printFds( void )
+{
+    for(int i = 0; i < FD_SETSIZE; i++)
+        if (FD_ISSET(i, &s_rd))
+            std::cout << i << std::endl;
+}
+
+void ServerManager::setmax(sock_t lastfd)
+{
+    if (lastfd == -1)
+        return ;
+    max_fd = lastfd;
+}
+
+sock_t ServerManager::getmax( void ) const
+{
+    return (max_fd);
+}
+
+void ServerManager::set( void )
+{
+    for(size_t i = 0; i < this->size(); i++)
+        set_r((*this)[i].getfd());
+}
+
 void ServerManager::set_w(sock_t fd)
 {
-    
+    if (fd == -1)
+        return ;
+    FD_SET(fd, &s_wr);
+    setmax(fd);
 }
 
 void ServerManager::set_r(sock_t fd)
 {
-    
+    if (fd == -1)
+        return ;
+    FD_SET((int)fd, &s_rd);
+    setmax(fd);
+}
+
+void ServerManager::set_e(sock_t fd)
+{
+    if (fd == -1)
+        return ;
+    FD_SET(fd, &s_except);
+    setmax(fd);
 }
 
 int ServerManager::used(HTTPServer *srv) const
@@ -41,10 +80,8 @@ int ServerManager::used(HTTPServer *srv) const
     if (!this->empty())
     {
         for(size_t i = 0; i < this->size(); i++)
-        {
             if (std::strcmp((*this)[i].getPort(), srv->getPort()) == 0)
                 return (-1);
-        }
     }
     return (0);
 }
@@ -62,6 +99,18 @@ fd_set ServerManager::w_set( void ) const
 fd_set ServerManager::e_set( void ) const
 {
     return (s_except);
+}
+
+sock_t ServerManager::find(sock_t issetfd) const
+{
+    if (issetfd == -1)
+        return (-1);
+    for(size_t i = 0; i < this->size(); i++)
+    {
+        if (issetfd == (*this)[i].getfd())
+            return ((*this)[i].getfd());
+    }
+    return (-1);
 }
 
 // void ServerManager::push(HTTPServer const &srv)
