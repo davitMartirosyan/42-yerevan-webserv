@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/08 02:02:26 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/10 01:00:09 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,17 @@ void HTTPServer::push(sock_t clFd, Client &clt)
     clnt.insert(std::make_pair(clFd, clt));
 }
 
+int HTTPServer::pop(sock_t clFd)
+{
+    std::map<sock_t, Client>::iterator it = clnt.find(clFd);
+    if (it != clnt.end())
+    {
+        clnt.erase(it);
+        return (0);
+    }
+    return (-1);
+}
+
 bool HTTPServer::exist(sock_t fd)
 {
     return (clnt.find(fd) != clnt.end());
@@ -162,6 +173,14 @@ bool HTTPServer::operator==(HTTPServer const &sibling)
         && std::strcmp(this->getPort(),sibling.getPort()) == 0)
       return (true);  
     return (false);
+}
+
+Client* HTTPServer::client(sock_t fd)
+{
+    std::map<sock_t, Client>::iterator it = clnt.find(fd);
+    if (it != clnt.end())
+        return (&it->second);
+    return (NULL);
 }
 
 //ServerCore////////////////////////////////////////////////////////

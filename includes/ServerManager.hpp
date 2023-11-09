@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:52:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/08 02:02:20 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/10 00:48:08 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 #include "Libs.hpp"
 #include "Location.hpp"
 #include "HTTPServer.hpp"
+#include "Client.hpp"
 
+class Client;
 class HTTPServer;
 class ServerManager : public std::vector<HTTPServer>
 {
@@ -25,6 +27,8 @@ class ServerManager : public std::vector<HTTPServer>
     public:
         void printFds( void );
     public:
+        HTTPServer  *getServer(sock_t fd);
+        Client      *get(sock_t fd);
         sock_t find(sock_t issetfd) const;
         sock_t getmax( void ) const;
         int used(HTTPServer *srv) const;

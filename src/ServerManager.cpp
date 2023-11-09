@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/08 02:04:36 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/10 01:00:48 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,27 @@ void ServerManager::printFds( void )
     for(int i = 0; i < FD_SETSIZE; i++)
         if (FD_ISSET(i, &s_rd))
             std::cout << i << std::endl;
+}
+
+HTTPServer *ServerManager::getServer(sock_t fd)
+{
+    for(size_t i = 0; i < this->size(); i++)
+    {
+        if (fd == (*this)[i].getfd())
+            return (&(*this)[i]);
+    }
+    return (NULL);
+}
+
+Client *ServerManager::get(sock_t fd)
+{
+    for(size_t i = 0; i < this->size(); i++)
+    {
+        Client* clnt = (*this)[i].client(fd);
+        if (clnt)
+            return (clnt);
+    }
+    return (NULL);
 }
 
 void ServerManager::setmax(sock_t lastfd)

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/08 02:13:17 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/10 01:13:16 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ int main(int ac, char **av)
             s_rd = mgn.r_set();
             s_wr = mgn.w_set();
             s_ex = mgn.e_set();
-            int i_o = select(mgn.getmax() + 1, &s_rd, &s_wr, NULL, &tv);
+            int i_o = select(mgn.getmax() + 1, &s_rd, &s_wr, NULL, NULL);
             
             if (i_o > 0)
             {
@@ -75,13 +75,33 @@ int main(int ac, char **av)
                 {
                     if (FD_ISSET(i, &s_rd))
                     {
-                        if (mgn.find(i) > 0)
+                        if (mgn.find(i))
                         {
-                            //new connection via server FD socket;
+                            std::cout << i << std::endl;
+                            //new connection via server FD socket
+                            HTTPServer *that = mgn.getServer(i);
+                            if (that)
+                            {
+                                std::cout << that->getfd() << std::endl;
+                                sock_t cl = that->accept();
+                                if (cl > 0)
+                                {
+                                    Client client(cl);
+                                    that->push(cl, client);                                
+                                    mgn.set_r(cl);
+                                }
+                            }
+
                         }
                         else
                         {
-                            //reading from client socket
+                            // reading from client socket
+                            Client* client = mgn.get(i);
+                            char http[READ_BUFFER];
+                            int rd = recv(client->getFd(), http, sizeof(http), 0);
+                            http[rd] = '\0';
+                            std::string receive = http;
+                            std::cout << receive << std::endl;
                         }
                     }
                 }

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/08 01:31:42 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/10 00:47:31 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,11 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
 		 void up(ServerManager &mgn);
          sock_t getfd( void ) const;
     public:
+        Client *client(sock_t fd);
+    public:
         void push(std::string const &prefix, Location locationDirective);
         void push(sock_t clFd, Client &clt);
+        int  pop(sock_t clFd);
         void push(std::string const &srvName);
     public:
         const Location *find(std::string const &prefix) const;

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:10 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 23:48:57 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/10 00:44:47 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 
 // class HTTPServer;
 class ServerManager;
-
 class Client : public HTTPRequest
 {
     public:
