@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/10 01:13:16 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/10 20:08:22 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,19 +72,31 @@ int main(int ac, char **av)
             
             if (i_o > 0)
             {
-                for(int i = 0; i <= mgn.getmax(); i++)
+                for(int i = 0; i < mgn.getmax(); i++)
                 {
                     if (FD_ISSET(i, &s_rd))
                     {
-                        if (mgn.find(i))
+                        if (mgn.find(i) != -1)
                         {
-                            std::cout << "qtel em servery inch em anum?" << std::endl;
+                            std::cout << "qtel em servery utem?" << std::endl;
+                            HTTPServer* that = mgn.getServer(i);
+                            sock_t cl = that->accept();
+                            Client client(cl);
+                            that->push(cl, client);
+                            mgn.set_r(cl);
                         }
-                        
+                        else
+                        {
+                            std::cout << "qtel em klientin inch em anum" << std::endl;
+                            Client* client = mgn.get(i);
+                            char http[1024];
+                            int rd = recv(client->getFd(), http, sizeof(http), 0);
+                            http[rd] = '\0';
+                            std::cout << http << std::endl;
+                        }
                     }
                 }
             }
-
         }
     }
     catch(std::exception const &e)

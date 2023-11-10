@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/10 01:00:48 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/10 19:53:14 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ sock_t ServerManager::find(sock_t issetfd) const
     for(size_t i = 0; i < this->size(); i++)
     {
         if (issetfd == (*this)[i].getfd())
-            return ((*this)[i].getfd());
+            return (0);
     }
     return (-1);
 }
