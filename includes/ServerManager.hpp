@@ -25,6 +25,9 @@ class ServerManager : public std::vector<HTTPServer>
         ServerManager(std::string const &configFile);
         ~ServerManager();
     public:
+        int isServer(sock_t fd);
+        int isClient(sock_t fd);
+    public:
         void printFds( void );
     public:
         HTTPServer  *getServer(sock_t fd);
@@ -36,6 +39,7 @@ class ServerManager : public std::vector<HTTPServer>
         // void push(HTTPServer const &srv);
     private:
         std::vector<HTTPServer> srvs;
+        // std::vector<Client> clnt;
     public:
         void setmax(sock_t lastfd);
         void set( void );

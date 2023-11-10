@@ -25,8 +25,8 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
-            srv.setIp("127.0.0.1");
-            srv.setPort("8080");
+            srv.setIp("0.0.0.0");
+            srv.setPort("80");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -55,6 +55,7 @@ int main(int ac, char **av)
             
         mgn.set();
         // mgn.printFds();
+        // exit(0);
 
         fd_set s_rd = mgn.r_set();
         fd_set s_wr = mgn.w_set();
@@ -77,32 +78,9 @@ int main(int ac, char **av)
                     {
                         if (mgn.find(i))
                         {
-                            std::cout << i << std::endl;
-                            //new connection via server FD socket
-                            HTTPServer *that = mgn.getServer(i);
-                            if (that)
-                            {
-                                std::cout << that->getfd() << std::endl;
-                                sock_t cl = that->accept();
-                                if (cl > 0)
-                                {
-                                    Client client(cl);
-                                    that->push(cl, client);                                
-                                    mgn.set_r(cl);
-                                }
-                            }
-
+                            std::cout << "qtel em servery inch em anum?" << std::endl;
                         }
-                        else
-                        {
-                            // reading from client socket
-                            Client* client = mgn.get(i);
-                            char http[READ_BUFFER];
-                            int rd = recv(client->getFd(), http, sizeof(http), 0);
-                            http[rd] = '\0';
-                            std::string receive = http;
-                            std::cout << receive << std::endl;
-                        }
+                        
                     }
                 }
             }

@@ -23,14 +23,17 @@ class Client : public HTTPRequest
 {
     public:
         Client( void );
+        Client(sock_t clfd, sock_t srfd);
         Client(sock_t clfd);
         ~Client();
     public:
         void request(ServerManager &mgn);
     public:
         sock_t getFd( void ) const;
+        sock_t getServerFd( void ) const;
     private:
-        sock_t fd;
+        sock_t clientFd;
+        sock_t serverFd;
     private:
         struct sockaddr_in ClientInfo;
         struct sockaddr ClientAddress;

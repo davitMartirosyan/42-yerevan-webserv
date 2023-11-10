@@ -16,14 +16,26 @@ Client::Client( void )
 {
 }
 
+Client::Client(sock_t clfd, sock_t srfd)
+{
+    this->clientFd = clfd;
+    this->serverFd = srfd;
+}
+
 Client::Client(sock_t clfd)
 {
-    this->fd = clfd;
+    this->clientFd = clfd;
+    this->serverFd = -1;
 }
 
 sock_t Client::getFd( void ) const
 {
-    return (this->fd);
+    return (this->clientFd);
+}
+
+sock_t Client::getServerFd( void ) const
+{
+    return (this->serverFd);
 }
 
 Client::~Client()

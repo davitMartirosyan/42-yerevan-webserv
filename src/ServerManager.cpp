@@ -134,6 +134,16 @@ sock_t ServerManager::find(sock_t issetfd) const
     return (-1);
 }
 
+int ServerManager::isServer(sock_t fd)
+{
+    return (0);
+}
+
+int ServerManager::isClient(sock_t fd)
+{
+    return (0);
+}
+
 // void ServerManager::push(HTTPServer const &srv)
 // {
 //     srvs.push_back(srv);
