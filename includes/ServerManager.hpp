@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:52:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/10 00:48:08 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/11 14:27:14 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ class ServerManager : public std::vector<HTTPServer>
     public:
         void printFds( void );
     public:
-        HTTPServer  *getServer(sock_t fd);
-        Client      *get(sock_t fd);
+        HTTPServer  *getServerBySocket(sock_t fd); 
+        HTTPServer  *getServerByClientSocket(sock_t fd);  //Վերադարձնումա են սերվերը որի մեջ fd-ով client գոյություն ունի
         sock_t find(sock_t issetfd) const;
         sock_t getmax( void ) const;
         int used(HTTPServer *srv) const;
@@ -49,6 +49,9 @@ class ServerManager : public std::vector<HTTPServer>
         fd_set r_set( void ) const;
         fd_set w_set( void ) const;
         fd_set e_set( void ) const;
+        void rm_r(sock_t fd);
+        void rm_w(sock_t fd);
+        void rm_e(sock_t fd);
     private:
         sock_t max_fd;
         fd_set s_rd;

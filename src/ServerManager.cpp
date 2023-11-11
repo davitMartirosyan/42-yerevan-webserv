@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/10 19:53:14 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/11 14:37:13 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,11 @@ void ServerManager::printFds( void )
             std::cout << i << std::endl;
 }
 
-HTTPServer *ServerManager::getServer(sock_t fd)
+
+/*************************************************************
+Finding correct HTTPServer funtions based on ::ServerManager::
+**************************************************************/
+HTTPServer *ServerManager::getServerBySocket(sock_t fd)
 {
     for(size_t i = 0; i < this->size(); i++)
     {
@@ -43,22 +47,24 @@ HTTPServer *ServerManager::getServer(sock_t fd)
     return (NULL);
 }
 
-Client *ServerManager::get(sock_t fd)
+HTTPServer *ServerManager::getServerByClientSocket(sock_t fd)
 {
     for(size_t i = 0; i < this->size(); i++)
     {
-        Client* clnt = (*this)[i].client(fd);
-        if (clnt)
-            return (clnt);
+        if ((*this)[i].getClient(fd))
+            return (&(*this)[i]);
     }
     return (NULL);
 }
 
-void ServerManager::setmax(sock_t lastfd)
+
+
+void ServerManager::setmax(sock_t clFd)
 {
-    if (lastfd == -1)
+    if (clFd == -1)
         return ;
-    max_fd = lastfd;
+    if (clFd > max_fd)
+        max_fd = clFd;
 }
 
 sock_t ServerManager::getmax( void ) const
@@ -66,6 +72,38 @@ sock_t ServerManager::getmax( void ) const
     return (max_fd);
 }
 
+
+int ServerManager::used(HTTPServer *srv) const
+{
+    if (!this->empty())
+    {
+        for(size_t i = 0; i < this->size(); i++)
+            if (std::strcmp((*this)[i].getPort(), srv->getPort()) == 0)
+                return (-1);
+    }
+    return (0);
+}
+
+
+
+sock_t ServerManager::find(sock_t issetfd) const
+{
+    if (issetfd == -1)
+        return (-1);
+    for(size_t i = 0; i < this->size(); i++)
+    {
+        if (issetfd == (*this)[i].getfd())
+            return (0);
+    }
+    return (-1);
+}
+
+
+
+
+/*******************************************************************
+Select Multiplexing  I/O Helper funtions based on ::ServerManager::
+*******************************************************************/
 void ServerManager::set( void )
 {
     for(size_t i = 0; i < this->size(); i++)
@@ -96,17 +134,6 @@ void ServerManager::set_e(sock_t fd)
     setmax(fd);
 }
 
-int ServerManager::used(HTTPServer *srv) const
-{
-    if (!this->empty())
-    {
-        for(size_t i = 0; i < this->size(); i++)
-            if (std::strcmp((*this)[i].getPort(), srv->getPort()) == 0)
-                return (-1);
-    }
-    return (0);
-}
-
 fd_set ServerManager::r_set( void ) const
 {
     return (s_rd);
@@ -122,17 +149,34 @@ fd_set ServerManager::e_set( void ) const
     return (s_except);
 }
 
-sock_t ServerManager::find(sock_t issetfd) const
+
+void ServerManager::rm_r(sock_t fd)
 {
-    if (issetfd == -1)
-        return (-1);
-    for(size_t i = 0; i < this->size(); i++)
+    if(FD_ISSET(fd, &s_rd))
     {
-        if (issetfd == (*this)[i].getfd())
-            return (0);
+        FD_CLR(fd, &s_rd);
+        max_fd = max_fd - 1;
     }
-    return (-1);
 }
+
+void ServerManager::rm_w(sock_t fd)
+{
+    if (FD_ISSET(fd, &s_wr))
+    {
+        FD_CLR(fd, &s_wr);
+        max_fd = max_fd - 1;
+    }
+}
+
+void ServerManager::rm_e(sock_t fd)
+{
+    if (FD_ISSET(fd, &s_except))
+    {
+        FD_CLR(fd, &s_except);
+        max_fd = max_fd - 1;
+    }
+}
+
 
 int ServerManager::isServer(sock_t fd)
 {

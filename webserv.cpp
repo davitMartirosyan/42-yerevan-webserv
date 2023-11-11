@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/10 20:08:22 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/11 14:42:03 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
             srv.setIp("0.0.0.0");
-            srv.setPort("80");
+            srv.setPort("8080");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -45,54 +45,49 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
         srv.up(mgn);
             mgn.push_back(srv);
-        // for(size_t i = 0; i < 3; i++)
-        // {
-        //     HTTPServer s1;
-        //     s1.setPort(ports[i]);
-        //     s1.up(mgn);
-        //         mgn.push_back(s1);
-        // }
-            
         mgn.set();
-        // mgn.printFds();
-        // exit(0);
 
+
+        
         fd_set s_rd = mgn.r_set();
         fd_set s_wr = mgn.w_set();
         fd_set s_ex = mgn.e_set();
-        struct timeval tv;
-        tv.tv_sec = 3;
-        tv.tv_usec = 0;
-        while (mgn.getmax())
+        while (1)
         {
             s_rd = mgn.r_set();
             s_wr = mgn.w_set();
             s_ex = mgn.e_set();
             int i_o = select(mgn.getmax() + 1, &s_rd, &s_wr, NULL, NULL);
-            
             if (i_o > 0)
             {
-                for(int i = 0; i < mgn.getmax(); i++)
+
+                for(int i = 0; i < FD_SETSIZE; i++)
                 {
                     if (FD_ISSET(i, &s_rd))
                     {
                         if (mgn.find(i) != -1)
                         {
-                            std::cout << "qtel em servery utem?" << std::endl;
-                            HTTPServer* that = mgn.getServer(i);
+                            std::cout << "_______________" << std::endl;
+                            std::cout << mgn.getmax() << ":::" << i << std::endl;
+                            std::cout << "qtel em servery" << std::endl;
+                            std::cout << "_______________" << std::endl;
+                            HTTPServer* that = mgn.getServerBySocket(i);
                             sock_t cl = that->accept();
                             Client client(cl);
                             that->push(cl, client);
                             mgn.set_r(cl);
                         }
                         else
-                        {
-                            std::cout << "qtel em klientin inch em anum" << std::endl;
-                            Client* client = mgn.get(i);
-                            char http[1024];
+                        {                           
+                            HTTPServer* server = mgn.getServerByClientSocket(i);
+                            Client* client = server->getClient(i);
+                            char http[2048];
                             int rd = recv(client->getFd(), http, sizeof(http), 0);
                             http[rd] = '\0';
-                            std::cout << http << std::endl;
+                            std::cout << http;
+                            mgn.rm_r(client->getFd());
+                            close(client->getFd());
+                            server->removeClient(client->getFd());
                         }
                     }
                 }

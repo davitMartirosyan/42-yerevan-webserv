@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/10 01:00:09 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/11 14:16:49 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,12 +175,20 @@ bool HTTPServer::operator==(HTTPServer const &sibling)
     return (false);
 }
 
-Client* HTTPServer::client(sock_t fd)
+Client* HTTPServer::getClient(sock_t fd)
 {
     std::map<sock_t, Client>::iterator it = clnt.find(fd);
     if (it != clnt.end())
         return (&it->second);
     return (NULL);
+}
+
+void HTTPServer::removeClient(sock_t fd)
+{
+    std::map<sock_t, Client>::iterator it = clnt.find(fd);
+    if (it != clnt.end())
+        clnt.erase(it);
+    return ;
 }
 
 //ServerCore////////////////////////////////////////////////////////
