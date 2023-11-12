@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:10 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/10 00:44:47 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/12 21:02:57 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,14 @@ class Client : public HTTPRequest
         Client(sock_t clfd);
         ~Client();
     public:
+        void appendRequest( void );
         void request(ServerManager &mgn);
     public:
         sock_t getFd( void ) const;
         sock_t getServerFd( void ) const;
     private:
-        sock_t clientFd;
+        int rd;
+        sock_t fd;
         sock_t serverFd;
     private:
         struct sockaddr_in ClientInfo;

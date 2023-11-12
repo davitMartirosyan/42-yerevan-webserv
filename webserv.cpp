@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/12 15:42:34 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/12 21:45:36 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,23 +81,34 @@ int main(int ac, char **av)
                         {                           
                             HTTPServer* server = mgn.getServerByClientSocket(i);
                             Client* client = server->getClient(i);
-                            char http[2048];
-                            int rd = recv(client->getFd(), http, sizeof(http), 0);
-                            http[rd] = '\0';
-                            std::cout << http;
+                            client->appendRequest();
+                            if (client->requestMethod() == "GET")
+                            {
+                                std::cout << "method: " << client->requestMethod() << std::endl; 
+                            }
+                            else if (client->requestMethod() == "POST")
+                            {
+                                
+                            }
+                            else if (client->requestMethod() == "DELETE")
+                            {
+                                
+                            }
+                            else
+                            {
+                                std::cout << "oops! connection closed" << std::endl;
+                            }                            
                             std::string response = "HTTP/1.1 200 OK\r\n";
-                            response += "Date: Mon, 27 Jul 2009 12:28:53 GMT";
-                            response += "Server: Apache/2.2.14 (Win32)\r\n";
-                            response += "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n";
-                            response += "Content-Length: 88\r\n";
-                            response += "Content-Type: text/html\r\n";
-                            response += "Connection: Closed\r\n\r\n";
-                            response += "<html><body><h1>Hello, World!</h1></body></html>";
-                            int r = send(client->getFd(), response.c_str(), sizeof(response.c_str()), 0);
-                            mgn.rm_r(client->getFd());
+                            response += "\r\n";
+                            // response += "\r\n";
+                            response += "<html><head><link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'></head><body><h1>Hello<h1></h1></body></html>";
+                            int wr = send(client->getFd(), response.c_str(), response.size(), 0);
                             close(client->getFd());
                             server->removeClient(client->getFd());
+                            mgn.rm_r(client->getFd());
                         }
+                    } else if (FD_ISSET(i, &s_wr)) {
+                        
                     }
                 }
             }

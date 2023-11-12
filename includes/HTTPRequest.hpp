@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/05 20:44:59 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/12 21:40:45 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,17 @@ class HTTPRequest
 	public:
 		HTTPRequest( void );
 		~HTTPRequest();
+    public:
+        std::string const &requestMethod( void ) const;
+        std::string const &requestPath( void ) const;
+        std::string const &requestVersion( void ) const;
     protected:
-		const char* http;
+		char http[READ_BUFFER];
+        std::string requestLine;
         std::string method;
         std::string path;
         std::string version;
         std::string httpRequest;
-        std::string requestLine;
         std::string body;
     protected:
         std::map<std::string, std::string> httpHeaders;

@@ -41,3 +41,24 @@
         //         srv.request(cl);
         //     }
         // }
+
+
+
+                   char http[2048];
+                            int rd = recv(client->getFd(), http, sizeof(http), 0);
+                            http[rd] = '\0';
+                            std::cout << http;
+                            std::string response = "HTTP/1.1 200 OK\r\n";
+                            response += "Date: Mon, 27 Jul 2009 12:28:53 GMT";
+                            response += "Server: Apache/2.2.14 (Win32)\r\n";
+                            response += "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n";
+                            response += "Content-Length: 88\r\n";
+                            response += "Content-Type: text/html\r\n";
+                            response += "Connection: keep-alive\r\n";
+                            response += "\r\n";
+                            response += "<html><head><link rel='icon' href='data:,'></head><body><h1>Hello, World!</h1></body></html>";
+                            int r = send(client->getFd(), response.c_str(), response.size(), 0);
+                            std::cout << "r = " << r << std::endl;
+                            mgn.rm_r(client->getFd());
+                            close(client->getFd());
+                            server->removeClient(client->getFd());
