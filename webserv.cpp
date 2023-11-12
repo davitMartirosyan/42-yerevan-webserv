@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/11 14:42:03 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/12 15:42:34 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
             srv.setIp("0.0.0.0");
-            srv.setPort("8080");
+            srv.setPort("80");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -61,7 +61,7 @@ int main(int ac, char **av)
             if (i_o > 0)
             {
 
-                for(int i = 0; i < FD_SETSIZE; i++)
+                for(int i = 0; i <= FD_SETSIZE; i++)
                 {
                     if (FD_ISSET(i, &s_rd))
                     {
@@ -85,6 +85,15 @@ int main(int ac, char **av)
                             int rd = recv(client->getFd(), http, sizeof(http), 0);
                             http[rd] = '\0';
                             std::cout << http;
+                            std::string response = "HTTP/1.1 200 OK\r\n";
+                            response += "Date: Mon, 27 Jul 2009 12:28:53 GMT";
+                            response += "Server: Apache/2.2.14 (Win32)\r\n";
+                            response += "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n";
+                            response += "Content-Length: 88\r\n";
+                            response += "Content-Type: text/html\r\n";
+                            response += "Connection: Closed\r\n\r\n";
+                            response += "<html><body><h1>Hello, World!</h1></body></html>";
+                            int r = send(client->getFd(), response.c_str(), sizeof(response.c_str()), 0);
                             mgn.rm_r(client->getFd());
                             close(client->getFd());
                             server->removeClient(client->getFd());
