@@ -82,30 +82,17 @@ int main(int ac, char **av)
                             HTTPServer* server = mgn.getServerByClientSocket(i);
                             Client* client = server->getClient(i);
                             client->appendRequest();
-                            if (client->requestMethod() == "GET")
-                            {
-                                std::cout << "method: " << client->requestMethod() << std::endl; 
-                            }
-                            else if (client->requestMethod() == "POST")
-                            {
-                                
-                            }
-                            else if (client->requestMethod() == "DELETE")
-                            {
-                                
-                            }
-                            else
-                            {
-                                std::cout << "oops! connection closed" << std::endl;
-                            }                            
+
                             std::string response = "HTTP/1.1 200 OK\r\n";
                             response += "\r\n";
                             // response += "\r\n";
                             response += "<html><head><link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'></head><body><h1>Hello<h1></h1></body></html>";
                             int wr = send(client->getFd(), response.c_str(), response.size(), 0);
                             close(client->getFd());
-                            server->removeClient(client->getFd());
+
                             mgn.rm_r(client->getFd());
+                            server->removeClient(client->getFd());
+
                         }
                     } else if (FD_ISSET(i, &s_wr)) {
                         

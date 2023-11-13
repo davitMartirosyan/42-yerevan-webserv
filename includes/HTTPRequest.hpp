@@ -20,6 +20,8 @@ class HTTPRequest
 		HTTPRequest( void );
 		~HTTPRequest();
     public:
+        int parse( void );
+    public:
         std::string const &requestMethod( void ) const;
         std::string const &requestPath( void ) const;
         std::string const &requestVersion( void ) const;

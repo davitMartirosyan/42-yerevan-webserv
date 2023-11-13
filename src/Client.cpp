@@ -51,14 +51,14 @@ void Client::request(ServerManager &mgn)
 
 void Client::appendRequest( void )
 {
+    int reqLineEnd = 0, bodyEnd = 0;
     rd = recv(fd, http, sizeof(http), 0);
     http[rd] = '\0';
     httpRequest.append(http);
-    if (httpRequest.find_first_not_of("\r\n") != std::string::npos)
+    if ((reqLineEnd = httpRequest.find_first_of("\r\n")) != std::string::npos)
     {
         int sp = 0;
         requestLine = httpRequest.substr(0, httpRequest.find_first_of("\r\n"));
-        std::cout << requestLine << std::endl;
         for(size_t i = 0; i < requestLine.size(); i++)
             if (requestLine[i] == ' ')
                 sp++;
@@ -70,9 +70,9 @@ void Client::appendRequest( void )
             path = tmpLine.substr(0, tmpLine.find_first_of(" "));
             tmpLine.erase(0, tmpLine.find_first_of(" ") + 1);
             version = tmpLine;
-            std::cout << "|" << method << "|" << std::endl;
-            std::cout << "|" << path << "|" << std::endl;
-            std::cout << "|" << version << "|" << std::endl;
         }
     }
+    if ((bodyEnd = httpRequest.find("\r\n\r\n")) != std::string::npos)
+        body = httpRequest.substr(reqLineEnd, bodyEnd);
+    
 }

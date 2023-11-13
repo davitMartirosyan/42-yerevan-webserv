@@ -35,3 +35,9 @@ std::string const &HTTPRequest::requestVersion( void ) const
 {
     return (version);
 }
+
+int HTTPRequest::parse( void )
+{
+    std::cout << method << std::endl;
+    return (0);
+}
