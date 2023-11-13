@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/12 21:35:57 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/14 01:25:30 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,35 +44,18 @@ Client::~Client()
 {
 }
 
-void Client::request(ServerManager &mgn)
-{
-    (void)mgn;
-}
 
 void Client::appendRequest( void )
 {
-    int reqLineEnd = 0, bodyEnd = 0;
     rd = recv(fd, http, sizeof(http), 0);
     http[rd] = '\0';
-    httpRequest.append(http);
-    if ((reqLineEnd = httpRequest.find_first_of("\r\n")) != std::string::npos)
+    parse_typeface face = HTTPRequest::parse(http);
+    if (face == HTTP_REQUEST_LINE_ERROR)
     {
-        int sp = 0;
-        requestLine = httpRequest.substr(0, httpRequest.find_first_of("\r\n"));
-        for(size_t i = 0; i < requestLine.size(); i++)
-            if (requestLine[i] == ' ')
-                sp++;
-        if (sp == 2)
-        {
-            std::string tmpLine = requestLine;
-            method = tmpLine.substr(0, tmpLine.find_first_of(" "));
-            tmpLine.erase(0, tmpLine.find_first_of(" ") + 1);
-            path = tmpLine.substr(0, tmpLine.find_first_of(" "));
-            tmpLine.erase(0, tmpLine.find_first_of(" ") + 1);
-            version = tmpLine;
-        }
+        std::cout << "error in request line" << std::endl;
     }
-    if ((bodyEnd = httpRequest.find("\r\n\r\n")) != std::string::npos)
-        body = httpRequest.substr(reqLineEnd, bodyEnd);
-    
+    else if (face == HTTP_HEADER_ERROR)
+    {
+        std::cout << "error header line" << std::endl;
+    }
 }

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/11 14:37:13 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/14 00:23:59 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,8 @@ void ServerManager::rm_r(sock_t fd)
     if(FD_ISSET(fd, &s_rd))
     {
         FD_CLR(fd, &s_rd);
-        max_fd = max_fd - 1;
+        if (fd == max_fd)
+            max_fd = max_fd - 1;
     }
 }
 

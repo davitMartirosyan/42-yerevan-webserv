@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:10 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/12 21:02:57 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/14 01:09:15 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ class Client : public HTTPRequest
         ~Client();
     public:
         void appendRequest( void );
-        void request(ServerManager &mgn);
     public:
         sock_t getFd( void ) const;
         sock_t getServerFd( void ) const;

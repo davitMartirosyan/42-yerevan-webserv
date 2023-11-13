@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/12 21:45:36 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/14 00:58:58 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,14 +82,13 @@ int main(int ac, char **av)
                             HTTPServer* server = mgn.getServerByClientSocket(i);
                             Client* client = server->getClient(i);
                             client->appendRequest();
-
+                            
+                            
                             std::string response = "HTTP/1.1 200 OK\r\n";
                             response += "\r\n";
-                            // response += "\r\n";
                             response += "<html><head><link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'></head><body><h1>Hello<h1></h1></body></html>";
                             int wr = send(client->getFd(), response.c_str(), response.size(), 0);
                             close(client->getFd());
-
                             mgn.rm_r(client->getFd());
                             server->removeClient(client->getFd());
 
