@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/14 00:58:58 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/15 00:25:25 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
             srv.setIp("0.0.0.0");
-            srv.setPort("80");
+            srv.setPort("5555");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -83,15 +83,14 @@ int main(int ac, char **av)
                             Client* client = server->getClient(i);
                             client->appendRequest();
                             
-                            
                             std::string response = "HTTP/1.1 200 OK\r\n";
                             response += "\r\n";
-                            response += "<html><head><link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'></head><body><h1>Hello<h1></h1></body></html>";
+                            response += "<html><head><link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'></head><body><form action='post.php' method='POST' enctype='multipart/form-data'><input type='file' name='pic'><input type='submit' name='send'></form></body></html>";
                             int wr = send(client->getFd(), response.c_str(), response.size(), 0);
                             close(client->getFd());
                             mgn.rm_r(client->getFd());
                             server->removeClient(client->getFd());
-
+                            response.clear();
                         }
                     } else if (FD_ISSET(i, &s_wr)) {
                         

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/14 01:23:14 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/15 00:23:29 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class HTTPRequest
 		HTTPRequest( void );
 		~HTTPRequest();
     public:
-        parse_typeface parse(char *httpBuffer);
+        void parse(sock_t  fd, char *httpBuffer);
         const char *find(std::string const &key);
     public:
         std::string const &requestMethod( void ) const;
@@ -36,6 +36,8 @@ class HTTPRequest
         std::string rtrim(const std::string &str);
         std::string trim(const std::string &str);
     protected:
+        size_t reqLineEnd;
+        size_t bodyEnd;
 		char http[READ_BUFFER];
         std::string requestLine;
         std::string method;
@@ -43,6 +45,8 @@ class HTTPRequest
         std::string version;
         std::string httpRequest;
         std::string body;
+        std::string multipart;
+        std::string data;
     protected:
         std::map<std::string, std::string> httpHeaders;
     private:

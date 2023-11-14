@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/14 01:25:30 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/15 00:23:23 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,15 +47,8 @@ Client::~Client()
 
 void Client::appendRequest( void )
 {
+    // std::cout << "hasa" << std::endl;
     rd = recv(fd, http, sizeof(http), 0);
     http[rd] = '\0';
-    parse_typeface face = HTTPRequest::parse(http);
-    if (face == HTTP_REQUEST_LINE_ERROR)
-    {
-        std::cout << "error in request line" << std::endl;
-    }
-    else if (face == HTTP_HEADER_ERROR)
-    {
-        std::cout << "error header line" << std::endl;
-    }
+    HTTPRequest::parse(fd, http);
 }
