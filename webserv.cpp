@@ -6,12 +6,14 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/15 00:25:25 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/16 00:17:31 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Libs.hpp"
 #include "ServerManager.hpp"
+
+std::string file(std::string const &filename);
 
 int main(int ac, char **av)
 {
@@ -54,6 +56,7 @@ int main(int ac, char **av)
         fd_set s_ex = mgn.e_set();
         while (1)
         {
+            sock_t found = 0;
             s_rd = mgn.r_set();
             s_wr = mgn.w_set();
             s_ex = mgn.e_set();
@@ -65,7 +68,7 @@ int main(int ac, char **av)
                 {
                     if (FD_ISSET(i, &s_rd))
                     {
-                        if (mgn.find(i) != -1)
+                        if ((found = mgn.findServerBySocket(i)) != -1)
                         {
                             std::cout << "_______________" << std::endl;
                             std::cout << mgn.getmax() << ":::" << i << std::endl;
@@ -83,9 +86,12 @@ int main(int ac, char **av)
                             Client* client = server->getClient(i);
                             client->appendRequest();
                             
+                            // mgn.set_w(client->getFd());
+                            
                             std::string response = "HTTP/1.1 200 OK\r\n";
                             response += "\r\n";
-                            response += "<html><head><link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'></head><body><form action='post.php' method='POST' enctype='multipart/form-data'><input type='file' name='pic'><input type='submit' name='send'></form></body></html>";
+                            // response += "<html><head><link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'></head><body><form action='post.php' method='POST' enctype='multipart/form-data'><input type='file' name='pic'><input type='submit' name='send'></form></body></html>";
+                            response += file("www/server1/index.html");
                             int wr = send(client->getFd(), response.c_str(), response.size(), 0);
                             close(client->getFd());
                             mgn.rm_r(client->getFd());
@@ -93,7 +99,10 @@ int main(int ac, char **av)
                             response.clear();
                         }
                     } else if (FD_ISSET(i, &s_wr)) {
-                        
+                        // if ((found = mgn.findClientBySocket(i)) != -1)
+                        // {
+                            
+                        // }
                     }
                 }
             }
@@ -104,6 +113,23 @@ int main(int ac, char **av)
         std::cout << e.what() << std::endl;
     }
    
+}
+
+std::string file(std::string const &filename)
+{
+    std::fstream f;
+    std::string tmp;
+    std::string content;
+    f.open(filename.c_str());
+    if (f.is_open())
+    {
+        while (std::getline(f, tmp, '\n'))
+        {
+            content += tmp;
+            tmp.clear();
+        }
+    }
+    return (content);
 }
 
 

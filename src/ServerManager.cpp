@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/14 00:23:59 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/15 23:32:58 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,18 +86,32 @@ int ServerManager::used(HTTPServer *srv) const
 
 
 
-sock_t ServerManager::find(sock_t issetfd) const
+sock_t ServerManager::findServerBySocket(sock_t issetfd) 
 {
     if (issetfd == -1)
         return (-1);
     for(size_t i = 0; i < this->size(); i++)
     {
-        if (issetfd == (*this)[i].getfd())
-            return (0);
+        HTTPServer server = (*this)[i];
+        if (issetfd == server.getfd())
+            return (server.getfd());
     }
     return (-1);
 }
 
+
+sock_t ServerManager::findClientBySocket(sock_t issetfd)
+{
+    if (issetfd == -1)
+        return (-1);
+    for(size_t i = 0; i < this->size(); i++)
+    {
+        Client* client = (*this)[i].getClient(issetfd);
+        if (client)
+            return (client->getFd());
+    }
+    return (-1);
+}
 
 
 

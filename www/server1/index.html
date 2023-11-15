@@ -2,16 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
 <body>
     <h1>Hello World</h1>
-    <form action="post.php" method="POST">
-        <input type="text" name="fname" placeholder="First Name:">
-        <input type="text" name="lname" placeholder="Last Name:">
-        <input type="password" name="pwd" placeholder="Password:">
-        <input type="submit" name="signup" value="signup">
+    <form action="post.php" method="POST" enctype="multipart/form-data">
+        <input type="file" name="pic">
+        <!-- <input type="file" name="pic"> -->
+
+        <!-- <input type="text" name="fname" placeholder="First Name:"><br>
+        <input type="text" name="lname" placeholder="Last Name:"><br>
+        <input type="password" name="pwd" placeholder="Password:"><br> -->
+        <input type="submit" name="signup" value="signup"><br>
     </form>
 </body>
 </html>

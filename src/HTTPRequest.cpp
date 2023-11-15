@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/15 00:52:48 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/16 01:53:34 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,47 +39,6 @@ std::string const &HTTPRequest::requestVersion( void ) const
     return (version);
 }
 
-void HTTPRequest::parse(sock_t fd, char *httpBuffer)
-{
-    httpRequest.append(httpBuffer);
-    if ((reqLineEnd = httpRequest.find_first_of("\r\n")) != std::string::npos)
-    {
-        int sp = 0;
-        requestLine = httpRequest.substr(0, reqLineEnd);
-        for(size_t i = 0; i < requestLine.size(); i++)
-            if (requestLine[i] == ' ')
-                sp++;
-        if (sp == 2)
-        {
-            std::string tmpLine = requestLine;
-            method = tmpLine.substr(0, tmpLine.find_first_of(" "));
-            tmpLine.erase(0, tmpLine.find_first_of(" ") + 1);
-            path = tmpLine.substr(0, tmpLine.find_first_of(" "));
-            tmpLine.erase(0, tmpLine.find_first_of(" ") + 1);
-            version = tmpLine;
-        }
-    }
-    if ((bodyEnd = httpRequest.find_last_of("\r\n")) != std::string::npos && reqLineEnd != std::string::npos)
-    {
-        body = httpRequest.substr(reqLineEnd, bodyEnd);
-        std::stringstream bodyStream(body);
-        std::string header;
-        while(std::getline(bodyStream, header, '\n'))
-        {
-            size_t colon = 0;
-            if ((colon = header.find_first_of(":")) != std::string::npos)
-            {
-                std::string key = trim(header.substr(0, colon));
-                std::string value = trim(header.substr(colon+1));
-                if (key.size() > 0 && value.size() > 0)
-                {
-                    httpHeaders.insert(std::make_pair(key, value));
-                }
-            }
-        }
-    }
-}
-
 std::string HTTPRequest::rtrim(const std::string &str)
 {
     size_t end = str.find_last_not_of(" \n\t\f\v");
@@ -97,10 +56,24 @@ std::string HTTPRequest::trim(const std::string &str)
     return (ltrim(rtrim(str)));
 }
 
-const char *HTTPRequest::find(std::string const &key)
+void HTTPRequest::parsing(sock_t fd)
 {
-    std::map<std::string, std::string>::const_iterator it = httpHeaders.find(key);
-    if (it != httpHeaders.end())
-        return (it->second.c_str());
-    return (NULL);
+    if ((reqLineEnd = httpRequest.find_first_of("\r\n")) != std::string::npos)
+    {
+        request = httpRequest.substr(0, reqLineEnd+2);
+        method = request.substr(0, request.find(" "));
+        request.erase(0, method.size()+1);
+        path = request.substr(0, request.find(" "));
+        request.erase(0, path.size()+1);
+        version = request.substr(0, request.find("\r\n"));
+        httpRequest.erase(0, method.size()+path.size()+version.size()+4);
+    }
+    if ((reqLineEnd = httpRequest.find("\r\n\r\n")) != std::string::npos)
+    {
+        headers = httpRequest.substr(0, reqLineEnd);
+        std::cout << "**********" << std::endl;
+        std::cout << headers << std::endl;
+        std::cout << "**********" << std::endl;
+
+    }
 }
