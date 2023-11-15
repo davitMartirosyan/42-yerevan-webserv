@@ -57,7 +57,6 @@ void HTTPRequest::parse(sock_t fd, char *httpBuffer)
             path = tmpLine.substr(0, tmpLine.find_first_of(" "));
             tmpLine.erase(0, tmpLine.find_first_of(" ") + 1);
             version = tmpLine;
-            // httpRequest.erase(0, reqLineEnd + 2);
         }
     }
     if ((bodyEnd = httpRequest.find_last_of("\r\n")) != std::string::npos && reqLineEnd != std::string::npos)
@@ -78,29 +77,6 @@ void HTTPRequest::parse(sock_t fd, char *httpBuffer)
                 }
             }
         }
-        // httpRequest.erase(0, bodyEnd + 2);
-    }
-    if (reqLineEnd != std::string::npos && bodyEnd != std::string::npos)
-    {
-        std::map<std::string, std::string>::iterator it = httpHeaders.begin();
-        for(; it != httpHeaders.end(); it++)
-        {
-            if (it->first == "Content-Length")
-                bodySize = strtoul(it->second.c_str(), NULL, 10);
-            else if (it->first == "Content-Type")
-                multipart = it->second;
-        }
-        unsigned long int test = 0;
-        while (data.size() < bodySize)
-        {
-            char multipartData[2048];
-            int r = recv(fd, multipartData, sizeof(multipartData), 0);
-            multipartData[r] = '\0';
-            data.append(multipartData);
-        }
-        std::fstream file;
-        file.open("file.jpg", std::ios::out);
-        file << data;
     }
 }
 
