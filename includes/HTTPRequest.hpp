@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/16 01:49:45 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/16 23:08:29 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,11 @@ class HTTPRequest
 		HTTPRequest( void );
 		~HTTPRequest();
     public:
+        std::string findInMap(std::string key);
+    public:
         void parsing(sock_t fd);
+        void processing(sock_t fd);
+        static void charChange(std::string &str, char s, char d);
         std::string const &requestMethod( void ) const;
         std::string const &requestPath( void ) const;
         std::string const &requestVersion( void ) const;
@@ -43,11 +47,10 @@ class HTTPRequest
     private:
         unsigned long int bodySize;
     private:
-        enum t_method{
-            GET,
-            POST,
-            DELETE
-        };
+        std::map<std::string, void (HTTPRequest::*)( void )> functionMap;
+        void get( void );
+        void post( void );
+        void delet( void );
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/16 01:52:27 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/16 23:23:31 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,24 +47,18 @@ Client::~Client()
 
 void Client::appendRequest( void )
 {
+    int count = 0;
     while ((rd = recv(fd, http, sizeof(http), 0)) > 0)
     {
         if (rd > 0)
         {
+            count++;
             http[rd] = '\0';
             httpRequest.append(http);
         }
         else
             break;
     }
-    // std::cout << "**************************************************************" << std::endl;
-    // std::cout << httpRequest << std::endl;
-    // std::cout << "**************************************************************" << std::endl;
-    
     HTTPRequest::parsing(fd);
-    
-    
-    // rd = recv(fd, http, sizeof(http), 0);
-    // http[rd] = '\0';
-    // HTTPRequest::parse(fd, http);
+    HTTPRequest::processing(fd);
 }
