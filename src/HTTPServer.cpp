@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/15 23:27:41 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/19 00:15:46 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,14 +158,6 @@ bool HTTPServer::exist(sock_t fd)
     return (clnt.find(fd) != clnt.end());
 }
 
-void HTTPServer::request(Client &cl)
-{
-    int buf = 0;
-    char http[READ_BUFFER];
-    buf = recv(cl.getFd(), http, sizeof(http), 0);
-    http[buf] = '\0';
-    std::cout << http << std::endl;
-}
 
 bool HTTPServer::operator==(HTTPServer const &sibling)
 {

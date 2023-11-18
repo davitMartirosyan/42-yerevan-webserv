@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/18 15:42:54 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/19 02:09:17 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ Client::~Client()
 void Client::appendRequest( void )
 {
     int count = 0;
-    fd = 4;
     while ((rd = recv(fd, http, sizeof(http), 0)) > 0)
     {
         if (rd > 0)
@@ -60,24 +59,12 @@ void Client::appendRequest( void )
         else
             break;
     }
-    std::string data;
+    // rd = recv(fd, http, sizeof(http), 0);
+    // if (rd > 0)
+    // {
+    //     http[rd] = '\0';
+    //     httpRequest.append(http, rd);
+    // }
     HTTPRequest::parsing(fd);
     HTTPRequest::processing(fd);
-    int r = 0;
-    int size = 0;
-    
-    while ((r = recv(fd, http, sizeof(http), 0)) > 0)
-    {
-        if (r > 0)
-        {
-            http[r] = '\0';
-            data.append(http);
-            size += r;
-        }
-        else
-            break;
-    }
-    std::cout << strerror(errno) << std::endl;
-    std::cout << bodySize << " | " << size << std::endl;
-    std::cout << data << std::endl;
 }

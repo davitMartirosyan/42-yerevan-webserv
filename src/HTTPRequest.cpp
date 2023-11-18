@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/18 15:33:42 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/19 01:57:04 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ void HTTPRequest::parsing(sock_t fd)
     if ((bodyEnd = httpRequest.find("\r\n\r\n")) != std::string::npos)
     {
         headers = httpRequest.substr(0, bodyEnd);
+        httpRequest.erase(0, bodyEnd+4);
         std::string httpHeaderLine;
         std::stringstream keyValuePairs(headers);
         while (std::getline(keyValuePairs, httpHeaderLine, '\n'))
@@ -151,17 +152,8 @@ void HTTPRequest::post(sock_t fd)
     }
     else
         std::cout << "Not found" << std::endl;
-    
-    // std::ofstream f;
-    // f.open("control.txt", std::ios::out); // Opens the file for writing
-    // if (f.is_open()) {
-    //     std::cout << "File opened successfully." << std::endl;
-    //     f << data; // Writing 'data' to the file
-    //     f.close(); // Close the file
-    // } else {
-    //     std::cout << "Unable to open the file for writing." << std::endl;
-    // }
 }
+
 void HTTPRequest::delet(sock_t fd)
 {
     // std::cout << "method is DELETE" << std::endl;

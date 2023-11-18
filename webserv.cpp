@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/18 15:29:16 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/19 02:08:05 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,19 +17,23 @@ std::string file(std::string const &filename);
 
 int main(int ac, char **av)
 {
-    int max = 0;
     (void)ac;
     (void)av;
     try
     {   
-
+        int maxfd = 0;
+        fd_set rd;
+        fd_set wr;
+        FD_ZERO(&rd);
+        FD_ZERO(&wr);
+        
         ServerManager mgn("conf/webserv.conf");
         ///////////////////////////////////IN PARSING//////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
             srv.setIp("0.0.0.0");
-            srv.setPort("3333");
+            srv.setPort("5555");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -46,61 +50,71 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
+
+
+        
         srv.up(mgn);
             mgn.push_back(srv);
-        mgn.set();
-        
-        // std::cout << mgn.getmax() << std::endl;
-        fd_set s_rd;
-        fd_set s_wr;
-        fd_set s_ex;
-        while (mgn.getmax() > 0)
-        {
-            FD_ZERO(&s_rd);
-            FD_ZERO(&s_wr);
-            s_rd = mgn.r_set();
-            s_wr = mgn.w_set();
-            int i_o = select(mgn.getmax()+1, &s_rd, &s_wr, NULL, NULL);
-            if (i_o > 0)
-            {
-                for(int i = 0; i < FD_SETSIZE; i++)
-                {
-                    if (FD_ISSET(i, &s_rd))
-                    {
-                        if (mgn.findServerBySocket(i) != -1)
-                        {
-                            HTTPServer *server = mgn.getServerBySocket(i);
-                            sock_t newSocket = server->accept();
-                            if (newSocket > 0)
-                            {
-                                Client client(newSocket);
-                                server->push(newSocket, client);
-                                mgn.set_r(newSocket);
-                                if (newSocket > mgn.getmax())
-                                    mgn.setmax(newSocket);                               
-                            }
-                        }
-                        else
-                        {
-                            HTTPServer *server = mgn.getServerByClientSocket(i);
-                            Client *client = server->getClient(i);
-                            sock_t clfd = client->getFd();
-                            client->appendRequest();
-                            
+        // mgn.set();
 
-                            std::string response = "HTTP/1.1 200 OK\r\n";
-                            response += "\r\n";
-                            response += file("www/server1/index.html");
-                            
-                            ssize_t wr = send(clfd, response.c_str(), response.size(), 0);
-                            close(clfd);
-                            mgn.rm_r(client->getFd());
-                            server->removeClient(clfd);
-                        }
-                    }
+        FD_SET(srv.getfd(), &rd);
+        maxfd = srv.getfd();
+
+        fd_set tmp_rd;
+        fd_set tmp_wr;
+        while (1)
+        {
+            FD_ZERO(&tmp_rd);
+            FD_ZERO(&tmp_wr);
+            tmp_rd = rd;
+            tmp_wr = wr;
+            int io = select(maxfd + 1, &tmp_rd, &tmp_wr, NULL, NULL);
+            
+            for(size_t i = 0; i < mgn.size(); i++)
+            {
+                if (FD_ISSET(mgn[i].getfd(), &tmp_rd))
+                {
+                    sock_t cl = mgn[i].accept();
+                    Client client(cl);
+                    mgn.clnt.push_back(client);
+                    FD_SET(cl, &rd);
+                    maxfd = std::max(maxfd, cl);
+                }
+            }
+
+            for(size_t i = 0; i < mgn.clnt.size(); i++)
+            {
+                if (FD_ISSET(mgn.clnt[i].getFd(), &rd))
+                {
+                    Client client = mgn.clnt[i];
+                    sock_t clfd = client.getFd();
+                    
+                    client.appendRequest();
+                    FD_SET(clfd, &wr);
+                }
+                if (FD_ISSET(mgn.clnt[i].getFd(), &wr))
+                {
+                    sock_t clfd = mgn.clnt[i].getFd();
+                    std::string response = "HTTP/1.1 200 OK\r\n";
+                    response += "Date: Thu, 19 Nov 2023 12:00:00 GMT\r\n";
+                    response += "Server: ExampleServer/1.0\r\n";
+                    response += "Content-Type: text/html\r\n";
+                    response += "Content-Length: 1024\r\n";
+                    response += "\r\n";
+                    response += file("www/server1/index.html");
+                    
+                    ssize_t wr = send(clfd, response.c_str(), response.size(), 0);
+                    close(clfd);
+                    if (clfd == maxfd)
+                        maxfd -= 1;
                 }
             }
         }
+        
+
+        
+        
+     
     }
     catch(std::exception const &e)
     {
