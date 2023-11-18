@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/18 14:10:01 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/18 15:19:40 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,6 @@ void ServerManager::set_w(sock_t fd)
     if (fd == -1)
         return ;
     FD_SET(fd, &s_wr);
-    setmax(fd);
 }
 
 void ServerManager::set_r(sock_t fd)
@@ -137,7 +136,6 @@ void ServerManager::set_r(sock_t fd)
     if (fd == -1)
         return ;
     FD_SET((int)fd, &s_rd);
-    setmax(fd);
 }
 
 void ServerManager::set_e(sock_t fd)
@@ -145,7 +143,6 @@ void ServerManager::set_e(sock_t fd)
     if (fd == -1)
         return ;
     FD_SET(fd, &s_except);
-    setmax(fd);
 }
 
 fd_set ServerManager::r_set( void ) const

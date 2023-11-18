@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/18 13:24:02 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/18 15:33:42 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,11 +130,11 @@ std::string HTTPRequest::findInMap(std::string key)
 
 void HTTPRequest::get(sock_t fd)
 {
-    std::cout << "method is GET" << std::endl;
+    // std::cout << "method is GET" << std::endl;
 }
 void HTTPRequest::post(sock_t fd)
 {
-    std::cout << "method is POST" << std::endl;
+    // std::cout << "method is POST" << std::endl;
     std::string contentType = findInMap("Content-Type");
     if (!contentType.empty())
     {
@@ -164,5 +164,5 @@ void HTTPRequest::post(sock_t fd)
 }
 void HTTPRequest::delet(sock_t fd)
 {
-    std::cout << "method is DELETE" << std::endl;
+    // std::cout << "method is DELETE" << std::endl;
 }
