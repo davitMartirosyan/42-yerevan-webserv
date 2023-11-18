@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/16 23:08:29 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/17 23:51:05 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,21 @@ class HTTPRequest
         std::string request;
         std::string method;
         std::string path;
+        std::string pathQuery;
         std::string version;
         std::string headers;
         std::string body;
     protected:
         std::map<std::string, std::string> httpHeaders;
-    private:
+    protected:
+        std::string boundary;
+        std::string boundaryEnd;
         unsigned long int bodySize;
     private:
-        std::map<std::string, void (HTTPRequest::*)( void )> functionMap;
-        void get( void );
-        void post( void );
-        void delet( void );
+        std::map<std::string, void (HTTPRequest::*)(sock_t)> functionMap;
+        void get(sock_t fd);
+        void post(sock_t fd);
+        void delet(sock_t fd);
 };
 
 #endif

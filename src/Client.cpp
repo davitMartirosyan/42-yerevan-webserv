@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/16 23:23:31 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/18 13:24:00 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ void Client::appendRequest( void )
         else
             break;
     }
+    std::cout << fd << std::endl;
     HTTPRequest::parsing(fd);
     HTTPRequest::processing(fd);
 }

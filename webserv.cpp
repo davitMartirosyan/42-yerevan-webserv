@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/16 21:26:00 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/18 14:14:06 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ std::string file(std::string const &filename);
 
 int main(int ac, char **av)
 {
+    int max = 0;
     (void)ac;
     (void)av;
     try
@@ -28,7 +29,7 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
             srv.setIp("0.0.0.0");
-            srv.setPort("5555");
+            srv.setPort("3333");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -48,32 +49,31 @@ int main(int ac, char **av)
         srv.up(mgn);
             mgn.push_back(srv);
         mgn.set();
-
-
         
+
         fd_set s_rd = mgn.r_set();
         fd_set s_wr = mgn.w_set();
         fd_set s_ex = mgn.e_set();
         while (1)
         {
             sock_t found = 0;
+            FD_ZERO(&s_rd);
+            FD_ZERO(&s_wr);
+            FD_ZERO(&s_ex);
             s_rd = mgn.r_set();
             s_wr = mgn.w_set();
             s_ex = mgn.e_set();
-            int i_o = select(mgn.getmax() + 1, &s_rd, &s_wr, NULL, NULL);
+            int i_o = select(mgn.getmax()+1, &s_rd, &s_wr, NULL, NULL);
+            
             if (i_o > 0)
             {
-
-                for(int i = 0; i <= FD_SETSIZE; i++)
+                for(int i = 0; i < FD_SETSIZE; i++)
                 {
                     if (FD_ISSET(i, &s_rd))
                     {
                         if ((found = mgn.findServerBySocket(i)) != -1)
                         {
-                            std::cout << "_______________" << std::endl;
-                            std::cout << mgn.getmax() << ":::" << i << std::endl;
-                            std::cout << "qtel em servery" << std::endl;
-                            std::cout << "_______________" << std::endl;
+                            std::cout << "server: " << i << " qtel em" << std::endl;
                             HTTPServer* that = mgn.getServerBySocket(i);
                             sock_t cl = that->accept();
                             Client client(cl);
@@ -85,25 +85,31 @@ int main(int ac, char **av)
                             HTTPServer* server = mgn.getServerByClientSocket(i);
                             Client* client = server->getClient(i);
                             client->appendRequest();
-                            
-                            // mgn.set_w(client->getFd());
-                            
+                            mgn.set_w(client->getFd());
+                        }
+                    }
+                    if (FD_ISSET(i, &s_wr)) {
+                        if ((found = mgn.findClientBySocket(i)) != -1)
+                        {
+                            HTTPServer* server = mgn.getServerByClientSocket(i);
+                            Client* client = server->getClient(i);
+
                             
                             std::string response = "HTTP/1.1 200 OK\r\n";
                             response += "\r\n";
-                            // response += "<html><head><link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'></head><body><form action='post.php' method='POST' enctype='multipart/form-data'><input type='file' name='pic'><input type='submit' name='send'></form></body></html>";
                             response += file("www/server1/index.html");
-                            int wr = send(client->getFd(), response.c_str(), response.size(), 0);
+                            
+                            ssize_t wr = send(client->getFd(), response.c_str(), response.size(), 0);
                             close(client->getFd());
-                            mgn.rm_r(client->getFd());
+                            if(FD_ISSET(client->getFd(), &s_wr))
+                            {
+                                FD_CLR(client->getFd(), &s_wr);
+                                if (client->getFd() == max)
+                                    max = max - 1;
+                            }
                             server->removeClient(client->getFd());
                             response.clear();
                         }
-                    } else if (FD_ISSET(i, &s_wr)) {
-                        // if ((found = mgn.findClientBySocket(i)) != -1)
-                        // {
-                            
-                        // }
                     }
                 }
             }

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/16 23:23:23 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/18 13:24:02 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ HTTPRequest::HTTPRequest( void )
     functionMap["GET"] = &HTTPRequest::get;
     functionMap["POST"] = &HTTPRequest::post;
     functionMap["DELETE"] = &HTTPRequest::delet;
+    //boundary = "&"; // !IMPORTANT: if GET request: the boundary is (&) else if POST request: boundary is read from (Headers)
 }
 
 HTTPRequest::~HTTPRequest()
@@ -44,13 +45,13 @@ std::string const &HTTPRequest::requestVersion( void ) const
 
 std::string HTTPRequest::rtrim(const std::string &str)
 {
-    size_t end = str.find_last_not_of(" \n\t\f\v");
-    return (end == std::string::npos ? str : str.substr(0, end + 1));
+    size_t end = str.find_last_not_of(" \r\n\t\f\v");
+    return (end == std::string::npos ? "" : str.substr(0, end + 1));
 }
 
 std::string HTTPRequest::ltrim(const std::string &str)
 {
-    size_t start = str.find_first_not_of(" \n\t\f\v");
+    size_t start = str.find_first_not_of(" \r\n\t\f\v");
     return (start == std::string::npos ? str : str.substr(start));
 }
 
@@ -70,19 +71,13 @@ void HTTPRequest::parsing(sock_t fd)
         path = request.substr(0, request.find(" "));
         request.erase(0, path.size()+1);
         version = request.substr(0, request.find("\r\n"));
-        // httpRequest.erase(0, method.size()+path.size()+version.size()+4);
         httpRequest.erase(0, reqLineEnd+2);
     }
     if ((bodyEnd = httpRequest.find("\r\n\r\n")) != std::string::npos)
     {
         headers = httpRequest.substr(0, bodyEnd);
-        // HTTPRequest::charChange(headers, '\r', '*');
-        // HTTPRequest::charChange(headers, '\n', '-');
-        // std::cout << "+++++++++++++" << std::endl;
-        // std::cout << headers << std::endl;
-        // std::cout << "+++++++++++++" << std::endl;
         std::string httpHeaderLine;
-        std::stringstream keyValuePairs(trim(headers));
+        std::stringstream keyValuePairs(headers);
         while (std::getline(keyValuePairs, httpHeaderLine, '\n'))
         {
             size_t pair = 0;
@@ -92,7 +87,6 @@ void HTTPRequest::parsing(sock_t fd)
                 {
                     std::string key = trim(httpHeaderLine.substr(0, pair));
                     std::string value = trim(httpHeaderLine.substr(pair+1, httpHeaderLine.find("\r")));
-                    // std::cout << key << "=" << value << std::endl;
                     this->httpHeaders.insert(std::make_pair(key, value));
                     key.clear();
                     value.clear();
@@ -111,9 +105,9 @@ void HTTPRequest::parsing(sock_t fd)
 
 void HTTPRequest::processing(sock_t fd)
 {
-    std::map<std::string, void(HTTPRequest::*)( void )>::iterator function = functionMap.find(method);
+    std::map<std::string, void(HTTPRequest::*)(sock_t)>::iterator function = functionMap.find(method);
     if (function != functionMap.end())
-       ( this->*(function->second))();
+       ( this->*(function->second))(fd);
 }
 
 void HTTPRequest::charChange(std::string &str, char s, char d)
@@ -134,16 +128,41 @@ std::string HTTPRequest::findInMap(std::string key)
     return (nill);
 }
 
-void HTTPRequest::get( void )
+void HTTPRequest::get(sock_t fd)
 {
     std::cout << "method is GET" << std::endl;
 }
-void HTTPRequest::post( void )
+void HTTPRequest::post(sock_t fd)
 {
     std::cout << "method is POST" << std::endl;
-    std::cout << findInMap("Content-Length") << std::endl;
+    std::string contentType = findInMap("Content-Type");
+    if (!contentType.empty())
+    {
+        std::string contentLength = findInMap("Content-Length");
+        const char *offset = "boundary=";
+        size_t boundaryPos = 0;
+        if ((boundaryPos = contentType.find(offset)) != std::string::npos)
+        {
+            boundary = "--" + contentType.substr(boundaryPos+std::strlen(offset));
+            boundaryEnd = (!boundary.empty() && boundary != "--") ? boundary + "--" : "";
+        }
+        if (!contentLength.empty())
+            bodySize = std::atoi(contentLength.c_str());
+    }
+    else
+        std::cout << "Not found" << std::endl;
+    
+    // std::ofstream f;
+    // f.open("control.txt", std::ios::out); // Opens the file for writing
+    // if (f.is_open()) {
+    //     std::cout << "File opened successfully." << std::endl;
+    //     f << data; // Writing 'data' to the file
+    //     f.close(); // Close the file
+    // } else {
+    //     std::cout << "Unable to open the file for writing." << std::endl;
+    // }
 }
-void HTTPRequest::delet( void )
+void HTTPRequest::delet(sock_t fd)
 {
     std::cout << "method is DELETE" << std::endl;
 }
