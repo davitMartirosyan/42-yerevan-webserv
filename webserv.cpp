@@ -33,7 +33,7 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
             srv.setIp("0.0.0.0");
-            srv.setPort("5555");
+            srv.setPort("3333");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
@@ -54,12 +54,12 @@ int main(int ac, char **av)
 
         
         srv.up(mgn);
-            mgn.push_back(srv);
-        // mgn.set();
+        mgn.push_back(srv);
 
         FD_SET(srv.getfd(), &rd);
         maxfd = srv.getfd();
 
+        std::string response;
         fd_set tmp_rd;
         fd_set tmp_wr;
         while (1)
@@ -69,52 +69,59 @@ int main(int ac, char **av)
             tmp_rd = rd;
             tmp_wr = wr;
             int io = select(maxfd + 1, &tmp_rd, &tmp_wr, NULL, NULL);
-            
-            for(size_t i = 0; i < mgn.size(); i++)
-            {
-                if (FD_ISSET(mgn[i].getfd(), &tmp_rd))
-                {
-                    sock_t cl = mgn[i].accept();
-                    Client client(cl);
-                    mgn.clnt.push_back(client);
-                    FD_SET(cl, &rd);
-                    maxfd = std::max(maxfd, cl);
-                }
-            }
 
-            for(size_t i = 0; i < mgn.clnt.size(); i++)
+            if (io > 0)
             {
-                if (FD_ISSET(mgn.clnt[i].getFd(), &rd))
+                if (FD_ISSET(srv.getfd(), &tmp_rd))
                 {
-                    Client client = mgn.clnt[i];
-                    sock_t clfd = client.getFd();
-                    
-                    client.appendRequest();
-                    FD_SET(clfd, &wr);
+                    //new socket for client
+                    sock_t cl = srv.accept();
+                    if (cl > 0)
+                    {
+                        std::cout << "new socket for client is created: " << cl << std::endl;
+                        Client client(cl);
+                        srv.push(cl, client);
+                        FD_SET(cl, &rd);
+                        maxfd = std::max(maxfd, cl);
+                    }
                 }
-                if (FD_ISSET(mgn.clnt[i].getFd(), &wr))
+
+                for (size_t i = 0; i <= maxfd; i++)
                 {
-                    sock_t clfd = mgn.clnt[i].getFd();
-                    std::string response = "HTTP/1.1 200 OK\r\n";
-                    response += "Date: Thu, 19 Nov 2023 12:00:00 GMT\r\n";
-                    response += "Server: ExampleServer/1.0\r\n";
-                    response += "Content-Type: text/html\r\n";
-                    response += "Content-Length: 1024\r\n";
-                    response += "\r\n";
-                    response += file("www/server1/index.html");
-                    
-                    ssize_t wr = send(clfd, response.c_str(), response.size(), 0);
-                    close(clfd);
-                    if (clfd == maxfd)
-                        maxfd -= 1;
+                    if (FD_ISSET(i, &tmp_rd))
+                    {
+                        Client *client = srv.getClient(i);
+                        if (client)
+                        {
+                            std::cout << "reading from client socket: " << client->getFd() << std::endl;
+                            client->appendRequest();
+                            response = "HTTP/1.1 200 OK\r\n";
+                            response += "Date: Mon, 27 Jul 2009 12:28:53 GMT";
+                            response += "Server: Apache/2.2.14 (Win32)\r\n";
+                            response += "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n";
+                            response += "Content-Length: 1024\r\n";
+                            response += "Content-Type: text/html\r\n";
+                            response += "Connection: keep-alive\r\n";
+                            response += "\r\n";
+                            response += file("www/server1/index.html");
+                            FD_SET(client->getFd(), &tmp_wr);
+                        }
+                    }
+                    if (FD_ISSET(i, &tmp_wr))
+                    {
+                        Client *client = srv.getClient(i);
+                        sock_t clfd = client->getFd();
+                        int snd = send(client->getFd(), response.c_str(), response.size(), 0);
+                        close(client->getFd());
+                        FD_CLR(client->getFd(), &wr);
+                        FD_CLR(client->getFd(), &rd);
+                        srv.removeClient(client->getFd());
+                        if (clfd == maxfd)
+                            maxfd -= 1;
+                    }
                 }
             }
         }
-        
-
-        
-        
-     
     }
     catch(std::exception const &e)
     {

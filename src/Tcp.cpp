@@ -64,8 +64,8 @@ void Tcp::bindSocket( void )
 {
     int l = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &l, sizeof(l));
-    if (fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) < 0)
-        throw HTTPCoreException(strerror(errno));
+    // if (fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) < 0)
+    //     throw HTTPCoreException(strerror(errno));
     if (bind(fd, SocketAddress, addrList->ai_addrlen) < 0)
         throw HTTPCoreException(strerror(errno));
 }
@@ -84,7 +84,7 @@ sock_t Tcp::accept( void )
     if (fcntl(client, F_SETFL, O_NONBLOCK, FD_CLOEXEC) < 0)
         throw HTTPCoreException(strerror(errno));
     if (client < 0)
-        return (-1);
+        return (0);
     return (client);
 }
 

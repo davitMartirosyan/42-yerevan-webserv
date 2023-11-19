@@ -42,7 +42,7 @@ class ServerManager : public std::vector<HTTPServer>
         std::vector<HTTPServer> srvs;
         // std::vector<Client> clnt;
     public:
-        std::vector<Client> clnt;
+        // std::vector<Client> clnt;
         void setmax(sock_t lastfd);
         void set( void );
         void set_r(sock_t fd);
