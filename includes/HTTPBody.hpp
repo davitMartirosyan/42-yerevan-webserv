@@ -1,27 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   DefaultSetup.hpp                                   :+:      :+:    :+:   */
+/*   HTTPBody.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/26 14:06:06 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/21 00:07:41 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/11/21 02:18:28 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/11/21 02:23:14 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef DEFAULT_SETUP_HPP
-#define DEFAULT_SETUP_HPP
+#ifndef HTTP_BODY_HPP
+#define HTTP_BODY_HPP
+#include "Libs.hpp"
 
-#define READ_BUFFER             150000
-#define WRITE_BUFFER            150000
-#define DEFAULT_HTTP_PERM_PORT  "80"
-#define DEFAULT_HTTP_PORT       "8080"
-#define DEFAULT_MASK            "0.0.0.0"
-#define CONFIGS "./conf/"
-#define DFLT CONFIGS"webserv.conf"
-
-typedef int         sock_t;
-#include "HTTPCoreException.hpp"
+struct HTTPBody
+{
+    std::string contentDisposition;
+    std::string inputName;
+    std::string fileContentType;
+    
+};
 
 #endif

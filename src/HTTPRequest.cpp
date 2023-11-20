@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/19 01:57:04 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/21 02:14:21 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,55 +60,11 @@ std::string HTTPRequest::trim(const std::string &str)
     return (ltrim(rtrim(str)));
 }
 
-void HTTPRequest::parsing(sock_t fd)
-{
-    int isValid = 0;
-    if ((reqLineEnd = httpRequest.find_first_of("\r\n")) != std::string::npos)
-    {
-        request = httpRequest.substr(0, reqLineEnd+2);
-        method = request.substr(0, request.find(" "));
-        request.erase(0, method.size()+1);
-        path = request.substr(0, request.find(" "));
-        request.erase(0, path.size()+1);
-        version = request.substr(0, request.find("\r\n"));
-        httpRequest.erase(0, reqLineEnd+2);
-    }
-    if ((bodyEnd = httpRequest.find("\r\n\r\n")) != std::string::npos)
-    {
-        headers = httpRequest.substr(0, bodyEnd);
-        httpRequest.erase(0, bodyEnd+4);
-        std::string httpHeaderLine;
-        std::stringstream keyValuePairs(headers);
-        while (std::getline(keyValuePairs, httpHeaderLine, '\n'))
-        {
-            size_t pair = 0;
-            if ((pair = httpHeaderLine.find_first_of(":")) != std::string::npos)
-            {
-                if (std::isspace(httpHeaderLine[pair+1]))
-                {
-                    std::string key = trim(httpHeaderLine.substr(0, pair));
-                    std::string value = trim(httpHeaderLine.substr(pair+1, httpHeaderLine.find("\r")));
-                    this->httpHeaders.insert(std::make_pair(key, value));
-                    key.clear();
-                    value.clear();
-                    httpHeaderLine.clear();
-                }
-                else
-                    isValid = -3;
-            }
-            else
-                isValid = -2;
-        }
-    }
-    else
-        isValid = -1;
-}
-
 void HTTPRequest::processing(sock_t fd)
 {
     std::map<std::string, void(HTTPRequest::*)(sock_t)>::iterator function = functionMap.find(method);
     if (function != functionMap.end())
-       ( this->*(function->second))(fd);
+       (this->*(function->second))(fd);
 }
 
 void HTTPRequest::charChange(std::string &str, char s, char d)
@@ -133,28 +89,49 @@ void HTTPRequest::get(sock_t fd)
 {
     // std::cout << "method is GET" << std::endl;
 }
+
 void HTTPRequest::post(sock_t fd)
 {
-    // std::cout << "method is POST" << std::endl;
-    std::string contentType = findInMap("Content-Type");
+    contentType = findInMap("Content-Type");
     if (!contentType.empty())
     {
-        std::string contentLength = findInMap("Content-Length");
-        const char *offset = "boundary=";
-        size_t boundaryPos = 0;
-        if ((boundaryPos = contentType.find(offset)) != std::string::npos)
-        {
-            boundary = "--" + contentType.substr(boundaryPos+std::strlen(offset));
-            boundaryEnd = (!boundary.empty() && boundary != "--") ? boundary + "--" : "";
-        }
-        if (!contentLength.empty())
-            bodySize = std::atoi(contentLength.c_str());
+        std::cout << "|"<<contentType<<"|" << std::endl;
+        type = contentType.substr(0, contentType.find(";"));
+        contentType.erase(0, contentType.find(";")+1);
+        boundary = "--" + contentType.substr(contentType.find("=")+1);
+        boundaryEnd = boundary + "--";
+        std::cout << "[" << type << "][" << boundary << "]" << std::endl;
     }
-    else
-        std::cout << "Not found" << std::endl;
+    
+    std::stringstream iss(httpRequest);
+    std::string get_next_line;
+    std::cout << httpRequest << std::endl;
+    // while (std::getline(iss, get_next_line))
+    // {
+    //     if (trim(get_next_line) == boundary)
+    //     {
+    //     }
+    //     else if (trim(get_next_line) == boundaryEnd)
+    //     {
+    //         std::cout << get_next_line << std::endl;
+    //     }
+    //     // if (get_next_line.substr(0, endof) == boundary)
+    //     // {
+    //     //     std::cout << get_next_line << std::endl;
+    //     // }
+    // }
 }
 
 void HTTPRequest::delet(sock_t fd)
 {
     // std::cout << "method is DELETE" << std::endl;
+}
+
+void HTTPRequest::showHeaders( void )
+{
+    std::map<std::string, std::string>::iterator it;
+    for(it = httpHeaders.begin(); it != httpHeaders.end(); it++)
+    {
+        std::cout << it->first << " = " << it->second << std::endl;
+    }
 }
