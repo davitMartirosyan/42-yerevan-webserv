@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/21 02:14:21 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:27:28 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,31 +95,32 @@ void HTTPRequest::post(sock_t fd)
     contentType = findInMap("Content-Type");
     if (!contentType.empty())
     {
-        std::cout << "|"<<contentType<<"|" << std::endl;
+        // std::cout << "|"<<contentType<<"|" << std::endl;
         type = contentType.substr(0, contentType.find(";"));
         contentType.erase(0, contentType.find(";")+1);
         boundary = "--" + contentType.substr(contentType.find("=")+1);
         boundaryEnd = boundary + "--";
-        std::cout << "[" << type << "][" << boundary << "]" << std::endl;
+        // std::cout << "[" << type << "][" << boundary << "]" << std::endl;
     }
     
     std::stringstream iss(httpRequest);
+    std::vector<std::string> content;
+    std::string line;
     std::string get_next_line;
+    while (std::getline(iss, get_next_line))
+    {
+        if (trim(get_next_line) == boundary || trim(get_next_line) == boundaryEnd)
+        {
+            if (!line.empty())
+            {
+                content.push_back(line);
+                line.erase();
+            }
+        }
+        else
+            line += get_next_line + "\r\n";
+    }
     std::cout << httpRequest << std::endl;
-    // while (std::getline(iss, get_next_line))
-    // {
-    //     if (trim(get_next_line) == boundary)
-    //     {
-    //     }
-    //     else if (trim(get_next_line) == boundaryEnd)
-    //     {
-    //         std::cout << get_next_line << std::endl;
-    //     }
-    //     // if (get_next_line.substr(0, endof) == boundary)
-    //     // {
-    //     //     std::cout << get_next_line << std::endl;
-    //     // }
-    // }
 }
 
 void HTTPRequest::delet(sock_t fd)

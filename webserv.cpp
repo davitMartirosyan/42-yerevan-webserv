@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/19 02:08:05 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:06:26 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,12 +94,13 @@ int main(int ac, char **av)
                         if (client)
                         {
                             std::cout << "reading from client socket: " << client->getFd() << std::endl;
+
                             client->appendRequest();
                             response = "HTTP/1.1 200 OK\r\n";
                             response += "Date: Mon, 27 Jul 2009 12:28:53 GMT";
                             response += "Server: Apache/2.2.14 (Win32)\r\n";
                             response += "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n";
-                            response += "Content-Length: 1024\r\n";
+                            // response += "Content-Length: 2048\r\n";
                             response += "Content-Type: text/html\r\n";
                             response += "Connection: keep-alive\r\n";
                             response += "\r\n";

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/21 01:41:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:11:44 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,16 @@ class HTTPRequest
         std::string contentType;
         std::string type;
         unsigned long int bodySize;
+    protected:
+        std::vector<std::string> contentParts;
+        std::vector<std::string> cgiBase;
     private:
         std::map<std::string, void (HTTPRequest::*)(sock_t)> functionMap;
         void get(sock_t fd);
         void post(sock_t fd);
         void delet(sock_t fd);
 };
+
+
 
 #endif
