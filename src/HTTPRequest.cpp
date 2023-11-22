@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/21 21:27:28 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/23 01:50:24 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,12 @@ HTTPRequest::HTTPRequest( void )
     reqLineEnd = 0;
     bodyEnd = 0;
     bodySize = 0;
-    functionMap["GET"] = &HTTPRequest::get;
-    functionMap["POST"] = &HTTPRequest::post;
-    functionMap["DELETE"] = &HTTPRequest::delet;
+    methodsMap["GET"] = &HTTPRequest::get;
+    methodsMap["POST"] = &HTTPRequest::post;
+    methodsMap["DELETE"] = &HTTPRequest::delet;
     //boundary = "&"; // !IMPORTANT: if GET request: the boundary is (&) else if POST request: boundary is read from (Headers)
+    contentMap["multipart/form-data"] = &HTTPRequest::multipart;
+    contentMap["application/x-www-form-urlencoded"] = &HTTPRequest::wwwFormUrlEncoded;
 }
 
 HTTPRequest::~HTTPRequest()
@@ -62,8 +64,8 @@ std::string HTTPRequest::trim(const std::string &str)
 
 void HTTPRequest::processing(sock_t fd)
 {
-    std::map<std::string, void(HTTPRequest::*)(sock_t)>::iterator function = functionMap.find(method);
-    if (function != functionMap.end())
+    std::map<std::string, void(HTTPRequest::*)(sock_t)>::iterator function = methodsMap.find(method);
+    if (function != methodsMap.end())
        (this->*(function->second))(fd);
 }
 
@@ -92,17 +94,44 @@ void HTTPRequest::get(sock_t fd)
 
 void HTTPRequest::post(sock_t fd)
 {
-    contentType = findInMap("Content-Type");
-    if (!contentType.empty())
+    if (!(contentType = findInMap("Content-Type")).empty())
     {
-        // std::cout << "|"<<contentType<<"|" << std::endl;
-        type = contentType.substr(0, contentType.find(";"));
-        contentType.erase(0, contentType.find(";")+1);
-        boundary = "--" + contentType.substr(contentType.find("=")+1);
-        boundaryEnd = boundary + "--";
-        // std::cout << "[" << type << "][" << boundary << "]" << std::endl;
+        type = trim(contentType.substr(0, contentType.find(";")));
+        HTTPRequest::contentReceiveMethod(fd);
     }
+    else if (!(transferEncoding = findInMap("Transfer-Encoding")).empty())
+    {
+        std::cout << "Data transfers chunck by chunk" << std::endl;
+    }
+    // showHeaders();
+}
+
+void HTTPRequest::contentReceiveMethod(sock_t fd)
+{
+    std::map<std::string, void (HTTPRequest::*)(sock_t)>::iterator function = contentMap.find(type);
+    if (function != contentMap.end())
+        (this->*(function->second))(fd);
+    else
+        std::cout << "nothing" << std::endl;
+}
+
+void HTTPRequest::prepareToTransfer(std::string const &content)
+{
     
+}
+
+void HTTPRequest::delet(sock_t fd)
+{
+    // std::cout << "method is DELETE" << std::endl;
+}
+
+void HTTPRequest::multipart(sock_t fd)
+{
+    std::cout << "multipart/form-data" << std::endl;
+    std::cout << httpRequest << std::endl;
+    contentType.erase(0, contentType.find(";")+1);
+    boundary = "--" + contentType.substr(contentType.find("=")+1);
+    boundaryEnd = boundary + "--";
     std::stringstream iss(httpRequest);
     std::vector<std::string> content;
     std::string line;
@@ -113,19 +142,19 @@ void HTTPRequest::post(sock_t fd)
         {
             if (!line.empty())
             {
-                content.push_back(line);
+                HTTPRequest::prepareToTransfer(line);
+                // content.push_back(line);
                 line.erase();
             }
         }
         else
             line += get_next_line + "\r\n";
     }
-    std::cout << httpRequest << std::endl;
 }
 
-void HTTPRequest::delet(sock_t fd)
+void HTTPRequest::wwwFormUrlEncoded(sock_t fd)
 {
-    // std::cout << "method is DELETE" << std::endl;
+    std::cout << "application/x-www-form-urlencoded" << std::endl;
 }
 
 void HTTPRequest::showHeaders( void )

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/21 19:16:31 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/23 01:34:37 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ void Client::appendRequest( void )
     bool headersFound = 0;
     size_t space = 0;
     char *buf = new char[READ_BUFFER];
-    std::cout << "es hasa" << std::endl;
     while (1)
     {
         if ((rd = recv(fd, buf, sizeof(READ_BUFFER), 0)) > 0)

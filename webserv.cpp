@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/21 21:06:26 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/23 00:23:50 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,6 @@ int main(int ac, char **av)
                         Client *client = srv.getClient(i);
                         if (client)
                         {
-                            std::cout << "reading from client socket: " << client->getFd() << std::endl;
-
                             client->appendRequest();
                             response = "HTTP/1.1 200 OK\r\n";
                             response += "Date: Mon, 27 Jul 2009 12:28:53 GMT";
@@ -105,10 +103,10 @@ int main(int ac, char **av)
                             response += "Connection: keep-alive\r\n";
                             response += "\r\n";
                             response += file("www/server1/index.html");
-                            FD_SET(client->getFd(), &tmp_wr);
+                            FD_SET(client->getFd(), &wr);
                         }
                     }
-                    if (FD_ISSET(i, &tmp_wr))
+                    if (FD_ISSET(i, &wr))
                     {
                         Client *client = srv.getClient(i);
                         sock_t clfd = client->getFd();

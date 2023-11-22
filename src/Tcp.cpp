@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 21:34:14 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/21 21:25:51 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/23 00:22:13 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,8 +81,8 @@ sock_t Tcp::accept( void )
     socklen_t clntSize = sizeof(clntAddr);
     sock_t client = ::accept(fd, (struct sockaddr *)&clntAddr, &clntSize);
     // std::cout << pton(htonl(((struct sockaddr_in*)&clntAddr)->sin_addr.s_addr)) << std::endl;
-    // if (fcntl(client, F_SETFL, O_NONBLOCK, FD_CLOEXEC) < 0)
-    //     throw HTTPCoreException(strerror(errno));
+    if (fcntl(client, F_SETFL, O_NONBLOCK, FD_CLOEXEC) < 0)
+        throw HTTPCoreException(strerror(errno));
     if (client < 0)
         return (0);
     return (client);
