@@ -15,10 +15,9 @@
 #include "Libs.hpp"
 #include "HTTPRequest.hpp"
 #include "ServerManager.hpp"
-// #include "HTTPServer.hpp"
+#include "HTTPServer.hpp"
 
-// class HTTPServer;
-class ServerManager;
+class HTTPServer;
 class Client : public HTTPRequest
 {
     public:
@@ -27,7 +26,8 @@ class Client : public HTTPRequest
         Client(sock_t clfd);
         ~Client();
     public:
-        void appendRequest( void );
+        void processing(HTTPServer &srv);
+        void appendRequest(HTTPServer &srv);
     public:
         sock_t getFd( void ) const;
         sock_t getServerFd( void ) const;

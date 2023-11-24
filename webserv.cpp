@@ -33,8 +33,8 @@ int main(int ac, char **av)
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
             srv.setIp("0.0.0.0");
-            srv.setPort("3333");
-            srv.setRoot("www/server1/");
+            srv.setPort("80");
+            srv.setRoot("www/server1");
             srv.setSize("200mb");
             srv.setAutoindex("on");
             srv.pushIndex("index.html");
@@ -93,7 +93,7 @@ int main(int ac, char **av)
                         Client *client = srv.getClient(i);
                         if (client)
                         {
-                            client->appendRequest();
+                            client->appendRequest(srv);
                             response = "HTTP/1.1 200 OK\r\n";
                             response += "Date: Mon, 27 Jul 2009 12:28:53 GMT";
                             response += "Server: Apache/2.2.14 (Win32)\r\n";

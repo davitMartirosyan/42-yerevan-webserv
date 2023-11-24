@@ -19,7 +19,9 @@
 #include "Client.hpp"
 #include "ServerCore.hpp"
 #include "ServerManager.hpp"
+#include "HTTPRequest.hpp"
 
+class HTTPRequest;
 class ServerManager;
 class Location;
 class Client;

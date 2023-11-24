@@ -29,7 +29,6 @@ HTTPRequest::~HTTPRequest()
 {
 }
 
-
 std::string const &HTTPRequest::requestMethod( void ) const
 {
     return (method);
@@ -103,7 +102,6 @@ void HTTPRequest::post(sock_t fd)
     {
         std::cout << "Data transfers chunck by chunk" << std::endl;
     }
-    // showHeaders();
 }
 
 void HTTPRequest::contentReceiveMethod(sock_t fd)
@@ -165,3 +163,4 @@ void HTTPRequest::showHeaders( void )
         std::cout << it->first << " = " << it->second << std::endl;
     }
 }
+

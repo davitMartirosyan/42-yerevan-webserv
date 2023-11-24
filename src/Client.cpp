@@ -44,8 +44,7 @@ Client::~Client()
 {
 }
 
-
-void Client::appendRequest( void )
+void Client::appendRequest(HTTPServer &srv)
 {
     bool reqLineFound = 0;
     bool headersFound = 0;
@@ -97,11 +96,15 @@ void Client::appendRequest( void )
     }
     delete [] buf;
     if (reqLineFound && headersFound)
-    {
-        if (!method.empty())
-            HTTPRequest::processing(fd);
+    {        
         reqLineFound = false;
         headersFound = false;
+        Client::processing(srv);
     }
 }
 
+void Client::processing(HTTPServer &srv)
+{
+    std::cout << srv.getRoot() << std::endl;
+    
+}
