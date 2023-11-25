@@ -13,6 +13,9 @@
 #ifndef SRV_CORE_HPP
 #define SRV_CORE_HPP
 #include "Libs.hpp"
+#include "HTTPRequest.hpp"
+
+class HTTPRequest;
 
 struct ServerCore
 {
@@ -25,11 +28,11 @@ struct ServerCore
     public:
         const char* findIndex(std::string const &filename) const;
         const char* findMethod(std::string const &method) const;
-        const char* findErrorPage(std::string const &status_code);
     public:
         void pushIndex(std::string const &fileNameExample);
         void pushMethods(std::string const &method);
-        void pushErrPage(std::string const &key, std::string const &errpage_filename);
+        void pushErrPage(int, std::string const &errpage_filename);
+        std::string getErrPage(int key) const;
         void setRoot(std::string const &root);
         void setAutoindex(std::string const &sw);
         void setSize(std::string const &bodySize);
@@ -37,7 +40,7 @@ struct ServerCore
         std::string root;                                       // [root]               www/server1/
         std::vector<std::string> index;                         // [index]              index.html barev.html index.htm ....
         std::vector<std::string> methods;                       // [allow_methods]      GET | POST | DELETE
-        std::map<std::string, std::string> error_page;          // [error_page]         404 [root]/error_pages/404.html 
+        std::map<int, std::string> error_page;                  // [error_page]         404 [root]/error_pages/404.html 
         bool autoindex;                                         // [autoindex]          on (true) | off (false)
         unsigned long long int client_body_size;                // [client_body_size]   200m -> 200.000.000byte -> 200mb
 };

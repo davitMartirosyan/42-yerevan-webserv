@@ -6,12 +6,14 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/23 01:50:24 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/26 02:18:22 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPRequest.hpp"
+#include "HTTPServer.hpp"
 
+// class HTTPServer;
 HTTPRequest::HTTPRequest( void )
 {
     reqLineEnd = 0;
@@ -21,8 +23,9 @@ HTTPRequest::HTTPRequest( void )
     methodsMap["POST"] = &HTTPRequest::post;
     methodsMap["DELETE"] = &HTTPRequest::delet;
     //boundary = "&"; // !IMPORTANT: if GET request: the boundary is (&) else if POST request: boundary is read from (Headers)
-    contentMap["multipart/form-data"] = &HTTPRequest::multipart;
-    contentMap["application/x-www-form-urlencoded"] = &HTTPRequest::wwwFormUrlEncoded;
+    methods.push_back("GET");
+    methods.push_back("POST");
+    methods.push_back("DELETE");
 }
 
 HTTPRequest::~HTTPRequest()
@@ -63,9 +66,6 @@ std::string HTTPRequest::trim(const std::string &str)
 
 void HTTPRequest::processing(sock_t fd)
 {
-    std::map<std::string, void(HTTPRequest::*)(sock_t)>::iterator function = methodsMap.find(method);
-    if (function != methodsMap.end())
-       (this->*(function->second))(fd);
 }
 
 void HTTPRequest::charChange(std::string &str, char s, char d)
@@ -86,17 +86,17 @@ std::string HTTPRequest::findInMap(std::string key)
     return (nill);
 }
 
-void HTTPRequest::get(sock_t fd)
+void HTTPRequest::get(HTTPServer &srv)
 {
-    // std::cout << "method is GET" << std::endl;
+    std::cout << "GET method" << std::endl;
 }
 
-void HTTPRequest::post(sock_t fd)
+void HTTPRequest::post(HTTPServer &srv)
 {
     if (!(contentType = findInMap("Content-Type")).empty())
     {
         type = trim(contentType.substr(0, contentType.find(";")));
-        HTTPRequest::contentReceiveMethod(fd);
+        // HTTPRequest::contentReceiveMethod(fd);
     }
     else if (!(transferEncoding = findInMap("Transfer-Encoding")).empty())
     {
@@ -104,56 +104,36 @@ void HTTPRequest::post(sock_t fd)
     }
 }
 
-void HTTPRequest::contentReceiveMethod(sock_t fd)
+void HTTPRequest::delet(HTTPServer &srv)
 {
-    std::map<std::string, void (HTTPRequest::*)(sock_t)>::iterator function = contentMap.find(type);
-    if (function != contentMap.end())
-        (this->*(function->second))(fd);
-    else
-        std::cout << "nothing" << std::endl;
+    std::cout << "method is DELETE" << std::endl;
 }
 
-void HTTPRequest::prepareToTransfer(std::string const &content)
-{
-    
-}
-
-void HTTPRequest::delet(sock_t fd)
-{
-    // std::cout << "method is DELETE" << std::endl;
-}
-
-void HTTPRequest::multipart(sock_t fd)
-{
-    std::cout << "multipart/form-data" << std::endl;
-    std::cout << httpRequest << std::endl;
-    contentType.erase(0, contentType.find(";")+1);
-    boundary = "--" + contentType.substr(contentType.find("=")+1);
-    boundaryEnd = boundary + "--";
-    std::stringstream iss(httpRequest);
-    std::vector<std::string> content;
-    std::string line;
-    std::string get_next_line;
-    while (std::getline(iss, get_next_line))
-    {
-        if (trim(get_next_line) == boundary || trim(get_next_line) == boundaryEnd)
-        {
-            if (!line.empty())
-            {
-                HTTPRequest::prepareToTransfer(line);
-                // content.push_back(line);
-                line.erase();
-            }
-        }
-        else
-            line += get_next_line + "\r\n";
-    }
-}
-
-void HTTPRequest::wwwFormUrlEncoded(sock_t fd)
-{
-    std::cout << "application/x-www-form-urlencoded" << std::endl;
-}
+// void HTTPRequest::multipart(sock_t fd)
+// {
+//     std::cout << "multipart/form-data" << std::endl;
+//     std::cout << httpRequest << std::endl;
+//     contentType.erase(0, contentType.find(";")+1);
+//     boundary = "--" + contentType.substr(contentType.find("=")+1);
+//     boundaryEnd = boundary + "--";
+//     std::stringstream iss(httpRequest);
+//     std::vector<std::string> content;
+//     std::string line;
+//     std::string get_next_line;
+//     while (std::getline(iss, get_next_line))
+//     {
+//         if (trim(get_next_line) == boundary || trim(get_next_line) == boundaryEnd)
+//         {
+//             if (!line.empty())
+//             {
+//                 // content.push_back(line);
+//                 line.erase();
+//             }
+//         }
+//         else
+//             line += get_next_line + "\r\n";
+//     }
+// }
 
 void HTTPRequest::showHeaders( void )
 {
@@ -164,3 +144,118 @@ void HTTPRequest::showHeaders( void )
     }
 }
 
+void HTTPRequest::lastChar(std::string &str, char s)
+{
+    if (!str.empty())
+    {
+        size_t lst = str.size() - 1;
+        if (str[lst] == s)
+            str.erase(lst);
+    }
+}
+
+void HTTPRequest::firstChar(std::string &str, char s)
+{
+    if (!str.empty())
+        if (str[0] != s)
+            str = s + str;
+}
+
+int HTTPRequest::in(std::string const &method)
+{
+    std::vector<std::string>::iterator it = std::find(methods.begin(), methods.end(), method);
+    if (it != methods.end())
+        return (1);
+    return (0);
+}
+
+void HTTPRequest::processing(HTTPServer &srv)
+{
+    std::map<std::string, void(HTTPRequest::*)(HTTPServer&)>::iterator function = methodsMap.find(method);
+    if (function != methodsMap.end())
+       (this->*(function->second))(srv);
+}
+
+std::string HTTPRequest::dir_content(std::string const &realPath)
+{
+    DIR* odir = opendir(realPath.c_str());
+    std::string directoryContent;
+    if (odir)
+    {
+        struct dirent* each;
+        while ((each = readdir(odir)) != NULL)
+        {
+            std::string d_f_name = "<a href=\"" + std::string(each->d_name) + "\">" + std::string(each->d_name) + "</a><br>";
+            directoryContent.insert(0, d_f_name);
+        }
+        return (directoryContent);
+    }
+    return (directoryContent);
+}
+
+std::string const &HTTPRequest::getResponse( void )
+{
+    return (response);
+}
+
+void HTTPRequest::checkPath(HTTPServer const &srv)
+{
+    size_t use = 0;
+    std::string possibleRoot = srv.getRoot();
+    if ((use = path.find_first_of("?")) != std::string::npos)
+    {
+        queryString = path.substr(use+1);
+        realPath = path.substr(0, use);
+    }
+    else
+        realPath = path;
+    lastChar(possibleRoot, '/');
+    lastChar(possibleRoot, '\\');
+    actualPath = possibleRoot + realPath;
+    std::cout << "Query : " << (!queryString.empty() ? queryString : "no query") << std::endl;
+    std::cout << "RealPath : " << (!realPath.empty() ? realPath : "no path") << std::endl;
+    std::cout << "ActualPath : " << (!actualPath.empty() ? actualPath : "no actual path") << std::endl;
+    std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
+    if (!realPath.empty() && !possibleRoot.empty())
+    {
+        if (isExist(actualPath))
+        {
+            if (isFile(actualPath))
+            {
+                if ((use = actualPath.find_last_of(".")) != std::string::npos)
+                    extension = actualPath.substr(use+1);
+                std::cout << "IS FILE" << std::endl;
+                std::cout << "Extension: " << extension << std::endl;
+            }
+            else if (isDir(actualPath))
+                std::cout << "IS DIRECTORY" << std::endl;
+        }
+        else
+        {
+            std::cout << "NOT EXIST PATH" << std::endl;
+            if (!srv.getErrPage(404).empty())
+                response += file(srv.getErrPage(404));
+        }
+    }
+    std::cout << "******************" << std::endl;
+}
+
+bool HTTPRequest::isDir(const std::string& filePath) {
+    struct stat file;
+    if (stat(filePath.c_str(), &file) != 0)
+        return false;
+    return S_ISDIR(file.st_mode);
+}
+
+bool HTTPRequest::isFile(const std::string& filePath) {
+    struct stat file;
+    if (stat(filePath.c_str(), &file) != 0)
+        return false;
+    return S_ISREG(file.st_mode);
+}
+
+bool HTTPRequest::isExist(std::string const &filePath)
+{
+    struct stat existing;
+    return (stat(filePath.c_str(), &existing) == 0);
+}

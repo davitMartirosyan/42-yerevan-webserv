@@ -68,22 +68,23 @@ const char* ServerCore::findMethod(std::string const &method) const
 	return (NULL);
 }
 
-const char* ServerCore::findErrorPage(std::string const &status_code)
-{
-	std::map<std::string, std::string>::iterator it = error_page.find(status_code);
-	if (it != error_page.end())
-		return (it->second.c_str());
-	return (NULL);
-}
-
 void ServerCore::setAutoindex(std::string const &sw)
 {
 	(sw == "on") ? this->autoindex = 1 : this->autoindex = 0;
 }
 
-void ServerCore::pushErrPage(std::string const &key, std::string const &errpage_filename)
+void ServerCore::pushErrPage(int key, std::string const &errpage_filename)
 {
 	error_page.insert(std::make_pair(key, errpage_filename));
+}
+
+std::string ServerCore::getErrPage(int key) const
+{
+	std::string nill;
+	std::map<int, std::string>::const_iterator it = error_page.find(key);
+	if (it != error_page.end() && HTTPRequest::isExist(it->second))
+			return (it->second);
+	return (nill);
 }
 
 void ServerCore::setSize(std::string const &bodySize)

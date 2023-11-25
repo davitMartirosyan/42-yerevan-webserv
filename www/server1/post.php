@@ -1,5 +1,5 @@
 <?php
 
-echo $_GET["fname"];
+echo "HELLO WORLD";
 
 ?>

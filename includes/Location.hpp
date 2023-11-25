@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 16:03:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/02 23:01:11 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/24 23:19:31 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,6 @@
 class Location : public ServerCore
 {
     public:
-        Location( void );
+        Location(std::string const &location);
         ~Location();
 };

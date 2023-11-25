@@ -1,26 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   DefaultSetup.hpp                                   :+:      :+:    :+:   */
+/*   HTTPResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/26 14:06:06 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/25 23:52:39 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/11/26 01:26:17 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/11/26 02:12:48 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef DEFAULT_SETUP_HPP
-#define DEFAULT_SETUP_HPP
+#ifndef HTTP_RESPONSE_HPP
+#define HTTP_RESPONSE_HPP
+#include "Libs.hpp"
 
-#define READ_BUFFER             150000
-#define WRITE_BUFFER            150000
-#define DEFAULT_HTTP_PERM_PORT  "80"
-#define DEFAULT_HTTP_PORT       "8080"
-#define DEFAULT_MASK            "0.0.0.0"
-#define CONFIGS "./conf/"
-#define DFLT CONFIGS"webserv.conf"
+class HTTPResponse
+{
+    public:
+        HTTPResponse( void );
+        ~HTTPResponse();
+    public:
+        std::string file(std::string const &filename);
+        std::string const &getResponse( void ) const;
+    protected:
+        std::string response;
+};
 
-typedef int         sock_t;
-#include "HTTPCoreException.hpp"
 #endif

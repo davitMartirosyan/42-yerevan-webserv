@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/19 00:15:46 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/24 23:24:53 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,8 @@ void HTTPServer::push(std::string const &prefix, Location locationDirective)
     this->locations.insert(std::make_pair(prefix, locationDirective));
 }
 
-void HTTPServer::push(std::string const &srvName)
+
+void HTTPServer::push_serverName(std::string const &srvName)
 {
     std::vector<std::string>::iterator it = std::find(ServerName.begin(), ServerName.end(), srvName);
     if (it == ServerName.end())

@@ -6,15 +6,17 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/23 01:51:52 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/26 02:04:54 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQ_HPP
 #define REQ_HPP
 #include "Libs.hpp"
+#include "HTTPResponse.hpp"
 
-class HTTPRequest
+class HTTPServer;
+class HTTPRequest : public HTTPResponse
 {
 	public:
 		HTTPRequest( void );
@@ -23,10 +25,17 @@ class HTTPRequest
         std::string findInMap(std::string key);
         void showHeaders( void );
     public:
+        static bool isDir(std::string const &filePath);
+        static bool isFile(std::string const &filePath);
+        static bool isExist(std::string const &filePath);
+    protected:
+        void checkPath(HTTPServer const &srv);
+        int in(std::string const &method);
+        void processing(HTTPServer &srv);
         void processing(sock_t fd);
-        void contentReceiveMethod(sock_t fd);
-        void prepareToTransfer(std::string const &content);
         static void charChange(std::string &str, char s, char d);
+        static void lastChar(std::string &str, char s);
+        static void firstChar(std::string &str, char s);
         std::string const &requestMethod( void ) const;
         std::string const &requestPath( void ) const;
         std::string const &requestVersion( void ) const;
@@ -36,12 +45,15 @@ class HTTPRequest
     protected:
         size_t reqLineEnd;
         size_t bodyEnd;
-		char http[READ_BUFFER];
+		char *http;
         std::string httpRequest;
         std::string request;
         std::string method;
         std::string path;
-        std::string pathQuery;
+        std::string realPath;
+        std::string actualPath;
+        std::string extension;
+        std::string queryString;
         std::string version;
         std::string headers;
         std::string body;
@@ -55,16 +67,21 @@ class HTTPRequest
         std::string type;
         unsigned long int bodySize;
     protected:
-        std::string cgiEnv;
-    private:
-        std::map<std::string, void (HTTPRequest::*)(sock_t)> methodsMap;
+        std::vector<std::string> methods;
+        std::map<std::string, void (HTTPRequest::*)(HTTPServer&)> methodsMap;
         std::map<std::string, void (HTTPRequest::*)(sock_t)> contentMap;
-        void get(sock_t fd);
-        void post(sock_t fd);
-        void delet(sock_t fd);
-    private:
-        void multipart(sock_t fd);
-        void wwwFormUrlEncoded(sock_t fd);
+    protected:
+        void get(HTTPServer &srv);
+        void post(HTTPServer &srv);
+        void delet(HTTPServer &srv);
+
+
+    protected:
+        std::string dir_content(std::string const &realPath);
+    public:
+        std::string const &getResponse( void );
+    protected:
+        std::string response;
 };
 
 

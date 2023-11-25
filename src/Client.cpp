@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/23 01:34:37 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/26 01:21:18 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,16 +46,16 @@ Client::~Client()
 
 void Client::appendRequest(HTTPServer &srv)
 {
+    size_t space = 0;
     bool reqLineFound = 0;
     bool headersFound = 0;
-    size_t space = 0;
-    char *buf = new char[READ_BUFFER];
+    http = new char[READ_BUFFER];
     while (1)
     {
-        if ((rd = recv(fd, buf, sizeof(READ_BUFFER), 0)) > 0)
+        if ((rd = recv(fd, http, sizeof(READ_BUFFER), 0)) > 0)
         {
-            buf[rd] = '\0';
-            httpRequest.append(buf, rd);
+            http[rd] = '\0';
+            httpRequest.append(http, rd);
             if ((reqLineEnd = httpRequest.find_first_of("\r\n")) != std::string::npos && !reqLineFound)
             {
                 request = httpRequest.substr(0, reqLineEnd);
@@ -94,7 +94,7 @@ void Client::appendRequest(HTTPServer &srv)
         else
             break;
     }
-    delete [] buf;
+    delete [] http;
     if (reqLineFound && headersFound)
     {        
         reqLineFound = false;
@@ -105,6 +105,9 @@ void Client::appendRequest(HTTPServer &srv)
 
 void Client::processing(HTTPServer &srv)
 {
-    std::cout << srv.getRoot() << std::endl;
-    
+    if (in(method) && version == "HTTP/1.1")
+    {
+        checkPath(srv);
+        HTTPRequest::processing(srv);
+    }
 }

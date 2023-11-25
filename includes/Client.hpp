@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:10 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/14 01:09:15 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/26 01:29:31 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #include "Libs.hpp"
 #include "HTTPRequest.hpp"
 #include "ServerManager.hpp"
-#include "HTTPServer.hpp"
 
 class HTTPServer;
 class Client : public HTTPRequest

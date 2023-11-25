@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/23 00:23:50 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/26 02:17:29 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,19 +34,21 @@ int main(int ac, char **av)
             HTTPServer srv;
             srv.setIp("0.0.0.0");
             srv.setPort("80");
-            srv.setRoot("www/server1");
+            srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
             srv.pushIndex("index.html");
-            srv.pushMethods("GET");
-            srv.pushMethods("POST");
-            srv.push("aws.amazon.webserv.com");
+            srv.pushErrPage(404, "www/server1/error_pages/404.html");
+            // srv.pushMethods("GET");
+            // srv.pushMethods("POST");
+            srv.push_serverName("google.com");
+            // srv.setAutoindex("on");
             
-            Location rootLocation; // "/";
-            rootLocation.setRoot("/");
-            rootLocation.pushIndex("pics.html");
-            rootLocation.pushMethods("GET");
-            rootLocation.setAutoindex("off"); 
+            Location location("/pictures");
+            location.pushIndex("index.html");
+            // location.pushMethods("GET");
+            location.setAutoindex("off");
+            srv.push(location.getRoot(), location);
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
@@ -102,11 +104,12 @@ int main(int ac, char **av)
                             response += "Content-Type: text/html\r\n";
                             response += "Connection: keep-alive\r\n";
                             response += "\r\n";
-                            response += file("www/server1/index.html");
+                            response += client->file("www/server1/index.html");
+                            // response += client->getResponse();
                             FD_SET(client->getFd(), &wr);
                         }
                     }
-                    if (FD_ISSET(i, &wr))
+                    if (FD_ISSET(i, &tmp_wr))
                     {
                         Client *client = srv.getClient(i);
                         sock_t clfd = client->getFd();
@@ -129,22 +132,7 @@ int main(int ac, char **av)
    
 }
 
-std::string file(std::string const &filename)
-{
-    std::fstream f;
-    std::string tmp;
-    std::string content;
-    f.open(filename.c_str());
-    if (f.is_open())
-    {
-        while (std::getline(f, tmp, '\n'))
-        {
-            content += tmp;
-            tmp.clear();
-        }
-    }
-    return (content);
-}
+
 
 
 

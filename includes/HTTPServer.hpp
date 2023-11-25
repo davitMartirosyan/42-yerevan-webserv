@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/19 00:15:20 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/26 01:36:38 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,9 @@
 #include "Libs.hpp"
 #include "Tcp.hpp"
 #include "core.hpp"
-#include "Location.hpp"
-#include "Client.hpp"
 #include "ServerCore.hpp"
 #include "ServerManager.hpp"
-#include "HTTPRequest.hpp"
 
-class HTTPRequest;
 class ServerManager;
 class Location;
 class Client;
@@ -40,7 +36,7 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
         void push(std::string const &prefix, Location locationDirective);
         void push(sock_t clFd, Client &clt);
         int  pop(sock_t clFd);
-        void push(std::string const &srvName);
+        void push_serverName(std::string const &srvName);
     public:
         const Location *find(std::string const &prefix) const;
         bool exist(sock_t fd);
@@ -48,6 +44,7 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
     public:
         void request(Client &cl);
     private:
+        
         std::vector<std::string> ServerName;
         std::map<sock_t, Client> clnt;                   // [Clients]
         std::map<std::string, Location> locations;      // <prefix, LocationDirective>  location / {Location}
