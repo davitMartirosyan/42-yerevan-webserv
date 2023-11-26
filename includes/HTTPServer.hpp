@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/26 01:36:38 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/27 00:19:47 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,12 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
         void push_serverName(std::string const &srvName);
     public:
         const Location *find(std::string const &prefix) const;
+        const Location* findMatching(std::string const &realPath) const;
         bool exist(sock_t fd);
         std::vector<std::string> const &getServerNames( void ) const;
     public:
         void request(Client &cl);
     private:
-        
         std::vector<std::string> ServerName;
         std::map<sock_t, Client> clnt;                   // [Clients]
         std::map<std::string, Location> locations;      // <prefix, LocationDirective>  location / {Location}

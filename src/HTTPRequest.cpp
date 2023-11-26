@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/26 02:18:22 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/27 00:59:36 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,14 +217,10 @@ void HTTPRequest::checkPath(HTTPServer const &srv)
     std::cout << "RealPath : " << (!realPath.empty() ? realPath : "no path") << std::endl;
     std::cout << "ActualPath : " << (!actualPath.empty() ? actualPath : "no actual path") << std::endl;
     std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
+    std::cout << "-----------------------------------------------" << std::endl;
 
-    // const Location* isLocation = srv.find(realPath);
-    std::string requestPath = "/images/data";
-    std::string location = "/images/";
-    std::string location1 = "/images/result/path";
-
-    int cmp = requestPath.compare(0, requestPath.length(), requestPath);
-    std::cout << cmp << std::endl;
+    const Location* location = srv.findMatching(realPath);
+    
 }
 
 bool HTTPRequest::isDir(const std::string& filePath) {

@@ -6,11 +6,13 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/24 23:24:53 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/27 00:48:53 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPServer.hpp"
+
+size_t longestMatch(std::string const &s1, std::string const &s2);
 
 HTTPServer::HTTPServer( void )
 {
@@ -183,6 +185,44 @@ void HTTPServer::removeClient(sock_t fd)
         clnt.erase(it);
     return ;
 }
+
+const Location* HTTPServer::findMatching(std::string const &realPath) const
+{
+    std::map<std::string, Location>::const_iterator loc;
+    std::map<std::string, Location>::const_iterator match;
+    size_t longestMatchSize = 0;
+    size_t currentMatch = 0;
+    for(loc = locations.begin(); loc != locations.end(); loc++)
+    {
+        currentMatch = longestMatch(loc->first, realPath);
+        if (longestMatchSize < currentMatch)
+        {
+            match = loc;
+            longestMatchSize = currentMatch;
+        }
+        else if (longestMatchSize == currentMatch)
+        {
+            if (match->first < loc->first)
+                match = loc;
+        }
+    }
+    return (&match->second);
+}
+
+size_t longestMatch(std::string const &s1, std::string const &s2)
+{
+    size_t match = 0;
+    for(size_t i = 0; i < s1.size(); i++)
+    {
+        if (s1[i] != s2[i])
+            break;
+        match++;
+    }
+    return (match);
+}
+
+
+
 
 //ServerCore////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
