@@ -44,11 +44,12 @@ int main(int ac, char **av)
             srv.push_serverName("google.com");
             // srv.setAutoindex("on");
             
-            Location location("/pictures");
+            Location location("/images");
+            location.setRoot("www/pictures");
             location.pushIndex("index.html");
             // location.pushMethods("GET");
             location.setAutoindex("off");
-            srv.push(location.getRoot(), location);
+            srv.push(location.getLocation(), location);
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////

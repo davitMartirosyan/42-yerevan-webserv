@@ -14,10 +14,15 @@
 
 Location::Location(std::string const &location)
 {
-	this->root = location;
+	this->location = location;
 }
 
 Location::~Location()
 {
 	
+}
+
+std::string const &Location::getLocation( void ) const
+{
+	return (this->location);
 }

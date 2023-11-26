@@ -88,7 +88,7 @@ std::string HTTPRequest::findInMap(std::string key)
 
 void HTTPRequest::get(HTTPServer &srv)
 {
-    std::cout << "GET method" << std::endl;
+    // std::cout << "GET method" << std::endl;
 }
 
 void HTTPRequest::post(HTTPServer &srv)
@@ -212,32 +212,19 @@ void HTTPRequest::checkPath(HTTPServer const &srv)
     lastChar(possibleRoot, '/');
     lastChar(possibleRoot, '\\');
     actualPath = possibleRoot + realPath;
+    std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
     std::cout << "Query : " << (!queryString.empty() ? queryString : "no query") << std::endl;
     std::cout << "RealPath : " << (!realPath.empty() ? realPath : "no path") << std::endl;
     std::cout << "ActualPath : " << (!actualPath.empty() ? actualPath : "no actual path") << std::endl;
     std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
-    if (!realPath.empty() && !possibleRoot.empty())
-    {
-        if (isExist(actualPath))
-        {
-            if (isFile(actualPath))
-            {
-                if ((use = actualPath.find_last_of(".")) != std::string::npos)
-                    extension = actualPath.substr(use+1);
-                std::cout << "IS FILE" << std::endl;
-                std::cout << "Extension: " << extension << std::endl;
-            }
-            else if (isDir(actualPath))
-                std::cout << "IS DIRECTORY" << std::endl;
-        }
-        else
-        {
-            std::cout << "NOT EXIST PATH" << std::endl;
-            if (!srv.getErrPage(404).empty())
-                response += file(srv.getErrPage(404));
-        }
-    }
-    std::cout << "******************" << std::endl;
+
+    // const Location* isLocation = srv.find(realPath);
+    std::string requestPath = "/images/data";
+    std::string location = "/images/";
+    std::string location1 = "/images/result/path";
+
+    int cmp = requestPath.compare(0, requestPath.length(), requestPath);
+    std::cout << cmp << std::endl;
 }
 
 bool HTTPRequest::isDir(const std::string& filePath) {

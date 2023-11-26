@@ -15,6 +15,7 @@
 #include "Libs.hpp"
 #include "HTTPResponse.hpp"
 
+class Location;
 class HTTPServer;
 class HTTPRequest : public HTTPResponse
 {

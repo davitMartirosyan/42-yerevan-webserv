@@ -260,3 +260,27 @@ while (true) {
                 }
             }
         }
+
+
+
+
+if (!realPath.empty() && !possibleRoot.empty())
+{
+    if (isExist(actualPath))
+    {
+        if (isFile(actualPath))
+        {
+            if ((use = actualPath.find_last_of(".")) != std::string::npos)
+                extension = actualPath.substr(use+1);
+            std::cout << "IS FILE" << std::endl;
+            std::cout << "Extension: " << extension << std::endl;
+        }
+        else if (isDir(actualPath))
+            std::cout << "IS DIRECTORY" << std::endl;
+    }
+    else
+    {
+        std::cout << "NOT EXIST PATH" << std::endl;
+    }
+}
+std::cout << "******************" << std::endl;

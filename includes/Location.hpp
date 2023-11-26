@@ -20,4 +20,8 @@ class Location : public ServerCore
     public:
         Location(std::string const &location);
         ~Location();
+    public:
+        std::string const &getLocation( void ) const;
+    private:
+        std::string location;
 };

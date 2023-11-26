@@ -35,14 +35,24 @@ void HTTPServer::setPort(std::string const &port)
     this->port = port;
 }
 
+const char* HTTPServer::getPort( void ) const
+{
+    return (port.c_str());
+}
+
+const char* HTTPServer::getIp( void ) const
+{
+    return (this->ip.c_str());
+}
+
 uint16_t HTTPServer::getNPort( void ) const
 {
     return (this->n_port);
 }
 
-const char* HTTPServer::getPort( void ) const
+uint32_t HTTPServer::getNIp( void ) const
 {
-    return (port.c_str());
+    return (this->n_ip);
 }
 
 void HTTPServer::setIp(std::string const &ipv)
@@ -76,16 +86,6 @@ void HTTPServer::setIp(std::string const &ipv)
     if (k != 3)
         throw HTTPCoreException("Dots: syntax error");
     this->ip = ipv;
-}
-
-const char* HTTPServer::getIp( void ) const
-{
-    return (this->ip.c_str());
-}
-
-uint32_t HTTPServer::getNIp( void ) const
-{
-    return (this->n_ip);
 }
 
 void HTTPServer::push(std::string const &prefix, Location locationDirective)
