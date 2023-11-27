@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/27 22:04:04 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/28 01:23:49 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,43 +211,77 @@ void HTTPRequest::checkPath(HTTPServer const &srv)
     }
     else
         realPath = path;
-    std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
-    std::cout << "Query : " << (!queryString.empty() ? queryString : "no query") << std::endl;
-    std::cout << "RealPath : " << (!realPath.empty() ? realPath : "no path") << std::endl;
+        
     loc = srv.find(realPath);
     if (loc && !loc->getRoot().empty())
     {
         possibleRoot = loc->getRoot();
         lastChar(possibleRoot, '/');
         actualPath = possibleRoot;
+        pathinfo = path_status(loc->getAutoindex(), actualPath);
     }
     else
     {
         lastChar(possibleRoot, '/');
         actualPath = possibleRoot + realPath;
+        pathinfo = path_status(srv.getAutoindex(), actualPath);
     }
-    if (isExist(actualPath))
-    {
-        if (isDir(actualPath))
-            
-        else if (isFile(actualPath))
-        {
-            size_t ext = actualPath.find_last_of(".");
-            if (ext == std::string::npos)
-                filename = actualPath.substr(actualPath.find_last_of("/"));
-            else
-            {
-                filename = actualPath.substr(actualPath.find_last_of("/")+1);
-                extension = filename.substr(filename.find_last_of("."));
-            }
-            std::cout << "Filename: " << filename << std::endl;
-            std::cout << "Extension: " << extension << std::endl;
-        }
-    }
+
+    
+    std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
+    std::cout << "Query : " << (!queryString.empty() ? queryString : "no query") << std::endl;
+    std::cout << "RealPath : " << (!realPath.empty() ? realPath : "no path") << std::endl;
     std::cout << "ActualPath : " << (!actualPath.empty() ? actualPath : "no actual path") << std::endl;
     std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
     std::cout << "-----------------------------------------------" << std::endl;
 }
+
+HTTPRequest::PathStatus HTTPRequest::path_status(bool autoindex, std::string const &checkPath)
+{
+    if (isExist(checkPath))
+    {
+        if (isDir(checkPath))
+        {
+            if (autoindex == true)
+                return (PathStatus::ISDIR);
+            else
+                return (PathStatus::DIROFF);
+        }
+        else if (isFile(checkPath))
+            return (PathStatus::ISFILE);
+    }
+    return (PathStatus::NOTFOUND);
+}
+
+
+// HTTPRequest::PathStatus HTTPRequest::path_status(HTTPServer const &srv, std::string const &checkPath)
+// {
+//     if (path_status(checkPath) == PathStatus::ISDIR)
+//         if (srv.getAutoindex() == true)
+//             return (PathStatus::DIRON);
+//     return (PathStatus::DIROFF);
+// }
+
+// HTTPRequest::PathStatus HTTPRequest::path_status(const Location* location, std::string const &checkPath)
+// {
+//     if (path_status(checkPath) == PathStatus::ISDIR)
+//         if (location->getAutoindex() == true)
+//             return (PathStatus::DIRON);
+//     return (PathStatus::DIROFF);
+// }
+
+// HTTPRequest::PathStatus HTTPRequest::path_status(std::string const &checkPath)
+// {
+//     if (isExist(checkPath))
+//     {
+//         if (isDir(checkPath))
+//             return (PathStatus::ISDIR);
+//         else if (isFile(checkPath))
+//             return (PathStatus::ISFILE);
+//     }
+//     return (PathStatus::NOTFOUND);
+// }
+
 
 bool HTTPRequest::isDir(const std::string& filePath) {
     struct stat file;

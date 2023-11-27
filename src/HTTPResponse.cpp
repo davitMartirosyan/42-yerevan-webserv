@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/26 01:28:07 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/26 02:12:26 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/28 01:29:33 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,4 +42,20 @@ std::string HTTPResponse::file(std::string const &filename)
 std::string const &HTTPResponse::getResponse( void ) const
 {
     return (response);
+}
+
+std::string const &HTTPResponse::getReserve404( void ) const
+{
+    return (reserve);
+}
+
+std::string const &HTTPResponse::getReserve403( void ) const
+{
+    return (reserve);
+}
+
+
+std::string const &HTTPResponse::getReserve(int statusCode) const
+{
+    return (reserve);
 }

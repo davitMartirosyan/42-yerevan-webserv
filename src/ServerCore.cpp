@@ -70,7 +70,7 @@ const char* ServerCore::findMethod(std::string const &method) const
 
 void ServerCore::setAutoindex(std::string const &sw)
 {
-	(sw == "on") ? this->autoindex = 1 : this->autoindex = 0;
+	(sw == "on") ? this->autoindex = true : this->autoindex = false;
 }
 
 void ServerCore::pushErrPage(int key, std::string const &errpage_filename)

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/27 21:57:35 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/28 01:23:26 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,15 @@ class HTTPRequest : public HTTPResponse
         std::string ltrim(const std::string &str);
         std::string rtrim(const std::string &str);
         std::string trim(const std::string &str);
+    protected:
+        // enum PathInfo {ISDIR, ISFILE, NOTFOUND, FORBIDDEN};
+        enum PathStatus{ISDIR, DIROFF, DIRON, ISFILE, NOTFOUND, FORBIDDEN, UNDEFINED};
+        // PathStatus path_status(std::string const &checkPath);
+        // PathStatus path_status(HTTPServer const &srv, std::string const &checkPath);
+        // PathStatus path_status(const Location* location, std::string const &checkPath);
+        PathStatus path_status(bool autoindex, std::string const &checkPath);
+        PathStatus pathinfo;
+        int pathinfo;
     protected:
         size_t reqLineEnd;
         size_t bodyEnd;
