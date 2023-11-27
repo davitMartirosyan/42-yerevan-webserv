@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/26 02:04:54 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/27 21:57:35 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,14 @@ class HTTPRequest : public HTTPResponse
         std::string path;
         std::string realPath;
         std::string actualPath;
+        std::string filename;
         std::string extension;
         std::string queryString;
         std::string version;
         std::string headers;
         std::string body;
+    protected:
+        int statusCode;
     protected:
         std::map<std::string, std::string> httpHeaders;
     protected:

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/27 00:59:36 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/27 22:04:04 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ HTTPRequest::HTTPRequest( void )
     reqLineEnd = 0;
     bodyEnd = 0;
     bodySize = 0;
+    statusCode = 0;
     methodsMap["GET"] = &HTTPRequest::get;
     methodsMap["POST"] = &HTTPRequest::post;
     methodsMap["DELETE"] = &HTTPRequest::delet;
@@ -201,6 +202,7 @@ std::string const &HTTPRequest::getResponse( void )
 void HTTPRequest::checkPath(HTTPServer const &srv)
 {
     size_t use = 0;
+    const Location* loc;
     std::string possibleRoot = srv.getRoot();
     if ((use = path.find_first_of("?")) != std::string::npos)
     {
@@ -209,18 +211,42 @@ void HTTPRequest::checkPath(HTTPServer const &srv)
     }
     else
         realPath = path;
-    lastChar(possibleRoot, '/');
-    lastChar(possibleRoot, '\\');
-    actualPath = possibleRoot + realPath;
     std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
     std::cout << "Query : " << (!queryString.empty() ? queryString : "no query") << std::endl;
     std::cout << "RealPath : " << (!realPath.empty() ? realPath : "no path") << std::endl;
+    loc = srv.find(realPath);
+    if (loc && !loc->getRoot().empty())
+    {
+        possibleRoot = loc->getRoot();
+        lastChar(possibleRoot, '/');
+        actualPath = possibleRoot;
+    }
+    else
+    {
+        lastChar(possibleRoot, '/');
+        actualPath = possibleRoot + realPath;
+    }
+    if (isExist(actualPath))
+    {
+        if (isDir(actualPath))
+            
+        else if (isFile(actualPath))
+        {
+            size_t ext = actualPath.find_last_of(".");
+            if (ext == std::string::npos)
+                filename = actualPath.substr(actualPath.find_last_of("/"));
+            else
+            {
+                filename = actualPath.substr(actualPath.find_last_of("/")+1);
+                extension = filename.substr(filename.find_last_of("."));
+            }
+            std::cout << "Filename: " << filename << std::endl;
+            std::cout << "Extension: " << extension << std::endl;
+        }
+    }
     std::cout << "ActualPath : " << (!actualPath.empty() ? actualPath : "no actual path") << std::endl;
     std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
     std::cout << "-----------------------------------------------" << std::endl;
-
-    const Location* location = srv.findMatching(realPath);
-    
 }
 
 bool HTTPRequest::isDir(const std::string& filePath) {

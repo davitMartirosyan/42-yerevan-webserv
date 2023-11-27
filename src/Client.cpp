@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/26 01:21:18 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/27 21:43:02 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void Client::processing(HTTPServer &srv)
 {
     if (in(method) && version == "HTTP/1.1")
     {
-        checkPath(srv);
+        HTTPRequest::checkPath(srv);
         HTTPRequest::processing(srv);
     }
 }
