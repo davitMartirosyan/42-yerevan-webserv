@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/28 01:23:26 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/28 20:32:06 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,16 @@ class HTTPRequest : public HTTPResponse
         static bool isDir(std::string const &filePath);
         static bool isFile(std::string const &filePath);
         static bool isExist(std::string const &filePath);
+        static void charChange(std::string &str, char s, char d);
+        static void lastChar(std::string &str, char s);
+        static void firstChar(std::string &str, char s);
+        static size_t slashes(std::string const &pathtosplit);
     protected:
         void checkPath(HTTPServer const &srv);
         int in(std::string const &method);
         void processing(HTTPServer &srv);
         void processing(sock_t fd);
-        static void charChange(std::string &str, char s, char d);
-        static void lastChar(std::string &str, char s);
-        static void firstChar(std::string &str, char s);
+
         std::string const &requestMethod( void ) const;
         std::string const &requestPath( void ) const;
         std::string const &requestVersion( void ) const;
@@ -51,7 +53,6 @@ class HTTPRequest : public HTTPResponse
         // PathStatus path_status(const Location* location, std::string const &checkPath);
         PathStatus path_status(bool autoindex, std::string const &checkPath);
         PathStatus pathinfo;
-        int pathinfo;
     protected:
         size_t reqLineEnd;
         size_t bodyEnd;
@@ -79,6 +80,8 @@ class HTTPRequest : public HTTPResponse
         std::string transferEncoding;
         std::string type;
         unsigned long int bodySize;
+    protected:
+        const Location* location;
     protected:
         std::vector<std::string> methods;
         std::map<std::string, void (HTTPRequest::*)(HTTPServer&)> methodsMap;

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/28 01:23:49 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/28 22:01:13 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ HTTPRequest::HTTPRequest( void )
     bodyEnd = 0;
     bodySize = 0;
     statusCode = 0;
+    location = NULL;
     methodsMap["GET"] = &HTTPRequest::get;
     methodsMap["POST"] = &HTTPRequest::post;
     methodsMap["DELETE"] = &HTTPRequest::delet;
@@ -202,7 +203,6 @@ std::string const &HTTPRequest::getResponse( void )
 void HTTPRequest::checkPath(HTTPServer const &srv)
 {
     size_t use = 0;
-    const Location* loc;
     std::string possibleRoot = srv.getRoot();
     if ((use = path.find_first_of("?")) != std::string::npos)
     {
@@ -211,20 +211,17 @@ void HTTPRequest::checkPath(HTTPServer const &srv)
     }
     else
         realPath = path;
-        
-    loc = srv.find(realPath);
-    if (loc && !loc->getRoot().empty())
+    
+    if ((location = srv.find(realPath)))
     {
-        possibleRoot = loc->getRoot();
+        possibleRoot = location->getRoot();
         lastChar(possibleRoot, '/');
         actualPath = possibleRoot;
-        pathinfo = path_status(loc->getAutoindex(), actualPath);
     }
     else
     {
         lastChar(possibleRoot, '/');
         actualPath = possibleRoot + realPath;
-        pathinfo = path_status(srv.getAutoindex(), actualPath);
     }
 
     
@@ -243,14 +240,23 @@ HTTPRequest::PathStatus HTTPRequest::path_status(bool autoindex, std::string con
         if (isDir(checkPath))
         {
             if (autoindex == true)
-                return (PathStatus::ISDIR);
+                return (ISDIR);
             else
-                return (PathStatus::DIROFF);
+                return (DIROFF);
         }
         else if (isFile(checkPath))
-            return (PathStatus::ISFILE);
+            return (ISFILE);
     }
-    return (PathStatus::NOTFOUND);
+    return (NOTFOUND);
+}
+
+size_t HTTPRequest::slashes(std::string const &pathtosplit)
+{
+    size_t count = 0;
+    for(size_t i = 0; i < pathtosplit.size(); i++)
+        if (pathtosplit[i] == '/')
+            count++;
+    return (count);
 }
 
 

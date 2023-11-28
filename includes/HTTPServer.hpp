@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/27 00:19:47 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/28 20:31:48 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "ServerCore.hpp"
 #include "ServerManager.hpp"
 
+class HTTPRequest;
 class ServerManager;
 class Location;
 class Client;

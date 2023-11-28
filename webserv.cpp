@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/28 00:26:52 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/28 21:27:04 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,15 @@ int main(int ac, char **av)
 
             
             Location location1("/images/result/post");
-            location1.setRoot("www/pictures");
-            location.setAutoindex("off");
+            location1.setRoot("www/pictures1/");
+            location1.setAutoindex("off");
             srv.push(location1.getLocation(), location1);
+
+
+            Location location2("/images/result/post/breakdown");
+            location2.setRoot("www/pictures2/");
+            location2.setAutoindex("off");            
+            srv.push(location2.getLocation(), location2);
             
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////

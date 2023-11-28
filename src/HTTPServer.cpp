@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/27 00:48:53 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/28 21:18:04 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,11 +105,20 @@ void HTTPServer::push_serverName(std::string const &srvName)
 
 const Location* HTTPServer::find(std::string const &prefix) const
 {
-    std::map<std::string, Location>::const_iterator route = locations.find(prefix);
-    if (route != locations.end())
-        return (&route->second);
+    std::string path = prefix;
+    size_t sl = HTTPRequest::slashes(path);
+    for(size_t i = 0; i <= sl; i++)
+    {
+        std::map<std::string, Location>::const_iterator route = locations.find(path);
+        if (route != locations.end())
+            return (&route->second);
+        path = path.substr(0, path.find_last_of("/"));
+    }
     return (NULL);
 }
+
+
+
 
 std::vector<std::string> const &HTTPServer::getServerNames( void ) const
 {
