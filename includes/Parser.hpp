@@ -1,28 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Location.hpp                                       :+:      :+:    :+:   */
+/*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/19 16:03:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 00:22:58 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/12/02 00:25:27 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/12/02 00:37:21 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef PARSER_HPP
+#define PARSER_HPP
 #include "Libs.hpp"
-#include "ServerCore.hpp"
 
-
-class Location : public ServerCore
+class Parser
 {
     public:
-        Location(std::string const &location);
-        ~Location();
-    public:
-        std::string const &getLocation( void ) const;
+        Parser(std::string const &confFile);
+        ~Parser();
     private:
-        std::string location;
-        std::map<std::string, Location> nestedLocations;
+        void start( void );
+    private:
+        std::fstream IO;
 };
+
+#endif

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/28 22:01:13 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/02 00:21:09 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,14 +146,16 @@ void HTTPRequest::showHeaders( void )
     }
 }
 
-void HTTPRequest::lastChar(std::string &str, char s)
+std::string HTTPRequest::lastChar(std::string const &str, char s)
 {
-    if (!str.empty())
+    std::string newString = str;
+    if (!newString.empty())
     {
-        size_t lst = str.size() - 1;
-        if (str[lst] == s)
-            str.erase(lst);
+        size_t lst = newString.size() - 1;
+        if (newString[lst] != s)
+            newString += s;
     }
+    return (newString);
 }
 
 void HTTPRequest::firstChar(std::string &str, char s)
@@ -161,6 +163,24 @@ void HTTPRequest::firstChar(std::string &str, char s)
     if (!str.empty())
         if (str[0] != s)
             str = s + str;
+}
+
+std::string HTTPRequest::middle_slash(std::string const &s1, char s, std::string const &s2)
+{
+    std::string newString;
+    if (s1[s1.size()-1] == s && s2[0] != s)
+        newString = s1 + s2;
+    else if (s1[s1.size()-1] != s && s2[0] == s)
+        newString = s1 + s2;
+    else if (s1[s1.size()-1] != s && s2[0] != s)
+        newString = s1 + s + s2;
+    else if (s1[s1.size()-1] == s && s2[0] == s)
+    {
+        std::string ss2 = s2;
+        ss2.erase(0, 1);
+        newString = s1 + ss2;
+    }
+    return (newString);
 }
 
 int HTTPRequest::in(std::string const &method)
@@ -203,34 +223,40 @@ std::string const &HTTPRequest::getResponse( void )
 void HTTPRequest::checkPath(HTTPServer const &srv)
 {
     size_t use = 0;
-    std::string possibleRoot = srv.getRoot();
     if ((use = path.find_first_of("?")) != std::string::npos)
     {
         queryString = path.substr(use+1);
-        realPath = path.substr(0, use);
+        path = path.substr(0, use);
+    }
+    location = srv.find(path);
+    if (location)
+    {
+        pathChunks = pathChunking(path);
+        absolutePath = middle_slash(location->getRoot(), '/', pathChunks[pathChunks.size() - 1]);
     }
     else
-        realPath = path;
-    
-    if ((location = srv.find(realPath)))
-    {
-        possibleRoot = location->getRoot();
-        lastChar(possibleRoot, '/');
-        actualPath = possibleRoot;
-    }
-    else
-    {
-        lastChar(possibleRoot, '/');
-        actualPath = possibleRoot + realPath;
-    }
+        absolutePath = middle_slash(srv.getRoot(), '/', path);
+}
 
-    
-    std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
-    std::cout << "Query : " << (!queryString.empty() ? queryString : "no query") << std::endl;
-    std::cout << "RealPath : " << (!realPath.empty() ? realPath : "no path") << std::endl;
-    std::cout << "ActualPath : " << (!actualPath.empty() ? actualPath : "no actual path") << std::endl;
-    std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
-    std::cout << "-----------------------------------------------" << std::endl;
+std::vector<std::string> HTTPRequest::pathChunking(std::string const &rPath)
+{
+    std::string pathPrefix = rPath;
+    std::vector<std::string> chunks;
+    std::string pathChunk;
+    for(size_t i = 0; i <= pathPrefix.size(); i++)
+    {
+        if ((pathPrefix[i] == '/' ||  i == pathPrefix.size()))
+        {
+            if (!pathChunk.empty())
+            {
+                chunks.push_back(pathChunk);
+                pathChunk.clear();
+            }
+        }
+        else
+            pathChunk += pathPrefix[i];
+    }
+    return (chunks);
 }
 
 HTTPRequest::PathStatus HTTPRequest::path_status(bool autoindex, std::string const &checkPath)

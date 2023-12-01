@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/28 20:32:06 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/02 00:09:49 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,16 @@ class HTTPRequest : public HTTPResponse
         static bool isFile(std::string const &filePath);
         static bool isExist(std::string const &filePath);
         static void charChange(std::string &str, char s, char d);
-        static void lastChar(std::string &str, char s);
+        static std::string lastChar(std::string const &str, char s);
         static void firstChar(std::string &str, char s);
+        static std::string middle_slash(std::string const &s1, char s, std::string const &s2);
         static size_t slashes(std::string const &pathtosplit);
     protected:
+        std::vector<std::string> pathChunking(std::string const &rPath);
         void checkPath(HTTPServer const &srv);
         int in(std::string const &method);
         void processing(HTTPServer &srv);
         void processing(sock_t fd);
-
         std::string const &requestMethod( void ) const;
         std::string const &requestPath( void ) const;
         std::string const &requestVersion( void ) const;
@@ -46,6 +47,7 @@ class HTTPRequest : public HTTPResponse
         std::string rtrim(const std::string &str);
         std::string trim(const std::string &str);
     protected:
+        std::vector<std::string> pathChunks;
         // enum PathInfo {ISDIR, ISFILE, NOTFOUND, FORBIDDEN};
         enum PathStatus{ISDIR, DIROFF, DIRON, ISFILE, NOTFOUND, FORBIDDEN, UNDEFINED};
         // PathStatus path_status(std::string const &checkPath);
@@ -63,6 +65,7 @@ class HTTPRequest : public HTTPResponse
         std::string path;
         std::string realPath;
         std::string actualPath;
+        std::string absolutePath;
         std::string filename;
         std::string extension;
         std::string queryString;

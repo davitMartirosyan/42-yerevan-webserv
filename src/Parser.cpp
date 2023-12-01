@@ -1,28 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Location.hpp                                       :+:      :+:    :+:   */
+/*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/19 16:03:26 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 00:22:58 by dmartiro         ###   ########.fr       */
+/*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
+/*   Updated: 2023/12/02 00:39:16 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-#include "Libs.hpp"
-#include "ServerCore.hpp"
+#include "Parser.hpp"
 
-
-class Location : public ServerCore
+Parser::Parser(std::string const &confFile)
 {
-    public:
-        Location(std::string const &location);
-        ~Location();
-    public:
-        std::string const &getLocation( void ) const;
-    private:
-        std::string location;
-        std::map<std::string, Location> nestedLocations;
-};
+    IO.open(confFile.c_str(), std::ios::out);
+    if (!IO.is_open())
+        throw HTTPCoreException("Error: File not found");
+}
+
+Parser::~Parser()
+{
+    
+}

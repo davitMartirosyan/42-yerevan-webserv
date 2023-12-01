@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/18 15:19:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/02 00:29:46 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 ServerManager::ServerManager(std::string const &configfile)
 {
+    Parser parser(configfile);
     (void)configfile;
     FD_ZERO(&s_rd);
     FD_ZERO(&s_wr);
