@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 06:37:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 18:34:03 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/02 23:02:40 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@
 #include <fstream>
 #include <sys/select.h>
 #include <map>
+#include <stack>
 #include <vector>
-#include <array>
 #include "DefaultSetup.hpp"
 
 typedef std::vector<std::string> methods_t;
