@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 06:37:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 15:01:40 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/02 18:34:03 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <poll.h>
+#include <list>
 #include <fstream>
 #include <sys/select.h>
 #include <map>

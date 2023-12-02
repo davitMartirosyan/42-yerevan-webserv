@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 18:20:46 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/02 20:13:40 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,6 @@ void Parser::start(ServerManager const *mgn)
 {
     std::string line;
     std::string config;
-    bool contextFound = false;
-    bool directiveFind = false;
     size_t comment = 0;
     while (std::getline(IO, line))
     {
@@ -57,21 +55,12 @@ void Parser::start(ServerManager const *mgn)
             config += HTTPRequest::trim(line);
     }
 
+    std::cout << config << std::endl;
+    std::cout << "***************************" << std::endl;
+    if (config.empty())
+        throw HTTPCoreException("Error: File is Empty");
+    std::string token;
     
-
-
-std::cout << config << std::endl;
-    // std::string character;
-    // std::string charString;
-    // std::vector<std::string> virtualServers;
-    // for(size_t i = 0; i < config.size(); i++)
-    // {
-    //     if (config[i] == '{' && HTTPRequest::trim(charString) == "server")
-    //     {
-               
-    //     }
-    // }
-
     
 }
 
