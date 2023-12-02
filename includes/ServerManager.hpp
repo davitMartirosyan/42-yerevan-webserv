@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:52:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 00:26:42 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/02 15:32:58 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,10 @@ class ServerManager : public std::vector<HTTPServer>
         sock_t getmax( void ) const;
         int used(HTTPServer *srv) const;
     public:
-        // void push(HTTPServer const &srv);
+        void push(HTTPServer const &srv);
     private:
         std::vector<HTTPServer> srvs;
-        // std::vector<Client> clnt;
     public:
-        // std::vector<Client> clnt;
         void setmax(sock_t lastfd);
         void set( void );
         void set_r(sock_t fd);

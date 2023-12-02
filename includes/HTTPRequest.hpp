@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 00:09:49 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/02 15:38:36 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,9 @@ class HTTPRequest : public HTTPResponse
         static void firstChar(std::string &str, char s);
         static std::string middle_slash(std::string const &s1, char s, std::string const &s2);
         static size_t slashes(std::string const &pathtosplit);
+        static std::string ltrim(const std::string &str);
+        static std::string rtrim(const std::string &str);
+        static std::string trim(const std::string &str);
     protected:
         std::vector<std::string> pathChunking(std::string const &rPath);
         void checkPath(HTTPServer const &srv);
@@ -43,9 +46,6 @@ class HTTPRequest : public HTTPResponse
         std::string const &requestMethod( void ) const;
         std::string const &requestPath( void ) const;
         std::string const &requestVersion( void ) const;
-        std::string ltrim(const std::string &str);
-        std::string rtrim(const std::string &str);
-        std::string trim(const std::string &str);
     protected:
         std::vector<std::string> pathChunks;
         // enum PathInfo {ISDIR, ISFILE, NOTFOUND, FORBIDDEN};

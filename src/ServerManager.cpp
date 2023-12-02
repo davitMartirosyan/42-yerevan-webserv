@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 00:29:46 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/02 15:33:29 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 ServerManager::ServerManager(std::string const &configfile)
 {
     Parser parser(configfile);
+    parser.start(this);
     (void)configfile;
     FD_ZERO(&s_rd);
     FD_ZERO(&s_wr);
@@ -199,6 +200,11 @@ int ServerManager::isServer(sock_t fd)
 int ServerManager::isClient(sock_t fd)
 {
     return (0);
+}
+
+void ServerManager::push(HTTPServer const &srv)
+{
+    srvs.push_back(srv);
 }
 
 // void ServerManager::push(HTTPServer const &srv)
