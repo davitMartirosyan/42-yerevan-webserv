@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:25:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/03 01:33:14 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/04 00:17:50 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ class Parser
         DIRECTIVE,
         DIRECTIVE_VALUE,
         SEMICOLON,
-        CONTEXT_PREFIX //For location context
+        CONTEXT_PREFIX, //For location context
+        SEPARATOR
     };
     public:
         Parser(std::string const &confFile);
@@ -44,6 +45,9 @@ class Parser
         bool isWord(char s);
         void addWord(std::string const &config, size_t *i);
         void addToken(char s, p_type type);
+        std::string trim_comments();
+        void semantics(std::string const &config);
+        void correction( void );
     private:
         std::fstream IO;
         std::vector<std::string>context;

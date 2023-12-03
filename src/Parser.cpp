@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/03 01:51:22 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/04 00:46:35 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,18 @@ Parser::~Parser()
 
 void Parser::start(ServerManager const *mgn)
 {
+
+    std::string config = Parser::trim_comments();
+    Parser::semantics(config);
+    Parser::correction();
+    
+    std::list<Token>::iterator tok = tokens.begin();
+    for(; tok != tokens.end(); tok++)
+        std::cout << tok->type << " : " << tok->token << std::endl;
+}
+
+std::string Parser::trim_comments()
+{
     std::string line;
     std::string config;
     size_t comment = 0;
@@ -52,16 +64,17 @@ void Parser::start(ServerManager const *mgn)
             config += (line.size() > 0) ? HTTPRequest::trim(line) : "";
         }
         else
-            config += HTTPRequest::trim(line);
+            config += HTTPRequest::trim(line) + "\a";
     }
-
     std::cout << config << std::endl;
     std::cout << "***************************" << std::endl;
     if (config.empty())
         throw HTTPCoreException("Error: File is Empty");
-    
-    std::string test;
-    std::map<std::string, std::string> serverCtx;
+    return (config);
+}
+
+void Parser::semantics(std::string const &config)
+{
     for(size_t i = 0, j = 0; i < config.size(); i++)
     {
         if(isWord(config[i]))
@@ -72,13 +85,51 @@ void Parser::start(ServerManager const *mgn)
             addToken(config[i], CLOSEBRACE);
         if (config[i] == ';')
             addToken(config[i], SEMICOLON);
+        if (config[i] == '\a')
+            addToken(config[i], SEPARATOR);
+    }
+}
+
+void Parser::correction( void )
+{
+    bool isSecond = false;
+    std::list<Token>::iterator ch = tokens.begin();
+    std::list<Token>::iterator next = ch;
+    std::list<Token>::iterator tmpNext = ch;
+    for(; ch != tokens.end(); ch++)
+    {
+        if (ch->type == WORD)
+        {
+            next = ch;
+            ++next;
+            if (next->type == OPENBRACE || (next->type == SEPARATOR && (++next)->type == OPENBRACE))
+                ch->type = CONTEXT;
+            else if (next->type == SEMICOLON || next->type == SEPARATOR)
+                ch->type = DIRECTIVE;
+        }
+        //HERE
     }
 
-    std::list<Token>::iterator tok = tokens.begin();
-    for(; tok != tokens.end(); tok++)
-        std::cout << tok->type << " : " << tok->token << std::endl;
-    
+    ch = tokens.begin();
+    for(; ch != tokens.end(); ch++)
+    {
+        if (ch->type == OPENBRACE)
+        {
+            next = ch;
+            ++next;
+            if (next->type != DIRECTIVE && next->type != SEPARATOR)
+                throw HTTPCoreException("Config: line error");
+        }
+        if (ch->type == DIRECTIVE)
+        {
+            next = ch;
+            ++next;
+            if (next->type != SEMICOLON)
+                throw HTTPCoreException("Config: semicolon error");
+        }
+    }
 }
+
 
 void Parser::addToken(char s, p_type type)
 {
@@ -90,7 +141,7 @@ void Parser::addToken(char s, p_type type)
 
 bool Parser::isWord(char s)
 {
-    if (s != '{' && s != '}' && s != ';')
+    if (s != '{' && s != '}' && s != ';' && s != '\a')
         return (true);
     return (false);
 }
@@ -118,6 +169,7 @@ size_t Parser::contextOpen(std::string const &config, size_t p)
     {
         
     }
+    return (0);
 }
 
 size_t Parser::contextWord(std::string const &config, size_t p)
