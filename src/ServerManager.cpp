@@ -6,13 +6,13 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 15:33:29 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/06 00:11:18 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerManager.hpp"
 
-ServerManager::ServerManager(std::string const &configfile)
+ServerManager::ServerManager(const char *configfile)
 {
     Parser parser(configfile);
     parser.start(this);

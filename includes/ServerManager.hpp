@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:52:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 15:32:58 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/06 00:09:51 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ class HTTPServer;
 class ServerManager : public std::vector<HTTPServer>
 {
     public:
-        ServerManager(std::string const &configFile);
+        ServerManager(const char *configFile);
         ~ServerManager();
     public:
         int isServer(sock_t fd);

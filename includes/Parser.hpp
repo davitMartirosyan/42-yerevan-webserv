@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:25:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/04 00:17:50 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/06 00:41:15 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class Parser
         SEPARATOR
     };
     public:
-        Parser(std::string const &confFile);
+        Parser(const char *confFile);
         ~Parser();
     public:
         void start(ServerManager const *mgn);
@@ -43,11 +43,14 @@ class Parser
         size_t contextWord(std::string const &config, size_t p);
         size_t contextOpen(std::string const &config, size_t p);
         bool isWord(char s);
-        void addWord(std::string const &config, size_t *i);
+        void addWord(std::string config, size_t *i);
         void addToken(char s, p_type type);
-        std::string trim_comments();
-        void semantics(std::string const &config);
-        void correction( void );
+        void clean( void );
+        void scheme( void );
+        void semantic_analysis( void );
+        void intermediate_code_generation( void );
+        void syntax_analysis( void );
+        void fill_servers( void );
     private:
         std::fstream IO;
         std::vector<std::string>context;
@@ -59,6 +62,8 @@ class Parser
         };
         std::list<Token> tokens;
         std::stack<std::string> braces;
+        std::string config;
+        std::vector<std::string> server_ctx;
 };
 
 // server, location
