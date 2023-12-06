@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:25:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/06 00:41:15 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/07 00:22:02 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,13 +24,13 @@ class Parser
     {
         WORD, // general type of token for CONTEXT && DIRECTIVE
         CONTEXT, // for server and location contexts
-        OPENBRACE,
-        CLOSEBRACE,
-        DIRECTIVE,
-        DIRECTIVE_VALUE,
-        SEMICOLON,
+        OPENBRACE, // {
+        CLOSEBRACE, // }
+        DIRECTIVE, // property for server
+        DIRECTIVE_VALUE, // value for property
+        SEMICOLON, // ;
         CONTEXT_PREFIX, //For location context
-        SEPARATOR
+        SEPARATOR // \a
     };
     public:
         Parser(const char *confFile);

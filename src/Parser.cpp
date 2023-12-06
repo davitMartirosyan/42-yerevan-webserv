@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/06 00:42:22 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/07 00:29:07 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ void Parser::semantic_analysis( void )
 {
     for(size_t k = 0; k < server_ctx.size(); k++)
     {
+        
         for(size_t i = 0, j = 0; i < server_ctx[k].size(); i++)
         {
             if(isWord(server_ctx[k][i]))
@@ -163,15 +164,15 @@ void Parser::scheme( void )
     }
     if (brace > 0)
         throw HTTPCoreException("Config: Syntax error. ( } )");
-    // for(size_t i = 0; i < server_ctx.size(); i++)
-    // {
-    //     std::cout << server_ctx[i] << std::endl;
-    // }
 }
 
 void Parser::fill_servers( void )
 {
-    std::cout << "Make Servers" << std::endl;
+    // std::cout << "Make Servers" << std::endl;
+    for(size_t i = 0; i < server_ctx.size(); i++)
+    {
+        std::cout << server_ctx[i] << std::endl;
+    }
 }
 
 void Parser::addToken(char s, p_type type)
