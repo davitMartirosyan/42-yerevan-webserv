@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:25:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/07 00:22:02 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/08 02:02:09 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,10 @@ class Parser
         bool isContext(std::string const &line);
         bool isDirective(std::string const &line);
         size_t contextWord(std::string const &config, size_t p);
-        size_t contextOpen(std::string const &config, size_t p);
+        void removeUnprintables(std::vector<std::string> &tmp_ctx);
         bool isWord(char s);
+        int context_wrap(std::string const &server);
+        void tolower(std::string &s);
         void addWord(std::string config, size_t *i);
         void addToken(char s, p_type type);
         void clean( void );
@@ -51,6 +53,7 @@ class Parser
         void intermediate_code_generation( void );
         void syntax_analysis( void );
         void fill_servers( void );
+        void remove_spaces(std::string &tmp_text);
     private:
         std::fstream IO;
         std::vector<std::string>context;
