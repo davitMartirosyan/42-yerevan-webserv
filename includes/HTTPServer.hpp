@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/28 20:31:48 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/05 21:55:11 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ class Client;
 class HTTPServer : public Tcp, public IListener, public ServerCore 
 {
     public:
+        typedef std::map<sock_t, Client *> Map_Client;
+    public:
         HTTPServer( void );
         ~HTTPServer();
     public:
@@ -35,7 +37,7 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
         void removeClient(sock_t fd);
     public:
         void push(std::string const &prefix, Location locationDirective);
-        void push(sock_t clFd, Client &clt);
+        void push(sock_t clFd, Client *clt);
         int  pop(sock_t clFd);
         void push_serverName(std::string const &srvName);
     public:
@@ -47,7 +49,7 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
         void request(Client &cl);
     private:
         std::vector<std::string> ServerName;
-        std::map<sock_t, Client> clnt;                   // [Clients]
+        std::map<sock_t, Client *> clnt;                   // [Clients]
         std::map<std::string, Location> locations;      // <prefix, LocationDirective>  location / {Location}
     public: //ip port interface
 		virtual void setPort(std::string const &port);
@@ -58,6 +60,16 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
 		virtual uint16_t getNPort( void ) const;
     public:
         bool operator==(HTTPServer const &);
+        bool operator==(sock_t);
+    public:
+        std::string get(Client &client);
+        std::string post(Client &client);
+        std::string del(Client &client);
+        std::string processing(Client &client);
+    private:
+        std::map<std::string, std::string (HTTPServer::*)(Client&)> methodsMap;
+    public:
+#include "Error.hpp"
 };
 
 #endif

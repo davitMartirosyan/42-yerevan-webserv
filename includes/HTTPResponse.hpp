@@ -13,6 +13,7 @@
 #ifndef HTTP_RESPONSE_HPP
 #define HTTP_RESPONSE_HPP
 #include "Libs.hpp"
+#include <unordered_map>
 
 class HTTPResponse
 {
@@ -25,8 +26,10 @@ class HTTPResponse
         std::string const &getReserve404( void ) const;
         std::string const &getReserve403( void ) const;
         std::string const &getReserve(int statusCode) const;
+        std::unordered_map<std::string, std::string> &getResponseHeader();
     protected:
         std::string response;
+        std::unordered_map<std::string, std::string> _responseHeader;
     private:
         std::string reserve;
 };

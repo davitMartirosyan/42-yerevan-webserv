@@ -1,22 +1,44 @@
-NAME = webserv
-CPP = c++
-CPP_FLAGS = -I includes/ -std=c++98 #-fsanitize=address -g -Wall -Wextra -Werror
-SRC = $(shell find . -name "*.cpp")
-OBJ = $(SRC:.cpp=.o)
-HEADER = $(shell find . -name "*.hpp")
-all : $(NAME)
+NAME = webserver
 
-$(NAME) : $(OBJ)
-	$(CPP) $(CPP_FLAGS) $(OBJ) -o $(NAME)
+UNAME := $(shell uname)
 
-%.o : %.cpp $(HEADER)
-	$(CPP) $(CPP_FLAGS) -c $< -o $@
+TMP = objs
 
-fclean : clean
-	rm -rf $(NAME)
+ifeq ($(UNAME), Linux)
+CXX = c++ -std=c++0x
+else
+CXX = c++ -std=c++98
+endif
 
-clean :
-	rm -rf $(OBJ)
-re : fclean all
+CXXFLAGS = -I./includes -fsanitize=address -g  #-Wall -Wextra #-Werror
 
-.PHONNY: clean fclean all re
+SRCS = $(wildcard src/*.cpp)
+
+OBJS = $(patsubst src/%.cpp, ./$(TMP)/%.o, $(SRCS))
+
+RM = rm -fr
+
+HEADER = $(wildcard *.hpp)
+HEADER += $(wildcard includes/*.hpp)
+
+all: $(NAME)
+
+./$(TMP)/%.o: ./src/%.cpp $(HEADER) Makefile
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+$(NAME): $(TMP) $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+
+$(TMP):
+	@mkdir $(TMP)
+
+clean:
+	$(RM) $(OBJS_DIR)
+	$(RM) $(TMP)
+
+fclean: clean
+	$(RM) $(NAME)
+
+re:	fclean all
+
+.PHONY: all clean fclean re bonus

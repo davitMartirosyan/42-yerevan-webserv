@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/06 00:31:27 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/11/28 21:27:04 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,24 +21,20 @@ int main(int ac, char **av)
     (void)av;
     try
     {   
-        int maxfd = 0;
-        fd_set rd;
-        fd_set wr;
-        FD_ZERO(&rd);
-        FD_ZERO(&wr);
-        
-        ServerManager mgn(ac == 2 ? av[1] : DFLT);
+        ServerManager mgn("conf/webserv.conf");
         ///////////////////////////////////IN PARSING//////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
             HTTPServer srv;
-            srv.setIp("0.0.0.0");
-            srv.setPort("80");
+            srv.setIp("127.0.0.1");
+            srv.setPort("3000");
             srv.setRoot("www/server1/");
             srv.setSize("200mb");
             srv.setAutoindex("on");
             srv.pushIndex("index.html");
             srv.pushErrPage(404, "www/server1/error_pages/404.html");
+            // srv.pushMethods("GET");
+            // srv.pushMethods("POST");
             srv.push_serverName("google.com");
             srv.setAutoindex("on");
             
@@ -69,73 +65,73 @@ int main(int ac, char **av)
         
         srv.up(mgn);
         mgn.push_back(srv);
+        mgn.start();
+    //     FD_SET(srv.getfd(), &rd);
+    //     maxfd = srv.getfd();
 
-        FD_SET(srv.getfd(), &rd);
-        maxfd = srv.getfd();
+    //     std::string response;
+    //     fd_set tmp_rd;
+    //     fd_set tmp_wr;
+    //     while (1)
+    //     {
+    //         FD_ZERO(&tmp_rd);
+    //         FD_ZERO(&tmp_wr);
+    //         tmp_rd = rd;
+    //         tmp_wr = wr;
+    //         int io = select(maxfd + 1, &tmp_rd, &tmp_wr, NULL, NULL);
 
-        std::string response;
-        fd_set tmp_rd;
-        fd_set tmp_wr;
-        while (1)
-        {
-            FD_ZERO(&tmp_rd);
-            FD_ZERO(&tmp_wr);
-            tmp_rd = rd;
-            tmp_wr = wr;
-            int io = select(maxfd + 1, &tmp_rd, &tmp_wr, NULL, NULL);
+    //         if (io > 0)
+    //         {
+    //             if (FD_ISSET(srv.getfd(), &tmp_rd))
+    //             {
+    //                 //new socket for client
+    //                 sock_t cl = srv.accept();
+    //                 if (cl > 0)
+    //                 {
+    //                     std::cout << "new socket for client is created: " << cl << std::endl;
+    //                     Client client(cl);
+    //                     srv.push(cl, client);
+    //                     FD_SET(cl, &rd);
+    //                     maxfd = std::max(maxfd, cl);
+    //                 }
+    //             }
 
-            if (io > 0)
-            {
-                if (FD_ISSET(srv.getfd(), &tmp_rd))
-                {
-                    //new socket for client
-                    sock_t cl = srv.accept();
-                    if (cl > 0)
-                    {
-                        std::cout << "new socket for client is created: " << cl << std::endl;
-                        Client client(cl);
-                        srv.push(cl, client);
-                        FD_SET(cl, &rd);
-                        maxfd = std::max(maxfd, cl);
-                    }
-                }
-
-                for (size_t i = 0; i <= maxfd; i++)
-                {
-                    if (FD_ISSET(i, &tmp_rd))
-                    {
-                        Client *client = srv.getClient(i);
-                        if (client)
-                        {
-                            client->appendRequest(srv);
-                            response = "HTTP/1.1 200 OK\r\n";
-                            response += "Date: Mon, 27 Jul 2009 12:28:53 GMT";
-                            response += "Server: Apache/2.2.14 (Win32)\r\n";
-                            response += "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n";
-                            // response += "Content-Length: 2048\r\n";
-                            response += "Content-Type: text/html\r\n";
-                            response += "Connection: keep-alive\r\n";
-                            response += "\r\n";
-                            response += client->file("www/server1/index.html");
-                            // response += client->getResponse();
-                            FD_SET(client->getFd(), &wr);
-                        }
-                    }
-                    if (FD_ISSET(i, &tmp_wr))
-                    {
-                        Client *client = srv.getClient(i);
-                        sock_t clfd = client->getFd();
-                        int snd = send(client->getFd(), response.c_str(), response.size(), 0);
-                        close(client->getFd());
-                        FD_CLR(client->getFd(), &wr);
-                        FD_CLR(client->getFd(), &rd);
-                        srv.removeClient(client->getFd());
-                        if (clfd == maxfd)
-                            maxfd -= 1;
-                    }
-                }
-            }
-        }
+    //             for (size_t i = 0; i <= maxfd; i++)
+    //             {
+    //                 if (FD_ISSET(i, &tmp_rd))
+    //                 {
+    //                     Client *client = srv.getClient(i);
+    //                     if (client)
+    //                     {
+    //                         client->appendRequest(srv);
+    //                         response = "HTTP/1.1 200 OK\r\n";
+    //                         response += "Date: Mon, 27 Jul 2009 12:28:53 GMT";
+    //                         response += "Server: Apache/2.2.14 (Win32)\r\n";
+    //                         response += "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n";
+    //                         // response += "Content-Length: 2048\r\n";
+    //                         response += "Content-Type: text/html\r\n";
+    //                         response += "Connection: keep-alive\r\n";
+    //                         response += "\r\n";
+    //                         response += client->file("www/server1/index.html");
+    //                         // response += client->getResponse();
+    //                         FD_SET(client->getFd(), &wr);
+    //                     }
+    //                 }
+    //                 if (FD_ISSET(i, &tmp_wr))
+    //                 {
+    //                     Client *client = srv.getClient(i);
+    //                     sock_t clfd = client->getFd();
+    //                     int snd = send(client->getFd(), response.c_str(), response.size(), 0);
+    //                     close(client->getFd());
+    //                     FD_CLR(client->getFd(), &wr);
+    //                     FD_CLR(client->getFd(), &rd);
+    //                     srv.removeClient(client->getFd());
+    //                     if (clfd == maxfd)
+    //                         maxfd -= 1;
+    //                 }
+    //             }
+    //         }
+    //     }
     }
     catch(std::exception const &e)
     {
@@ -143,7 +139,6 @@ int main(int ac, char **av)
     }
    
 }
-
 
 
 

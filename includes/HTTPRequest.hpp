@@ -14,10 +14,11 @@
 #define REQ_HPP
 #include "Libs.hpp"
 #include "HTTPResponse.hpp"
+#define MAX_SIZE_REQUEST 1000
 
 class Location;
 class HTTPServer;
-class HTTPRequest : public HTTPResponse
+class HTTPRequest
 {
 	public:
 		HTTPRequest( void );
@@ -25,6 +26,13 @@ class HTTPRequest : public HTTPResponse
     public:
         std::string findInMap(std::string key);
         void showHeaders( void );
+        std::string const &getMethod( void ) const;
+        std::string const &getPath( void ) const;
+        std::string const &getVersion( void ) const;
+        std::string getHttpRequest() const;
+        std::string getBody() const;
+        bool isRequestReady() const;
+        bool isResponseReady() const;
     public:
         static bool isDir(std::string const &filePath);
         static bool isFile(std::string const &filePath);
@@ -43,9 +51,6 @@ class HTTPRequest : public HTTPResponse
         int in(std::string const &method);
         void processing(HTTPServer &srv);
         void processing(sock_t fd);
-        std::string const &requestMethod( void ) const;
-        std::string const &requestPath( void ) const;
-        std::string const &requestVersion( void ) const;
     protected:
         std::vector<std::string> pathChunks;
         // enum PathInfo {ISDIR, ISFILE, NOTFOUND, FORBIDDEN};
@@ -66,12 +71,13 @@ class HTTPRequest : public HTTPResponse
         std::string realPath;
         std::string actualPath;
         std::string absolutePath;
+        std::string reqStatus;
         std::string filename;
         std::string extension;
         std::string queryString;
         std::string version;
         std::string headers;
-        std::string body;
+        std::string _body;
     protected:
         int statusCode;
     protected:
@@ -87,12 +93,12 @@ class HTTPRequest : public HTTPResponse
         const Location* location;
     protected:
         std::vector<std::string> methods;
-        std::map<std::string, void (HTTPRequest::*)(HTTPServer&)> methodsMap;
-        std::map<std::string, void (HTTPRequest::*)(sock_t)> contentMap;
-    protected:
-        void get(HTTPServer &srv);
-        void post(HTTPServer &srv);
-        void delet(HTTPServer &srv);
+        // std::map<std::string, void (HTTPRequest::*)(HTTPServer&)> methodsMap;
+        // std::map<std::string, void (HTTPRequest::*)(sock_t)> contentMap;
+    // protected:
+    //     void get(HTTPServer &srv);
+    //     void post(HTTPServer &srv);
+    //     void delet(HTTPServer &srv);
 
 
     protected:
@@ -101,6 +107,15 @@ class HTTPRequest : public HTTPResponse
         std::string const &getResponse( void );
     protected:
         std::string response;
+    protected:
+        bool _isHeaderReady;
+        bool _isBodyReady;
+        bool _isRequestReady;
+        bool _isOpenConnection;
+        bool _isResponseReady;
+        int _bodySize;
+        size_t _maxSizeRequest;
+
 };
 
 

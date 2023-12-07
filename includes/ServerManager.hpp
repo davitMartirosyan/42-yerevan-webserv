@@ -17,13 +17,14 @@
 #include "Location.hpp"
 #include "HTTPServer.hpp"
 #include "Client.hpp"
+#define SUCCSSES_STATUS "OK"
 
 class Client;
 class HTTPServer;
 class ServerManager : public std::vector<HTTPServer>
 {
     public:
-        ServerManager(const char *configFile);
+        ServerManager(std::string const &configFile);
         ~ServerManager();
     public:
         int isServer(sock_t fd);
@@ -42,22 +43,13 @@ class ServerManager : public std::vector<HTTPServer>
     private:
         std::vector<HTTPServer> srvs;
     public:
-        void setmax(sock_t lastfd);
-        void set( void );
-        void set_r(sock_t fd);
-        void set_w(sock_t fd);
-        void set_e(sock_t fd);
-        fd_set r_set( void ) const;
-        fd_set w_set( void ) const;
-        fd_set e_set( void ) const;
-        void rm_r(sock_t fd);
-        void rm_w(sock_t fd);
-        void rm_e(sock_t fd);
+        // std::vector<Client> clnt;
+    public:
+        void start();
+        std::string generateResponse(Client &client);
     private:
-        sock_t max_fd;
-        fd_set s_rd;
-        fd_set s_wr;
-        fd_set s_except;
+        bool closeConnetcion(sock_t fd);
+        bool newClient(int fd);
 };
 
 #endif
