@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/08 02:27:15 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/12 00:33:30 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,15 @@ Parser::Parser(const char *confFile)
     IO.open(confFile, std::ios::in);
     if (!IO.is_open())
         throw HTTPCoreException("Error: File not found");
-    context.push_back("server");
-    context.push_back("location");
 
-    directives.push_back("root");
-    directives.push_back("index");
-    directives.push_back("autoindex");
-    directives.push_back("allow_methods");
-    directives.push_back("error_page");
-    directives.push_back("client_body_size");
-    directives.push_back("listen");
-    directives.push_back("server_name");
+    directives["root"] = &Parser::d_root;
+    directives["server_name"] = &Parser::d_server_name;
+    directives["index"] = &Parser::d_index;
+    directives["autoindex"] = &Parser::d_autoindex;
+    directives["allow_methods"] = &Parser::d_methods;
+    directives["error_page"] = &Parser::d_err_page;
+    directives["client_body_size"] = &Parser::d_body_size;
+    directives["listen"] = &Parser::d_listen;
 }
 
 Parser::~Parser()
@@ -44,10 +42,19 @@ void Parser::start(ServerManager const *mgn)
     Parser::semantic_analysis();
     Parser::intermediate_code_generation();
     Parser::syntax_analysis();
-    Parser::fill_servers();
-    std::list<Token>::iterator tok = tokens.begin();
-    for(; tok != tokens.end(); tok++)
-        std::cout << tok->type << " : " << tok->token << std::endl;
+    Parser::fill_servers(mgn);
+    // std::list<Token>::iterator tok = tokens.begin();
+    // for(; tok != tokens.end(); tok++)
+    //     std::cout << tok->type << " : " << "|" << tok->token << "|" << std::endl;
+}
+
+std::string Parser::context_keyword(std::string const &context_token)
+{
+    int i = -1;
+    while (++i < context_token.size())
+        if (std::isspace(context_token[i]))
+            break;
+    return (context_token.substr(0, i));
 }
 
  void Parser::clean()
@@ -74,7 +81,6 @@ void Parser::semantic_analysis( void )
 {
     for(size_t k = 0; k < server_ctx.size(); k++)
     {
-        
         for(size_t i = 0, j = 0; i < server_ctx[k].size(); i++)
         {
             if(isWord(server_ctx[k][i]))
@@ -119,7 +125,6 @@ void Parser::intermediate_code_generation( void )
     }
     ch = tokens.begin();
 }
-
 
 void Parser::syntax_analysis( void )
 {
@@ -183,7 +188,6 @@ int Parser::context_wrap(std::string const &server)
             counter++;
         else if (std::isspace(server[found + 6]))
         {
-            std::cout << "mta" << std::endl;
             size_t space_start = found + 6;
             size_t space_count = 0;
             while (server[space_start++] != '{')
@@ -210,12 +214,14 @@ void Parser::remove_spaces(std::string &tmp_text)
         }
 }
 
-void Parser::fill_servers( void )
+void Parser::fill_servers(ServerManager const *mgn)
 {
-    // for(size_t i = 0; i < server_ctx.size(); i++)
-    // {
-    //     std::cout << server_ctx[i] << std::endl;
-    // }
+    std::list<Token>::iterator ch;
+    for(ch = tokens.begin(); ch != tokens.end(); ch++)
+    {
+        if (ch->type == CONTEXT && context_keyword(ch->token) == "server")
+            create_server(mgn, ch);
+    }
 }
 
 void Parser::removeUnprintables(std::vector<std::string> &tmp_ctx)
@@ -275,27 +281,100 @@ size_t Parser::contextWord(std::string const &config, size_t p)
     t.token = contextWordPart;
     tokens.push_back(t);
     return (i);
-}
-
-bool Parser::isContext(std::string const &line)
-{
-    std::vector<std::string>::iterator it = std::find(context.begin(), context.end(), HTTPRequest::trim(line));
-    if (it != context.end())
-        return (true);
-    return (false);
-}
-
-bool Parser::isDirective(std::string const &line)
-{
-    std::vector<std::string>::iterator it = std::find(directives.begin(), directives.end(), HTTPRequest::trim(line));
-    if (it != directives.end())
-        return (true);
-    return (false);
-}
+}\
 
 void Parser::tolower(std::string &s)
 {
     for(size_t i = 0; i < s.size(); i++)
         if (std::isupper(s[i]))
             s[i] = std::tolower(s[i]);
+}
+
+void Parser::create_server(ServerManager const *mgn, std::list<Token>::iterator& ch)
+{
+    HTTPServer srv;
+    size_t n = 0;
+    std::list<Token>::iterator tmpCh = ch;
+    std::list<Token>::iterator next = ch;
+    next++;
+    while (next != tokens.end())
+    {
+        if (next->type == DIRECTIVE)
+            directive(next, srv, &n);
+        if (next->type == CONTEXT && context_keyword(next->token) == "server")
+            break;
+        next++;
+        // n++;
+    }
+    // std::advance(ch, n);
+    std::cout << "***************" << std::endl;
+}
+
+void Parser::directive(std::list<Token>::iterator& node, HTTPServer &srv, size_t *iterator_count)
+{
+    std::string d_key;
+    std::string d_val;
+    size_t i = 0;
+    size_t s = 0;
+    while (i < node->token.size())
+    {
+        if (std::isspace(node->token[i]))
+            break;
+        i++;
+    }
+    if (i == node->token.size())
+        throw HTTPCoreException("Syntax: The value can't NULL");
+    d_key = node->token.substr(0, i);
+    d_val = node->token.substr(i+1);
+    std::cout << d_key << " : " << d_val << std::endl;
+    std::map<std::string, void (Parser::*)(std::string &, std::string &, HTTPServer &)>::iterator f = directives.find(d_key);
+    if (f != directives.end())
+        (this->*(f->second))(d_key, d_val, srv);
+}
+
+void Parser::make_pair(size_t i, std::list<Token>::iterator& node, HTTPServer &srv)
+{
+    std::string d_key = node->token.substr(0, i);
+    std::cout << d_key << std::endl;
+}
+
+void Parser::d_listen(std::string &d_key, std::string &d_val, HTTPServer &srv)
+{
+    
+}
+
+void Parser::d_root(std::string &d_key, std::string &d_val, HTTPServer &srv)
+{
+    
+}
+
+void Parser::d_server_name(std::string &d_key, std::string &d_val, HTTPServer &srv)
+{
+    std::cout << d_key << std::endl;
+    
+}
+
+void Parser::d_index(std::string &d_key, std::string &d_val, HTTPServer &srv)
+{
+    
+}
+
+void Parser::d_autoindex(std::string &d_key, std::string &d_val, HTTPServer &srv)
+{
+    
+}
+
+void Parser::d_methods(std::string &d_key, std::string &d_val, HTTPServer &srv)
+{
+    
+}
+
+void Parser::d_err_page(std::string &d_key, std::string &d_val, HTTPServer &srv)
+{
+    
+}
+
+void Parser::d_body_size(std::string &d_key, std::string &d_val, HTTPServer &srv)
+{
+    
 }

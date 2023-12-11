@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/06 00:11:18 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/10 15:42:02 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,11 @@ ServerManager::ServerManager(const char *configfile)
 ServerManager::~ServerManager()
 {
     
+}
+
+std::string ServerManager::setUname(std::string const &uname)
+{
+    this->uname = uname;    
 }
 
 void ServerManager::printFds( void )
@@ -58,8 +63,6 @@ HTTPServer *ServerManager::getServerByClientSocket(sock_t fd)
     }
     return (NULL);
 }
-
-
 
 void ServerManager::setmax(sock_t clFd)
 {

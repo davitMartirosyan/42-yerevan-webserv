@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:52:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/06 00:09:51 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/10 15:40:45 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class ServerManager : public std::vector<HTTPServer>
     public:
         ServerManager(const char *configFile);
         ~ServerManager();
+        std::string setUname(std::string const &uname);
     public:
         int isServer(sock_t fd);
         int isClient(sock_t fd);
@@ -54,6 +55,7 @@ class ServerManager : public std::vector<HTTPServer>
         void rm_w(sock_t fd);
         void rm_e(sock_t fd);
     private:
+        std::string uname;
         sock_t max_fd;
         fd_set s_rd;
         fd_set s_wr;

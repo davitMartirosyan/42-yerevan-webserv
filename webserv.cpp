@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 01:14:58 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/06 00:31:27 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/11 23:33:35 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,21 @@
 
 std::string file(std::string const &filename);
 
-int main(int ac, char **av)
+// std::string getUname(const char**env)
+// {
+//     int i = 0;
+//     std::string username;
+//     while (env[i])
+//     {
+//         std::string envIter = env[i];
+//         if (envIter.find("USER=") != std::string::npos)
+//         {username = envIter.substr(5);break;}
+//         i++;
+//     }
+//     return (username);
+// }
+
+int main(int ac, const char **av, const char**env)
 {
     (void)ac;
     (void)av;
@@ -28,6 +42,7 @@ int main(int ac, char **av)
         FD_ZERO(&wr);
         
         ServerManager mgn(ac == 2 ? av[1] : DFLT);
+        // mgn.setUname(getUname(env));
         ///////////////////////////////////IN PARSING//////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////
