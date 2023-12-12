@@ -324,9 +324,14 @@ void Parser::directive(std::list<Token>::iterator& node, HTTPServer &srv, size_t
     }
     d_key = node->token.substr(0, i);
     if (std::isspace(node->token[i]))
+    {
+        node->token[i] = '\a';
+        node->token = HTTPRequest::trim(node->token);
         d_val = node->token.substr(i+1);
+    }
     if (d_key.empty() || d_val.empty())
-        throw HTTPCoreException("Syntax: Directive Value Can't be NULL");
+        throw HTTPCoreException("Directive Value: Value Can't be NULL");
+    node->token[i] = ' ';
     std::map<std::string, void (Parser::*)(std::string &, std::string &, HTTPServer &)>::iterator f = directives.find(d_key);
     if (f != directives.end())
         (this->*(f->second))(d_key, d_val, srv);
@@ -357,30 +362,55 @@ void Parser::d_root(std::string &d_key, std::string &d_val, HTTPServer &srv)
 
 void Parser::d_server_name(std::string &d_key, std::string &d_val, HTTPServer &srv)
 {
-    
+    std::stringstream srv_names(d_val);
+    std::string name;
+    while (std::getline(srv_names, name, ' '))
+        srv.push_serverName(name);
 }
 
 void Parser::d_index(std::string &d_key, std::string &d_val, HTTPServer &srv)
 {
-    
+    std::stringstream srv_indexes(d_val);
+    std::string index;
+    while (std::getline(srv_indexes, index, ' '))
+        srv.pushIndex(index);
 }
 
 void Parser::d_autoindex(std::string &d_key, std::string &d_val, HTTPServer &srv)
 {
-    
+    if (d_val == "on" || d_val == "off")
+        srv.setAutoindex(d_val);
+    else
+        throw HTTPCoreException("Autoindex: undefined set of BOOLEAN value");
 }
 
 void Parser::d_methods(std::string &d_key, std::string &d_val, HTTPServer &srv)
 {
-    
+    std::stringstream srv_methods(d_val);
+    std::string method;
+    while (std::getline(srv_methods, method, ' '))
+        srv.pushMethods(method);
 }
 
 void Parser::d_err_page(std::string &d_key, std::string &d_val, HTTPServer &srv)
 {
-    
+    std::vector<std::string> err_page;
+    std::stringstream srv_err_page(d_val);
+    std::string k_or_v;
+    while (std::getline(srv_err_page, k_or_v, ' '))
+        err_page.push_back(k_or_v);
+    if (err_page.size() != 2)
+        throw HTTPCoreException("Error_page: Keys and Values are not correct");
+    for(size_t i = 0; i < err_page[0].size(); i++)
+        if (!std::isdigit(err_page[0][i]))
+            throw HTTPCoreException("Error_page: Key should be an INTEGER");
+    srv.pushErrPage(std::atoi(err_page[0].c_str()), err_page[1]);
 }
 
 void Parser::d_body_size(std::string &d_key, std::string &d_val, HTTPServer &srv)
 {
-    
+    for(size_t i = 0; i < d_val.size(); i++)
+        if (!std::isdigit(d_val[i]))
+            throw HTTPCoreException("Body_size: Size should be an INTEGER");
+    srv.setSize(d_val);
 }
