@@ -28,7 +28,7 @@ ServerManager::~ServerManager()
     
 }
 
-std::string ServerManager::setUname(std::string const &uname)
+void ServerManager::setUname(std::string const &uname)
 {
     this->uname = uname;    
 }

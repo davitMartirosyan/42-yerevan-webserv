@@ -322,11 +322,11 @@ void Parser::directive(std::list<Token>::iterator& node, HTTPServer &srv, size_t
             break;
         i++;
     }
-    if (i == node->token.size())
-        throw HTTPCoreException("Syntax: The value can't NULL");
     d_key = node->token.substr(0, i);
-    d_val = node->token.substr(i+1);
-    std::cout << d_key << " : " << d_val << std::endl;
+    if (std::isspace(node->token[i]))
+        d_val = node->token.substr(i+1);
+    if (d_key.empty() || d_val.empty())
+        throw HTTPCoreException("Syntax: Directive Value Can't be NULL");
     std::map<std::string, void (Parser::*)(std::string &, std::string &, HTTPServer &)>::iterator f = directives.find(d_key);
     if (f != directives.end())
         (this->*(f->second))(d_key, d_val, srv);
@@ -340,17 +340,23 @@ void Parser::make_pair(size_t i, std::list<Token>::iterator& node, HTTPServer &s
 
 void Parser::d_listen(std::string &d_key, std::string &d_val, HTTPServer &srv)
 {
-    
+    size_t splitter = d_val.find(":");
+    if (splitter != std::string::npos)
+    {
+        srv.setIp(d_val.substr(0, splitter));
+        srv.setPort(d_val.substr(splitter+1));
+    }
+    else
+        srv.setIp(d_val);
 }
 
 void Parser::d_root(std::string &d_key, std::string &d_val, HTTPServer &srv)
 {
-    
+    srv.setRoot(d_val);
 }
 
 void Parser::d_server_name(std::string &d_key, std::string &d_val, HTTPServer &srv)
 {
-    std::cout << d_key << std::endl;
     
 }
 

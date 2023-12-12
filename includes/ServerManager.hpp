@@ -25,7 +25,7 @@ class ServerManager : public std::vector<HTTPServer>
     public:
         ServerManager(const char *configFile);
         ~ServerManager();
-        std::string setUname(std::string const &uname);
+        void setUname(std::string const &uname);
     public:
         int isServer(sock_t fd);
         int isClient(sock_t fd);

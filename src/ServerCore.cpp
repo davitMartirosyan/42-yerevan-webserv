@@ -100,4 +100,3 @@ bool ServerCore::getAutoindex( void ) const
 {
 	return (autoindex);
 }
-
