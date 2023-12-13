@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 14:25:33 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/13 12:55:39 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,8 @@ void Client::appendRequest(HTTPServer &srv)
     }
     delete [] http;
     if (reqLineFound && headersFound)
-    {        
+    {
+        
         reqLineFound = false;
         headersFound = false;
         Client::processing(srv);

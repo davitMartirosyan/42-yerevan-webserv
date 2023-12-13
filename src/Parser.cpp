@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/12 00:33:30 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/13 17:12:43 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ void Parser::start(ServerManager const *mgn)
     Parser::intermediate_code_generation();
     Parser::syntax_analysis();
     Parser::fill_servers(mgn);
+
     // std::list<Token>::iterator tok = tokens.begin();
     // for(; tok != tokens.end(); tok++)
     //     std::cout << tok->type << " : " << "|" << tok->token << "|" << std::endl;
@@ -54,6 +55,8 @@ std::string Parser::context_keyword(std::string const &context_token)
     while (++i < context_token.size())
         if (std::isspace(context_token[i]))
             break;
+    std::string lower = context_token;
+    
     return (context_token.substr(0, i));
 }
 
@@ -293,24 +296,60 @@ void Parser::tolower(std::string &s)
 void Parser::create_server(ServerManager const *mgn, std::list<Token>::iterator& ch)
 {
     HTTPServer srv;
-    size_t n = 0;
     std::list<Token>::iterator tmpCh = ch;
     std::list<Token>::iterator next = ch;
     next++;
     while (next != tokens.end())
     {
         if (next->type == DIRECTIVE)
-            directive(next, srv, &n);
+            directive(next, srv);
         if (next->type == CONTEXT && context_keyword(next->token) == "server")
             break;
+        if (next->type == CONTEXT && context_keyword(next->token) == "location")
+            location(next, srv);
         next++;
-        // n++;
     }
-    // std::advance(ch, n);
     std::cout << "***************" << std::endl;
 }
 
-void Parser::directive(std::list<Token>::iterator& node, HTTPServer &srv, size_t *iterator_count)
+void Parser::location(std::list<Token>::iterator& node, HTTPServer &srv)
+{
+    std::cout << node->token << std::endl;
+    std::list<Token>::iterator next = node;
+    std::stringstream l_context(node->token);
+    std::vector<std::string> location_Components;
+    std::string comp;
+    while (std::getline(l_context, comp, ' '))
+        location_Components.push_back(comp);
+    if (location_Components.size() != 2)
+        throw HTTPCoreException("Location: Syntax is not valid");
+    location_Components.clear();
+    comp.clear();
+    while (node->type != DIRECTIVE)
+        node++;
+    next = node;
+    Location loc(location_Components[1]);
+    while (node->type == DIRECTIVE)
+    {
+        next = node;
+        next++;
+        if (node->type == CONTEXT)
+            throw HTTPCoreException("Location: Nested locations are forbidden");
+        if (next->type == SEMICOLON)
+        {
+            node++;
+            node++;
+        }
+        node++;
+    }
+}
+
+void Parser::directive(std::list<Token>::iterator &node, Location &loc)
+{
+    
+}
+
+void Parser::directive(std::list<Token>::iterator& node, HTTPServer &srv)
 {
     std::string d_key;
     std::string d_val;
@@ -332,7 +371,7 @@ void Parser::directive(std::list<Token>::iterator& node, HTTPServer &srv, size_t
     if (d_key.empty() || d_val.empty())
         throw HTTPCoreException("Directive Value: Value Can't be NULL");
     node->token[i] = ' ';
-    std::map<std::string, void (Parser::*)(std::string &, std::string &, HTTPServer &)>::iterator f = directives.find(d_key);
+    Func f = directives.find(d_key);
     if (f != directives.end())
         (this->*(f->second))(d_key, d_val, srv);
 }

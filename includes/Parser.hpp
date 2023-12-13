@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:25:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/12 00:10:45 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/13 17:13:43 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,11 @@
 #include "Libs.hpp"
 #include "ServerManager.hpp"
 
+class Location;
 class HTTPServer;
 class HTTPRequest;
 class ServerManager;
+
 class Parser
 {
     private:
@@ -69,12 +71,14 @@ class Parser
         std::vector<std::string> server_ctx;
     private:
         void create_server(ServerManager const *mgn, std::list<Token>::iterator& ch);
-        void directive(std::list<Token>::iterator& next, HTTPServer& srv, size_t *iterator_count);
+        void location(std::list<Token>::iterator& next, HTTPServer& srv);
+        void directive(std::list<Token>::iterator& next, Location& loc); //Location directives
+        void directive(std::list<Token>::iterator& next, HTTPServer& srv); // Server directives
         void make_pair(size_t i, std::list<Token>::iterator& node, HTTPServer &srv);
     private:
         void d_listen(std::string &d_key, std::string &d_val, HTTPServer &srv);
-        void d_server_name(std::string &d_key, std::string &d_val, HTTPServer &srv);
         void d_root(std::string &d_key, std::string &d_val, HTTPServer &srv);
+        void d_server_name(std::string &d_key, std::string &d_val, HTTPServer &srv);
         void d_index(std::string &d_key, std::string &d_val, HTTPServer &srv);
         void d_autoindex(std::string &d_key, std::string &d_val, HTTPServer &srv);
         void d_methods(std::string &d_key, std::string &d_val, HTTPServer &srv);
@@ -82,6 +86,7 @@ class Parser
         void d_body_size(std::string &d_key, std::string &d_val, HTTPServer &srv);
 
 };
+typedef std::map<std::string, void (Parser::*)(std::string &, std::string &, HTTPServer &)>::iterator Func;
 
 // server, location
 //root, index, autoindex, error_page, methods, client_body_size, server_name, listen
