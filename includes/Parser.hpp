@@ -39,7 +39,7 @@ class Parser
         Parser(const char *confFile);
         ~Parser();
     public:
-        void start(ServerManager const *mgn);
+        void start(ServerManager &mgn);
     private:
         std::string context_keyword(std::string const &context_token);
     private:
@@ -55,7 +55,7 @@ class Parser
         void semantic_analysis( void );
         void intermediate_code_generation( void );
         void syntax_analysis( void );
-        void fill_servers(ServerManager const *mgn);
+        void fill_servers(ServerManager &mgn);
         void remove_spaces(std::string &tmp_text);
     private:
         std::fstream IO;
@@ -70,7 +70,7 @@ class Parser
         std::string config;
         std::vector<std::string> server_ctx;
     private:
-        void create_server(ServerManager const *mgn, std::list<Token>::iterator& ch);
+        void create_server(ServerManager &mgn, std::list<Token>::iterator& ch);
         void location(std::list<Token>::iterator& next, HTTPServer& srv);
         void directive(std::list<Token>::iterator& next, Location& loc); //Location directives
         void directive(std::list<Token>::iterator& next, HTTPServer& srv); // Server directives

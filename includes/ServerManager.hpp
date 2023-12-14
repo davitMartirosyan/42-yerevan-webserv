@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:52:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/10 15:40:45 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/07 18:34:31 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,18 @@
 #include "Location.hpp"
 #include "HTTPServer.hpp"
 #include "Client.hpp"
+#include <ResponseError.hpp>
+#define SUCCSSES_STATUS "OK"
 
 class Client;
 class HTTPServer;
+class Error;
+
 class ServerManager : public std::vector<HTTPServer>
 {
     public:
-        ServerManager(const char *configFile);
+        ServerManager(const char *configfile);
         ~ServerManager();
-        void setUname(std::string const &uname);
     public:
         int isServer(sock_t fd);
         int isClient(sock_t fd);
@@ -37,29 +40,21 @@ class ServerManager : public std::vector<HTTPServer>
         sock_t findServerBySocket(sock_t issetfd);
         sock_t findClientBySocket(sock_t issetfd);
         sock_t getmax( void ) const;
-        int used(HTTPServer *srv) const;
+        int used(HTTPServer &srv) const;
     public:
-        void push(HTTPServer const &srv);
+        // void push(HTTPServer const &srv);
+        std::vector<HTTPServer> getVirtualServers( void );
     private:
-        std::vector<HTTPServer> srvs;
+        // std::vector<HTTPServer> _srvs;
     public:
-        void setmax(sock_t lastfd);
-        void set( void );
-        void set_r(sock_t fd);
-        void set_w(sock_t fd);
-        void set_e(sock_t fd);
-        fd_set r_set( void ) const;
-        fd_set w_set( void ) const;
-        fd_set e_set( void ) const;
-        void rm_r(sock_t fd);
-        void rm_w(sock_t fd);
-        void rm_e(sock_t fd);
+        // std::vector<Client> clnt;
+    public:
+        void start();
+        std::string generateResponse(Client &client);
+        std::string generateErrorResponse(const ResponseError& e, Client &client);
     private:
-        std::string uname;
-        sock_t max_fd;
-        fd_set s_rd;
-        fd_set s_wr;
-        fd_set s_except;
+        bool closeConnetcion(sock_t fd);
+        bool newClient(int fd);
 };
 
 #endif

@@ -3,50 +3,79 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 00:21:09 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/07 21:47:39 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPRequest.hpp"
 #include "HTTPServer.hpp"
 
+
 // class HTTPServer;
-HTTPRequest::HTTPRequest( void )
+HTTPRequest::HTTPRequest(void)
 {
     reqLineEnd = 0;
     bodyEnd = 0;
-    bodySize = 0;
+    _bodySize = 0;
     statusCode = 0;
     location = NULL;
-    methodsMap["GET"] = &HTTPRequest::get;
-    methodsMap["POST"] = &HTTPRequest::post;
-    methodsMap["DELETE"] = &HTTPRequest::delet;
+    _maxSizeRequest = 0;
+    _bodySize = 0;
+    _isHeaderReady = false;
+    _isBodyReady = false;
+    _isRequestReady = false;
+    _isOpenConnection = false;
+    _isResponseReady = false;
+    // methodsMap["GET"] = &HTTPRequest::get;
+    // methodsMap["POST"] = &HTTPRequest::post;
+    // methodsMap["DELETE"] = &HTTPRequest::delet;
     //boundary = "&"; // !IMPORTANT: if GET request: the boundary is (&) else if POST request: boundary is read from (Headers)
-    methods.push_back("GET");
-    methods.push_back("POST");
-    methods.push_back("DELETE");
+    // methods.push_back("GET");
+    // methods.push_back("POST");
+    // methods.push_back("DELETE");
 }
 
 HTTPRequest::~HTTPRequest()
 {
 }
 
-std::string const &HTTPRequest::requestMethod( void ) const
+std::string const &HTTPRequest::getMethod( void ) const
 {
     return (method);
 }
 
-std::string const &HTTPRequest::requestPath( void ) const
+std::string HTTPRequest::getBody() const
 {
-    return (path);
+    return (_body);
 }
 
-std::string const &HTTPRequest::requestVersion( void ) const
+std::string const &HTTPRequest::getPath( void ) const
+{
+    return (absolutePath);
+}
+
+std::string const &HTTPRequest::getVersion( void ) const
 {
     return (version);
+}
+
+std::string HTTPRequest::getHttpRequest() const {
+    return (httpRequest);
+}
+
+const std::unordered_map<std::string, std::string> &HTTPRequest::getUploadedFiles() const {
+    return(_uploadedFiles);
+}
+
+bool HTTPRequest::isRequestReady() const {
+    return (_isRequestReady);
+}
+
+bool HTTPRequest::isResponseReady() const {
+    return (_isResponseReady);
 }
 
 std::string HTTPRequest::rtrim(const std::string &str)
@@ -66,9 +95,9 @@ std::string HTTPRequest::trim(const std::string &str)
     return (ltrim(rtrim(str)));
 }
 
-void HTTPRequest::processing(sock_t fd)
-{
-}
+// void HTTPRequest::processing(sock_t fd)
+// {
+// }
 
 void HTTPRequest::charChange(std::string &str, char s, char d)
 {
@@ -88,54 +117,73 @@ std::string HTTPRequest::findInMap(std::string key)
     return (nill);
 }
 
-void HTTPRequest::get(HTTPServer &srv)
-{
-    // std::cout << "GET method" << std::endl;
-}
-
-void HTTPRequest::post(HTTPServer &srv)
-{
-    if (!(contentType = findInMap("Content-Type")).empty())
-    {
-        type = trim(contentType.substr(0, contentType.find(";")));
-        // HTTPRequest::contentReceiveMethod(fd);
-    }
-    else if (!(transferEncoding = findInMap("Transfer-Encoding")).empty())
-    {
-        std::cout << "Data transfers chunck by chunk" << std::endl;
-    }
-}
-
-void HTTPRequest::delet(HTTPServer &srv)
-{
-    std::cout << "method is DELETE" << std::endl;
-}
-
-// void HTTPRequest::multipart(sock_t fd)
+// void HTTPRequest::get(HTTPServer &srv)
 // {
-//     std::cout << "multipart/form-data" << std::endl;
-//     std::cout << httpRequest << std::endl;
-//     contentType.erase(0, contentType.find(";")+1);
-//     boundary = "--" + contentType.substr(contentType.find("=")+1);
-//     boundaryEnd = boundary + "--";
-//     std::stringstream iss(httpRequest);
-//     std::vector<std::string> content;
-//     std::string line;
-//     std::string get_next_line;
-//     while (std::getline(iss, get_next_line))
+//     // std::cout << "GET method" << std::endl;
+// }
+
+// void HTTPRequest::post(HTTPServer &srv)
+// {
+//     if (!(contentType = findInMap("Content-Type")).empty())
 //     {
-//         if (trim(get_next_line) == boundary || trim(get_next_line) == boundaryEnd)
-//         {
-//             if (!line.empty())
-//             {
-//                 // content.push_back(line);
-//                 line.erase();
-//             }
-//         }
-//         else
-//             line += get_next_line + "\r\n";
+//         type = trim(contentType.substr(0, contentType.find(";")));
+//         // HTTPRequest::contentReceiveMethod(fd);
+//     }
+//     else if (!(transferEncoding = findInMap("Transfer-Encoding")).empty())
+//     {
+//         std::cout << "Data transfers chunck by chunk" << std::endl;
 //     }
 // }
+
+// void HTTPRequest::delet(HTTPServer &srv)
+// {
+//     std::cout << "method is DELETE" << std::endl;
+// }
+
+
+void HTTPRequest::multipart(void)
+{
+    std::map<std::string, std::string>::iterator it =  httpHeaders.find("Content-Type");
+    std::cout << "multipart function " << std::endl;
+
+    if(it == httpHeaders.end())
+    {
+        throw ResponseError(428, "Precondition Required");
+    }
+    std::string contentType = it->second;
+    contentType.erase(0, contentType.find(";")+1);
+    size_t posEqualsign = contentType.find("=");
+    if (posEqualsign == std::string::npos) {
+        throw ResponseError(428, "Precondition Required");
+    }
+    boundary = "--" + contentType.substr(posEqualsign + 1);
+    boundaryEnd = boundary + "--";
+
+    size_t boundaryPos = _body.find(boundary);
+    size_t endPos = _body.find(boundaryEnd);
+
+    do {
+        size_t filenameStart = _body.find("filename", boundaryPos);
+
+        if(filenameStart == std::string::npos) {
+            throw ResponseError(428, "Precondition Required");
+        }
+        filenameStart += strlen("filename") + 2;
+        std::string filename = _body.substr(filenameStart, _body.find("\"", filenameStart) - filenameStart);
+        boundaryPos = _body.find(boundary, filenameStart);
+        size_t contentStart = _body.find("\r\n\r\n", filenameStart) + strlen("\r\n\r\n");
+        std::string fileContent = _body.substr(contentStart, boundaryPos - contentStart - strlen("\r\n"));
+        _uploadedFiles[filename] = fileContent;
+        // std::cout << "fileContent = " << fileContent << "$" << std::endl;
+    } while (boundaryPos != endPos);
+
+    // std::unordered_map<std::string, std::string>::iterator it1 = _uploadedFiles.begin();
+    // while (it1 != _uploadedFiles.end()) {
+    //     std::cout << it1->first << "$" <<std::endl;
+    //     std::cout << it1->second  << "$" <<std::endl;
+    //     ++it1;
+    // }
+}
 
 void HTTPRequest::showHeaders( void )
 {
@@ -191,13 +239,6 @@ int HTTPRequest::in(std::string const &method)
     return (0);
 }
 
-void HTTPRequest::processing(HTTPServer &srv)
-{
-    std::map<std::string, void(HTTPRequest::*)(HTTPServer&)>::iterator function = methodsMap.find(method);
-    if (function != methodsMap.end())
-       (this->*(function->second))(srv);
-}
-
 std::string HTTPRequest::dir_content(std::string const &realPath)
 {
     DIR* odir = opendir(realPath.c_str());
@@ -215,17 +256,12 @@ std::string HTTPRequest::dir_content(std::string const &realPath)
     return (directoryContent);
 }
 
-std::string const &HTTPRequest::getResponse( void )
-{
-    return (response);
-}
-
 void HTTPRequest::checkPath(HTTPServer const &srv)
 {
     size_t use = 0;
     if ((use = path.find_first_of("?")) != std::string::npos)
     {
-        queryString = path.substr(use+1);
+        queryString = path.substr(use+1); // TODO determine the 
         path = path.substr(0, use);
     }
     location = srv.find(path);
@@ -236,6 +272,8 @@ void HTTPRequest::checkPath(HTTPServer const &srv)
     }
     else
         absolutePath = middle_slash(srv.getRoot(), '/', path);
+    //TODO  check indexs
+    // TODO extension absolutePath 
 }
 
 std::vector<std::string> HTTPRequest::pathChunking(std::string const &rPath)

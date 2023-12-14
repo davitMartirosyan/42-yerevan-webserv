@@ -1,38 +1,35 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        body{
-            background-color:#555555;
-            color:rgb(0, 255, 115);
-        }
-    </style>
+    <title>File Upload Example</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./src/styles.css">
 </head>
 <body>
-    <h1>OCI - Embrace your style</h1>
-    <!-- <img src="oci-symbol-black-embroied.png" alt=""> -->
-    <form action="post.php" method="GET" enctype="multipart/form-data">
-        <!-- <input type="file" name="pic"> -->
+    <h2>HTML Forms</h2>
+    <form action="/register" method="post">
+        <input type="text" id="name" name="name">
+        <input type="text" id="email" name="email">
+        <input type="submit" value="Submit">
+      </form>
 
-        <input type="text" name="fname" placeholder="First Name:"><br>
-        <input type="text" name="lname" placeholder="Last Name:"><br>
-        <input type="text" name="email" placeholder="Email:"><br>
-        <input type="password" name="pass" placeholder="Password:"><br>
-        
-        <input type="file" name="pic"><br>
-        <!-- <input type="radio" name="male"><br>
-        <input type="password" name="pass"><br>
-        <input type="color" name="clr"><br>
-        <input type="date" name="dt"><br> -->
-
-
-        <!-- <input type="text" name="lname" placeholder="Last Name:"><br> -->
-        <!-- <input type="password" name="pwd" placeholder="Password:"><br> -->
-        <input type="submit" name="signup" value="signup"><br>
+    <p>If you click the "Submit" button, the form-data will be sent to a page called "/action_page.php".</p>
+    <h1>File Upload</h1>
+    <form action="" id="fileInput" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" >
+        <button type="button" onclick="fileUpload()">File upload</button>
     </form>
+    <form id="myForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+    <img src="img/a.png">
+    <script src="./src/script.js"></script>
 </body>
 </html>

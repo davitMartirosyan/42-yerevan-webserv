@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/10 02:06:25 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/12 21:59:18 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPServer.hpp"
+#include <unordered_map>
+#include "HelperFunctions.hpp"
 
 size_t longestMatch(std::string const &s1, std::string const &s2);
 
@@ -19,6 +21,13 @@ HTTPServer::HTTPServer( void )
     //defualt initializations
     this->port = DEFAULT_HTTP_PORT;
     this->ip = DEFAULT_MASK;
+    methodsMap["GET"] = &HTTPServer::get;
+    methodsMap["POST"] = &HTTPServer::post;
+    methodsMap["DELETE"] = &HTTPServer::del;
+    //boundary = "&"; // !IMPORTANT: if GET request: the boundary is (&) else if POST request: boundary is read from (Headers)
+    methods.push_back("GET");
+    methods.push_back("POST");
+    methods.push_back("DELETE");
 }
 
 HTTPServer::~HTTPServer()
@@ -132,33 +141,34 @@ sock_t HTTPServer::getfd( void ) const
 
 void HTTPServer::up(ServerManager &mgn)
 {
-    if (!mgn.used(this))
-    {
+    // if (!mgn.used(this))
+    // {
         const char* givenIp = ip.c_str();
         const char* givenPort = port.c_str();
         Tcp::setup(givenIp, givenPort);
         Tcp::createSocket();
         Tcp::bindSocket();
         Tcp::listenSocket();
-        mgn.setmax(fd);
+        // mgn.setmax(fd);  // TODO delete line
         std::cout << givenIp <<  ":" << givenPort << std::endl;
         freeaddrinfo(addrList);
-    }
-    else
-        std::cout << "{Already:used}" << std::endl;
+    // }
+    // else
+    //     std::cout << "{Already:used}" << std::endl;
     
 }
 
-void HTTPServer::push(sock_t clFd, Client &clt)
+void HTTPServer::push(sock_t clFd, Client *clt)
 {
     clnt.insert(std::make_pair(clFd, clt));
 }
 
 int HTTPServer::pop(sock_t clFd)
 {
-    std::map<sock_t, Client>::iterator it = clnt.find(clFd);
+    std::map<sock_t, Client*>::iterator it = clnt.find(clFd);
     if (it != clnt.end())
     {
+        delete it->second;
         clnt.erase(it);
         return (0);
     }
@@ -179,19 +189,27 @@ bool HTTPServer::operator==(HTTPServer const &sibling)
     return (false);
 }
 
+bool HTTPServer::operator==(sock_t fd)
+{
+    if (clnt.find(fd) != clnt.end()) {
+      return (true);
+    } 
+    return (false);
+}
+
 Client* HTTPServer::getClient(sock_t fd)
 {
-    std::map<sock_t, Client>::iterator it = clnt.find(fd);
+    std::map<sock_t, Client*>::iterator it = clnt.find(fd);
     if (it != clnt.end())
-        return (&it->second);
+        return (it->second);
     return (NULL);
 }
 
 void HTTPServer::removeClient(sock_t fd)
 {
-    std::map<sock_t, Client>::iterator it = clnt.find(fd);
+    std::map<sock_t, Client*>::iterator it = clnt.find(fd);
     if (it != clnt.end())
-        clnt.erase(it);
+        clnt.erase(it);  // TODO delete object before erase
     return ;
 }
 
@@ -311,9 +329,9 @@ size_t longestMatch(std::string const &s1, std::string const &s2)
 // 	error_page.insert(std::make_pair(key, errpage_filename));
 // }
 
-// void HTTPServer::setSize(std::string const &bodySize)
+// void HTTPServer::setSize(std::string const &_bodySize)
 // {
-// 	unsigned long long int toLong = std::strtoull(bodySize.c_str(), NULL, 10);
+// 	unsigned long long int toLong = std::strtoull(_bodySize.c_str(), NULL, 10);
 // 	if (errno == ERANGE && toLong == ULLONG_MAX)
 // 		this->client_body_size = 200;
 // 	else
@@ -324,3 +342,154 @@ size_t longestMatch(std::string const &s1, std::string const &s2)
 // {
 // 	return (autoindex);
 // }
+
+
+std::string HTTPServer::get(Client &client) {
+    const std::string &path = client.getPath();
+    std::unordered_map<std::string, std::string> headerContent;
+    std::string  fileName;
+
+    std::cout << "path = " << path << std::endl;
+    // TODO unrecognized types "application/octet- stream"
+    if(path[path.size() - 1] == '/')
+    {
+        fileName = "www/server1/index.html";  //TODO - remove hardcode should be default page from config  
+        client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/html")); //TODO - remove hardcode
+
+    } else {
+        // if ()
+        // client.addHeader(std::pair<std::string, std::string>("Content-Type", "application/octet- stream")); //TODO - remove hardcode
+        fileName = path;
+    }
+    // TODO check is method allowed. 405
+    // TODO Content-Length is not defined in case post method called 411
+    // TODO valid request line 412
+    // TODO body is large 413
+    // TODO The URI requested is long  414
+    // TODO header is large 431
+    // std::cout << "fileName = " << fileName << std::endl;
+    if (access(fileName.c_str(), F_OK) == 0) {   // TODO check permission to read
+        std::string fileContent = fileToString(fileName);
+        client.addHeader(std::pair<std::string, std::string>("Content-Length", std::to_string(fileContent.size())));
+        client.buildHeader();
+        return (client.getResponse() + fileContent);
+    } else {
+        throw ResponseError(404, "not found");
+        // TODO automate it   404, 405, 408, 411, 412, 413, 414, 431, 500, 501, 505, 503, 507, 508
+    }
+    return ("");
+};
+
+std::string HTTPServer::post(Client &client) {
+    
+    std::cout << "\n--- in Post function \n" << std::endl;
+    // TODO if cgi exstention detected go through cgi and give body as stdin else get files
+    // TODO if multipart data not detected throw precondition failed
+    const std::unordered_map<std::string, std::string> &uploadedFiles = client.getUploadedFiles();
+    std::unordered_map<std::string, std::string>::const_iterator it = uploadedFiles.cbegin();
+    // std::cout << "filename = " << fileName << std::endl;
+    for (; it != uploadedFiles.cend(); ++it) {
+        const std::string &fileName = it->first;
+        const std::string &fileContent = it->second;
+        std::ofstream ofs("./www/server1/data_base/" + fileName);
+        
+        if (ofs.is_open() == false) {
+            throw ResponseError(507 , "Insufficient Storage");
+        }
+        ofs << fileContent;
+        if (ofs.good() == false) {
+            throw ResponseError(507 , "Insufficient Storage");
+        }
+        ofs.close();
+    }
+    std::string response;
+    client.addHeader(std::pair<std::string, std::string>("content-type", "text/plain"));
+    client.buildHeader();
+    response = client.getResponse();
+    response += "ok";
+    return (response);
+};
+
+std::string HTTPServer::del(Client &client) {
+    std::string response;
+    if (std::remove(client.getPath().c_str()) == -1) {
+        throw ResponseError(404, "not found");
+    };
+    return (response);
+};
+
+std::string HTTPServer::processing(Client &client)
+{
+    std::map<std::string, std::string(HTTPServer::*)(Client&)>::iterator function = methodsMap.find(client.getMethod());
+    if (function != methodsMap.end())
+       return ((this->*(function->second))(client));
+    throw ResponseError(405, "Method Not Allowed");
+    return ("");
+}
+
+bool	directory_listing(std::string path)
+{
+	DIR					*opened_dir;
+	dirent				*dir_struct;
+	std::string			table;
+	std::string			name;
+	struct stat			buf;
+	struct tm			*timeinfo;
+	char				time_buf[100];
+	std::string 		relPath;
+	std::string 		displayPath;
+	
+	if (path != "." && path != ".." && path[0] != '/' && (path[0] != '.' && path[1] != '/') && (path[0] != '.' && path[1] != '.' && path[2] != '/')) {
+        relPath = "./" + path + "/";
+        displayPath = "./" + path;
+    } else {
+		relPath = path + "/";
+		displayPath = path;
+	}
+	opened_dir = opendir(relPath.c_str());
+	
+	table += "<!DOCTYPE html><html><head><title>";
+	table += "Index of ";
+	table += displayPath;
+	table += "</title>";
+	table += "<style>";
+	table += ".box>* {flex: 33.33%;}";
+	table += ".box {display: flex; flex-wrap: wrap; width: 75%;}";
+	table += "</style></head>";
+	table += "<body><h1>";
+	table += "Index of ";
+	table += displayPath;
+	table += "</h1><hr><pre class=\"box\">";
+
+	dir_struct = readdir(opened_dir);
+	while ((dir_struct = readdir(opened_dir)) != NULL)
+	{
+		name = dir_struct->d_name;
+		if (name != ".")
+		{
+			table += "<a href=\"";
+			table += name;
+			table += "\">";
+			table += name;
+			table += "</a>";
+			//std::cout << "name = " << name << std::endl;
+			if (stat((relPath + name).c_str(), &buf) == 0)
+			{
+				//std::cout << "name.c_str() = " << name.c_str() << std::endl;
+				table += "<span>";
+				timeinfo = localtime(&(buf.st_mtime));
+				strftime(time_buf, 100, "%d-%b-%Y %H:%S", timeinfo);
+				table += time_buf;
+				table += "</span><span>";
+				if (dir_struct->d_type == DT_DIR)
+					table += "-";
+				table += "</span>";
+			}
+			table += "<br>";
+		}
+	}
+	table += "</pre><hr></body></html>";
+	closedir(opened_dir);
+    std::cout << table << std::endl;
+    return true;
+}
