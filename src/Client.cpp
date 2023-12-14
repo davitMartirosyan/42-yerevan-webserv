@@ -6,7 +6,7 @@
 /*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/05 21:39:49 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/12 21:55:22 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,25 +55,25 @@ sock_t Client::getServerFd( void ) const
 // std::string &Client::getResponse() {
 //     return (_response);
 // }
-
 int Client::receiveRequest() {
     char buf[READ_BUFFER];
-    int rdSize = recv(fd, buf, sizeof(buf) - 1, 0);
-    // std::cout << "rdSize = " << rdSize << std::endl;
+    errno = 0;
+    int rdSize = recv(fd, buf, sizeof(buf), 0);  // TODO does not work with pictures or large files
+    // std::cout << "errno = " << errno << std::endl;
     if (rdSize == -1) { // TODO Checking the value of errno is strictly forbidden after a read or a write operation.
-        if (_maxSizeRequest == 5) { // TODO client request caused infinit loop  change with time
-            return -1;
-        } else {
-            _maxSizeRequest++;
+        // if (_maxSizeRequest == 100) { // TODO client request caused infinit loop  change with time
+        //     return -1;
+        // } else {
+        //     _maxSizeRequest++;
             return (0);
-        }
+        // }
     }
+    // std::cout << "rdSize = " << rdSize << std::endl;
     if (rdSize == 0) {  // TODO close tab. send response?
         return (-1);
     }
-    buf[rdSize] = '\0';
     if (_isHeaderReady == false) {
-        httpRequest += buf;
+        httpRequest.append(buf, rdSize);
         size_t headerEndPos = httpRequest.find("\n\r\n");
         if (headerEndPos == std::string::npos) {
             return 0;
@@ -85,12 +85,18 @@ int Client::receiveRequest() {
         } else {
             _bodySize = std::stoi(httpRequest.substr(httpRequest.find("Content-Length: ") + strlen("Content-Length: "), 10));  // TODO throw 413 if the bodt size of payload is bigger then limits predefined configs;
         }
+        // std::cout << "_bodySize = " << _bodySize << std::endl;
 
-        std::string tmp = httpRequest.substr(headerEndPos + 3);
+        std::string tmpBody = httpRequest.substr(headerEndPos + 3);
         httpRequest.erase(headerEndPos);
         if (_bodySize != 0) {
-            _body = tmp;
-            std::cout << "tmp = " << tmp << std::endl;
+            _body = tmpBody;
+            if (_bodySize <= _body.size()) {
+                _body.erase(_bodySize);
+                _isBodyReady = true;
+                _isRequestReady = true;
+            }
+            
         } else {
             _isBodyReady = true;
             _isRequestReady = true;
@@ -98,21 +104,22 @@ int Client::receiveRequest() {
         // TODO  parse header
         return 0;
     }
+    _body.append(buf, rdSize);
     if (_bodySize <= _body.size()) {   // TODO check body length to do so
         _body.erase(_bodySize);
         _isBodyReady = true;
         _isRequestReady = true;
-        return 0;
     }
-    _body += buf;
     return 0;
 }
 
 void Client::parse()
 {
+    std::cout << "void Client::parse()" << std::endl;
     size_t space = 0;
     size_t pos = httpRequest.find("\r\n");
     request = httpRequest.substr(0, pos);
+    // std::cout << "request = " << request << std::endl;
     httpRequest.erase(0, pos + 2);
 
     for (size_t i = 0; i < request.size(); i++)
@@ -140,6 +147,10 @@ void Client::parse()
         }
     }
     httpRequest.clear();
+    std::cout << "method = " << method << std::endl;
+    if (method == "POST") {
+        multipart();
+    }
     HTTPRequest::checkPath(this->_srv);
     //    std::cout << "method = " << method << std::endl;
     // std::cout << "path = " << path << std::endl;

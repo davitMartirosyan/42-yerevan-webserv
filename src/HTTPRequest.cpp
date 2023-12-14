@@ -6,7 +6,7 @@
 /*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/05 21:31:31 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/07 21:47:39 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,16 @@ HTTPRequest::HTTPRequest(void)
 {
     reqLineEnd = 0;
     bodyEnd = 0;
-    bodySize = 0;
+    _bodySize = 0;
     statusCode = 0;
     location = NULL;
     _maxSizeRequest = 0;
     _bodySize = 0;
+    _isHeaderReady = false;
+    _isBodyReady = false;
+    _isRequestReady = false;
+    _isOpenConnection = false;
+    _isResponseReady = false;
     // methodsMap["GET"] = &HTTPRequest::get;
     // methodsMap["POST"] = &HTTPRequest::post;
     // methodsMap["DELETE"] = &HTTPRequest::delet;
@@ -59,6 +64,10 @@ std::string const &HTTPRequest::getVersion( void ) const
 
 std::string HTTPRequest::getHttpRequest() const {
     return (httpRequest);
+}
+
+const std::unordered_map<std::string, std::string> &HTTPRequest::getUploadedFiles() const {
+    return(_uploadedFiles);
 }
 
 bool HTTPRequest::isRequestReady() const {
@@ -131,31 +140,50 @@ std::string HTTPRequest::findInMap(std::string key)
 //     std::cout << "method is DELETE" << std::endl;
 // }
 
-// void HTTPRequest::multipart(sock_t fd)
-// {
-//     std::cout << "multipart/form-data" << std::endl;
-//     std::cout << httpRequest << std::endl;
-//     contentType.erase(0, contentType.find(";")+1);
-//     boundary = "--" + contentType.substr(contentType.find("=")+1);
-//     boundaryEnd = boundary + "--";
-//     std::stringstream iss(httpRequest);
-//     std::vector<std::string> content;
-//     std::string line;
-//     std::string get_next_line;
-//     while (std::getline(iss, get_next_line))
-//     {
-//         if (trim(get_next_line) == boundary || trim(get_next_line) == boundaryEnd)
-//         {
-//             if (!line.empty())
-//             {
-//                 // content.push_back(line);
-//                 line.erase();
-//             }
-//         }
-//         else
-//             line += get_next_line + "\r\n";
-//     }
-// }
+
+void HTTPRequest::multipart(void)
+{
+    std::map<std::string, std::string>::iterator it =  httpHeaders.find("Content-Type");
+    std::cout << "multipart function " << std::endl;
+
+    if(it == httpHeaders.end())
+    {
+        throw ResponseError(428, "Precondition Required");
+    }
+    std::string contentType = it->second;
+    contentType.erase(0, contentType.find(";")+1);
+    size_t posEqualsign = contentType.find("=");
+    if (posEqualsign == std::string::npos) {
+        throw ResponseError(428, "Precondition Required");
+    }
+    boundary = "--" + contentType.substr(posEqualsign + 1);
+    boundaryEnd = boundary + "--";
+
+    size_t boundaryPos = _body.find(boundary);
+    size_t endPos = _body.find(boundaryEnd);
+
+    do {
+        size_t filenameStart = _body.find("filename", boundaryPos);
+
+        if(filenameStart == std::string::npos) {
+            throw ResponseError(428, "Precondition Required");
+        }
+        filenameStart += strlen("filename") + 2;
+        std::string filename = _body.substr(filenameStart, _body.find("\"", filenameStart) - filenameStart);
+        boundaryPos = _body.find(boundary, filenameStart);
+        size_t contentStart = _body.find("\r\n\r\n", filenameStart) + strlen("\r\n\r\n");
+        std::string fileContent = _body.substr(contentStart, boundaryPos - contentStart - strlen("\r\n"));
+        _uploadedFiles[filename] = fileContent;
+        // std::cout << "fileContent = " << fileContent << "$" << std::endl;
+    } while (boundaryPos != endPos);
+
+    // std::unordered_map<std::string, std::string>::iterator it1 = _uploadedFiles.begin();
+    // while (it1 != _uploadedFiles.end()) {
+    //     std::cout << it1->first << "$" <<std::endl;
+    //     std::cout << it1->second  << "$" <<std::endl;
+    //     ++it1;
+    // }
+}
 
 void HTTPRequest::showHeaders( void )
 {
@@ -228,11 +256,6 @@ std::string HTTPRequest::dir_content(std::string const &realPath)
     return (directoryContent);
 }
 
-std::string const &HTTPRequest::getResponse( void )
-{
-    return (response);
-}
-
 void HTTPRequest::checkPath(HTTPServer const &srv)
 {
     size_t use = 0;
@@ -249,7 +272,6 @@ void HTTPRequest::checkPath(HTTPServer const &srv)
     }
     else
         absolutePath = middle_slash(srv.getRoot(), '/', path);
-    std::cout << "absolutePath = " << absolutePath << std::endl;
 }
 
 std::vector<std::string> HTTPRequest::pathChunking(std::string const &rPath)

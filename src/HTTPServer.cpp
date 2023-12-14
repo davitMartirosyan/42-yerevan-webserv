@@ -6,12 +6,13 @@
 /*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/06 20:41:46 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/12 21:59:18 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPServer.hpp"
 #include <unordered_map>
+#include "HelperFunctions.hpp"
 
 size_t longestMatch(std::string const &s1, std::string const &s2);
 
@@ -167,6 +168,7 @@ int HTTPServer::pop(sock_t clFd)
     std::map<sock_t, Client*>::iterator it = clnt.find(clFd);
     if (it != clnt.end())
     {
+        delete it->second;
         clnt.erase(it);
         return (0);
     }
@@ -181,7 +183,6 @@ bool HTTPServer::exist(sock_t fd)
 
 bool HTTPServer::operator==(HTTPServer const &sibling)
 {
-    std::cout << "bool HTTPServer::operator==(HTTPServer const &sibling)\n"; 
     if (std::strcmp(this->getIp(), sibling.getIp()) == 0 \
         && std::strcmp(this->getPort(),sibling.getPort()) == 0)
       return (true);  
@@ -190,13 +191,9 @@ bool HTTPServer::operator==(HTTPServer const &sibling)
 
 bool HTTPServer::operator==(sock_t fd)
 {
-    std::cout << "bool HTTPServer::operator==(sock_t fd)\n"; 
-
     if (clnt.find(fd) != clnt.end()) {
-        std::cout << "true\n";
       return (true);
     } 
-        std::cout << "false\n";
     return (false);
 }
 
@@ -332,9 +329,9 @@ size_t longestMatch(std::string const &s1, std::string const &s2)
 // 	error_page.insert(std::make_pair(key, errpage_filename));
 // }
 
-// void HTTPServer::setSize(std::string const &bodySize)
+// void HTTPServer::setSize(std::string const &_bodySize)
 // {
-// 	unsigned long long int toLong = std::strtoull(bodySize.c_str(), NULL, 10);
+// 	unsigned long long int toLong = std::strtoull(_bodySize.c_str(), NULL, 10);
 // 	if (errno == ERANGE && toLong == ULLONG_MAX)
 // 		this->client_body_size = 200;
 // 	else
@@ -350,99 +347,74 @@ size_t longestMatch(std::string const &s1, std::string const &s2)
 std::string HTTPServer::get(Client &client) {
     const std::string &path = client.getPath();
     std::unordered_map<std::string, std::string> headerContent;
-    std::string response;
-    std::string  fileName = " ";
+    std::string  fileName;
 
     std::cout << "path = " << path << std::endl;
+    // TODO unrecognized types "application/octet- stream"
     if(path[path.size() - 1] == '/')
     {
         fileName = "www/server1/index.html";  //TODO - remove hardcode should be default page from config  
-        headerContent["Content-Type"] = "text/html"; //TODO - remove hardcode
+        client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/html")); //TODO - remove hardcode
+
     } else {
-        fileName = "www/server1/pictures/a.png"; 
-        headerContent["Content-Type"] = "image/png";
+        // if ()
+        // client.addHeader(std::pair<std::string, std::string>("Content-Type", "application/octet- stream")); //TODO - remove hardcode
+        fileName = path;
     }
-    // if(path == "/a.png")
-    // {
-    // }
     // TODO check is method allowed. 405
     // TODO Content-Length is not defined in case post method called 411
     // TODO valid request line 412
     // TODO body is large 413
     // TODO The URI requested is long  414
     // TODO header is large 431
-    std::cout << "fileName = " << fileName << std::endl;
+    // std::cout << "fileName = " << fileName << std::endl;
     if (access(fileName.c_str(), F_OK) == 0) {   // TODO check permission to read
-        std::string fileContent;
-        std::ostringstream stream;
-        std::ifstream ifs(fileName);
-        if (ifs.is_open() == false) {
-            throw std::logic_error("can not open file");
-        }
-        
-        stream << ifs.rdbuf();
-        fileContent = stream.str();
-        headerContent["Content-Length"] = std::to_string(fileContent.size());
-
-        for (std::unordered_map<std::string, std::string>::iterator it = headerContent.begin();
-            it != headerContent.end(); ++it) {
-                response += it->first;
-                response += ": ";
-                response += it->second;
-                response += "\r\n";
-        }
-        response +=  "\n";
-        response +=  fileContent;
+        std::string fileContent = fileToString(fileName);
+        client.addHeader(std::pair<std::string, std::string>("Content-Length", std::to_string(fileContent.size())));
+        client.buildHeader();
+        return (client.getResponse() + fileContent);
     } else {
-        throw Error(404, "not found");
-        // TODO automate it   404, 405, 411, 412, 413, 414, 431, 500, 501, 505, 503, 507, 508
+        throw ResponseError(404, "not found");
+        // TODO automate it   404, 405, 408, 411, 412, 413, 414, 431, 500, 501, 505, 503, 507, 508
     }
-    return (response);
+    return ("");
 };
 
 std::string HTTPServer::post(Client &client) {
-    // std::map<std::string, std::string>::const_iterator it = headers.find("boundary");
-    // if( it == headers.end())
-    // {
-    //     throw Error(412, "Precondition Failed");
-    // }
-    // std::string boundary = it->second;
-
-    // std::cout << "\npost\n" << std::endl;
-    // std::string fileName;
-    // size_t pos = filePath.rfind("/");
-    // if (pos == std::string::npos) {
-    //     fileName = filePath;
-    // } else {
-    //     fileName = filePath.substr(pos + 1);
-    // }
+    
+    std::cout << "\n--- in Post function \n" << std::endl;
+    // TODO if cgi exstention detected go through cgi and give body as stdin else get files
+    // TODO if multipart data not detected throw precondition failed
+    const std::unordered_map<std::string, std::string> &uploadedFiles = client.getUploadedFiles();
+    std::unordered_map<std::string, std::string>::const_iterator it = uploadedFiles.cbegin();
     // std::cout << "filename = " << fileName << std::endl;
-    // std::ofstream ofs("./data/" + fileName);
-    // if (ofs.is_open() == false) {
-    //     throw std::logic_error("can not open file"); // TODO change -> failed status in response
-    // }
+    for (; it != uploadedFiles.cend(); ++it) {
+        const std::string &fileName = it->first;
+        const std::string &fileContent = it->second;
+        std::ofstream ofs("./www/server1/data_base/" + fileName);
+        
+        if (ofs.is_open() == false) {
+            throw ResponseError(507 , "Insufficient Storage");
+        }
+        ofs << fileContent;
+        if (ofs.good() == false) {
+            throw ResponseError(507 , "Insufficient Storage");
+        }
+        ofs.close();
+    }
     std::string response;
-    // // _data.push_back(body);
-    // ofs << body;
+    client.addHeader(std::pair<std::string, std::string>("content-type", "text/plain"));
+    client.buildHeader();
+    response = client.getResponse();
+    response += "ok";
     return (response);
 };
 
 std::string HTTPServer::del(Client &client) {
-    // std::cout << "\ndel\n" << std::endl;
-    // std::string fileName =  "./data/";
-    // size_t pos = filePath.rfind("/");
-    // if (pos == std::string::npos) {
-    //     fileName += filePath;
-    // } else {
-    //     fileName += filePath.substr(pos + 1);
-    // }
     std::string response;
-    // std::cout << "fileName = " << fileName << std::endl;
-    // if (std::remove(fileName.c_str()) == -1) {
-    //     std::cerr << (std::string("remove: ") + strerror(errno)) << std::endl;
-
-    //     // throw std::runtime_error(std::string("remove: ") + strerror(errno)); // TODO change failed status in response
-    // };
+    if (std::remove(client.getPath().c_str()) == -1) {
+        throw ResponseError(404, "not found");
+    };
     return (response);
 };
 
@@ -451,6 +423,73 @@ std::string HTTPServer::processing(Client &client)
     std::map<std::string, std::string(HTTPServer::*)(Client&)>::iterator function = methodsMap.find(client.getMethod());
     if (function != methodsMap.end())
        return ((this->*(function->second))(client));
-    throw Error(405, "Method Not Allowed");
+    throw ResponseError(405, "Method Not Allowed");
     return ("");
+}
+
+bool	directory_listing(std::string path)
+{
+	DIR					*opened_dir;
+	dirent				*dir_struct;
+	std::string			table;
+	std::string			name;
+	struct stat			buf;
+	struct tm			*timeinfo;
+	char				time_buf[100];
+	std::string 		relPath;
+	std::string 		displayPath;
+	
+	if (path != "." && path != ".." && path[0] != '/' && (path[0] != '.' && path[1] != '/') && (path[0] != '.' && path[1] != '.' && path[2] != '/')) {
+        relPath = "./" + path + "/";
+        displayPath = "./" + path;
+    } else {
+		relPath = path + "/";
+		displayPath = path;
+	}
+	opened_dir = opendir(relPath.c_str());
+	
+	table += "<!DOCTYPE html><html><head><title>";
+	table += "Index of ";
+	table += displayPath;
+	table += "</title>";
+	table += "<style>";
+	table += ".box>* {flex: 33.33%;}";
+	table += ".box {display: flex; flex-wrap: wrap; width: 75%;}";
+	table += "</style></head>";
+	table += "<body><h1>";
+	table += "Index of ";
+	table += displayPath;
+	table += "</h1><hr><pre class=\"box\">";
+
+	dir_struct = readdir(opened_dir);
+	while ((dir_struct = readdir(opened_dir)) != NULL)
+	{
+		name = dir_struct->d_name;
+		if (name != ".")
+		{
+			table += "<a href=\"";
+			table += name;
+			table += "\">";
+			table += name;
+			table += "</a>";
+			//std::cout << "name = " << name << std::endl;
+			if (stat((relPath + name).c_str(), &buf) == 0)
+			{
+				//std::cout << "name.c_str() = " << name.c_str() << std::endl;
+				table += "<span>";
+				timeinfo = localtime(&(buf.st_mtime));
+				strftime(time_buf, 100, "%d-%b-%Y %H:%S", timeinfo);
+				table += time_buf;
+				table += "</span><span>";
+				if (dir_struct->d_type == DT_DIR)
+					table += "-";
+				table += "</span>";
+			}
+			table += "<br>";
+		}
+	}
+	table += "</pre><hr></body></html>";
+	closedir(opened_dir);
+    std::cout << table << std::endl;
+    return true;
 }

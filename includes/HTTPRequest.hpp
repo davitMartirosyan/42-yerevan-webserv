@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/02 15:38:36 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/07 21:35:53 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "Libs.hpp"
 #include "HTTPResponse.hpp"
 #define MAX_SIZE_REQUEST 1000
+#include <unordered_map>
 
 class Location;
 class HTTPServer;
@@ -88,7 +89,7 @@ class HTTPRequest
         std::string contentType;
         std::string transferEncoding;
         std::string type;
-        unsigned long int bodySize;
+        unsigned long int _bodySize;
     protected:
         const Location* location;
     protected:
@@ -103,8 +104,7 @@ class HTTPRequest
 
     protected:
         std::string dir_content(std::string const &realPath);
-    public:
-        std::string const &getResponse( void );
+        void multipart(void);
     protected:
         std::string response;
     protected:
@@ -113,8 +113,10 @@ class HTTPRequest
         bool _isRequestReady;
         bool _isOpenConnection;
         bool _isResponseReady;
-        int _bodySize;
         size_t _maxSizeRequest;
+        std::unordered_map<std::string, std::string> _uploadedFiles;
+    public:
+        const std::unordered_map<std::string, std::string> &getUploadedFiles() const;
 
 };
 
