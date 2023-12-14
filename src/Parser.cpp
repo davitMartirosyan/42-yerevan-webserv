@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/13 17:12:43 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/15 01:12:21 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,8 +194,8 @@ int Parser::context_wrap(std::string const &server)
             size_t space_start = found + 6;
             size_t space_count = 0;
             while (server[space_start++] != '{')
-                space_count++;
-            std::string tmp = server.substr(found, found + space_count);
+                ++space_count;
+            std::string tmp = server.substr(found, srv.size() + space_count + 1);
             remove_spaces(tmp);
             if (tmp == "server{")
                 counter++;
@@ -339,15 +339,13 @@ void Parser::location(std::list<Token>::iterator& node, HTTPServer &srv)
     {
         next = node;
         next++;
-        if (node->type == CONTEXT)
-            throw HTTPCoreException("Location: Nested locations are forbidden");
         if (next->type == SEMICOLON)
         {
             node++;
             node++;
         }
-        node++;
     }
+    std::cout << node->token << std::endl;
 }
 
 void Parser::directive(std::list<Token>::iterator &node, Location &loc)
