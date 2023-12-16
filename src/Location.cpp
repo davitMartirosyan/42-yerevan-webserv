@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 01:38:14 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/24 23:21:13 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/17 01:35:23 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 Location::Location(std::string const &location)
 {
 	this->location = location;
+	this->redirect = false;
 }
 
 Location::~Location()
@@ -35,4 +36,13 @@ std::map<int, std::string> const &Location::getRedirection( void ) const
 std::string const &Location::getLocation( void ) const
 {
 	return (this->location);
+}
+
+std::string Location::getRedirection(int status) const
+{
+	std::string nill;
+	std::map<int, std::string>::const_iterator it = redirection.find(status);
+	if (it != redirection.end())
+		return (it->second);
+	return (nill);
 }

@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/16 16:16:00 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/17 01:21:34 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ Parser::Parser(const char *confFile)
     directives["server_name"] = &Parser::d_server_name;
     directives["index"] = &Parser::d_index;
     directives["autoindex"] = &Parser::d_autoindex;
-    directives["allow_methods"] = &Parser::d_methods;
+    directives["methods"] = &Parser::d_methods;
     directives["error_page"] = &Parser::d_err_page;
     directives["client_body_size"] = &Parser::d_body_size;
     directives["listen"] = &Parser::d_listen;
@@ -50,11 +50,18 @@ void Parser::start(ServerManager &mgn)
     Parser::intermediate_code_generation();
     Parser::syntax_analysis();
     Parser::fill_servers(mgn);
-    
+
+
     std::map<std::string, Location>::const_iterator it = mgn[0].getLocations().begin();
-    it++;
-    std::cout << it->second.getRedirection().begin()->first << std::endl;
-    std::cout << it->second.getRedirection().begin()->second << std::endl;
+    std::cout << it->second.getRoot() << std::endl;
+    std::cout << it->second.getAutoindex() << std::endl;
+    std::cout << it->second.getErrPage(404) << std::endl;
+
+    // std::cout << mgn[0].getRoot() << std::endl;
+    // std::map<std::string, Location>::const_iterator it = mgn[0].getLocations().begin();
+    // it++;
+    // std::cout << it->second.getRedirection().begin()->first << std::endl;
+    // std::cout << it->second.getRedirection().begin()->second << std::endl;
     // std::list<Token>::iterator tok = tokens.begin();
     // for(; tok != tokens.end(); tok++)
     //     std::cout << tok->type << " : " << "|" << tok->token << "|" << std::endl;
@@ -319,7 +326,7 @@ void Parser::create_server(ServerManager &mgn, std::list<Token>::iterator& ch)
         if (next->type == CONTEXT && context_keyword(next->token) == "server") {
             break;
         }
-        if (next->type == CONTEXT && context_keyword(next->token) == "location")
+        if (next->type == CONTEXT)
             location(next, srv);
         next++;
     }
@@ -337,19 +344,21 @@ void Parser::location(std::list<Token>::iterator& node, HTTPServer &srv)
     std::string comp;
     while (std::getline(l_context, comp, ' '))
         location_Components.push_back(comp);
-    Location loc(location_Components[1]);
-    if (location_Components.size() != 2)
+    if (location_Components.size() != 2 || location_Components[0] != "location")
         throw HTTPCoreException("Location: Syntax is not valid");
     location_Components.clear();
     comp.clear();
+    Location loc(location_Components[1]);
     while (node->type != OPENBRACE)
-        node++;
+        node++;    
     while (node->type != CLOSEBRACE)
     {
+        next = node;
+        next++;
+        if (next->type == OPENBRACE)
+            throw HTTPCoreException("Location: Nested blocks are not available");
         if (node->type == DIRECTIVE)
             l_directive(node, loc);
-        if (node->type == CONTEXT)
-            throw HTTPCoreException("Location: Nested locations are not available");
         node++;
     }
     srv.push(location_Components[1], loc);
@@ -523,7 +532,7 @@ void Parser::l_methods(std::string &d_key, std::string &d_val, Location &loc)
 
 void Parser::l_err_page(std::string &d_key, std::string &d_val, Location &loc)
 {
-    // std::cout << d_key << " ___ " << d_val << std::endl;
+    std::cout << d_key << " ___ " << d_val << std::endl;
     std::vector<std::string> err_page;
     std::stringstream loc_err_page(d_val);
     std::string k_or_v;
@@ -534,6 +543,7 @@ void Parser::l_err_page(std::string &d_key, std::string &d_val, Location &loc)
     for(size_t i = 0; i < err_page[0].size(); i++)
         if (!std::isdigit(err_page[0][i]))
             throw HTTPCoreException("Error_page: Key should be an INTEGER");
+    std::cout << err_page[0] << std::endl;
     loc.pushErrPage(std::atoi(err_page[0].c_str()), err_page[1]);
 }
 
@@ -550,5 +560,7 @@ void Parser::l_redirect(std::string &d_key, std::string &d_val, Location &loc)
     for(size_t i = 0; i < redirect[0].size(); i++)
         if (!std::isdigit(redirect[0][i]))
             throw HTTPCoreException("Error_page: Key should be an INTEGER");
-    loc.setRedirection(std::atoi(redirect[0].c_str()), redirect[1]);
+    int status = std::atoi(redirect[0].c_str());
+    if (status == 301)
+        loc.setRedirection(std::atoi(redirect[0].c_str()), redirect[1]);
 }
