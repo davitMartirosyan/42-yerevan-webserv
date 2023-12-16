@@ -90,6 +90,7 @@ class Parser
         void l_autoindex(std::string &d_key, std::string &d_val, Location &srv);
         void l_methods(std::string &d_key, std::string &d_val, Location &srv);
         void l_err_page(std::string &d_key, std::string &d_val, Location &srv);
+        void l_redirect(std::string &d_key, std::string &d_val, Location &loc);
 };
 typedef std::map<std::string, void (Parser::*)(std::string &, std::string &, HTTPServer &)>::iterator FuncDir;
 typedef std::map<std::string, void (Parser::*)(std::string &, std::string &, Location &)>::iterator LocDir;

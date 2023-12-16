@@ -22,6 +22,16 @@ Location::~Location()
 	
 }
 
+void Location::setRedirection(int status, std::string redirectPath)
+{
+	redirection.insert(std::make_pair(status, redirectPath));
+}
+
+std::map<int, std::string> const &Location::getRedirection( void ) const
+{
+	return (redirection);
+}
+
 std::string const &Location::getLocation( void ) const
 {
 	return (this->location);

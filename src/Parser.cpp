@@ -34,6 +34,7 @@ Parser::Parser(const char *confFile)
     location_directives["autoindex"] = &Parser::l_autoindex;
     location_directives["methods"] = &Parser::l_methods;
     location_directives["error_page"] = &Parser::l_err_page;
+    location_directives["return"] = &Parser::l_redirect;
 }
 
 Parser::~Parser()
@@ -50,6 +51,10 @@ void Parser::start(ServerManager &mgn)
     Parser::syntax_analysis();
     Parser::fill_servers(mgn);
     
+    std::map<std::string, Location>::const_iterator it = mgn[0].getLocations().begin();
+    it++;
+    std::cout << it->second.getRedirection().begin()->first << std::endl;
+    std::cout << it->second.getRedirection().begin()->second << std::endl;
     // std::list<Token>::iterator tok = tokens.begin();
     // for(; tok != tokens.end(); tok++)
     //     std::cout << tok->type << " : " << "|" << tok->token << "|" << std::endl;
@@ -339,18 +344,12 @@ void Parser::location(std::list<Token>::iterator& node, HTTPServer &srv)
     comp.clear();
     while (node->type != OPENBRACE)
         node++;
-    int o_brace = 1;
-    int c_brace = 0;
-    while (o_brace)
+    while (node->type != CLOSEBRACE)
     {
         if (node->type == DIRECTIVE)
             l_directive(node, loc);
-        if (node->type == CONTEXT && o_brace)
+        if (node->type == CONTEXT)
             throw HTTPCoreException("Location: Nested locations are not available");
-        if (node->type == CLOSEBRACE)
-            o_brace--;
-        if (node->type == OPENBRACE)
-            o_brace++;
         node++;
     }
     srv.push(location_Components[1], loc);
@@ -536,4 +535,20 @@ void Parser::l_err_page(std::string &d_key, std::string &d_val, Location &loc)
         if (!std::isdigit(err_page[0][i]))
             throw HTTPCoreException("Error_page: Key should be an INTEGER");
     loc.pushErrPage(std::atoi(err_page[0].c_str()), err_page[1]);
+}
+
+void Parser::l_redirect(std::string &d_key, std::string &d_val, Location &loc)
+{
+    std::cout << d_key << " || " << d_val << std::endl;
+    std::vector<std::string> redirect;
+    std::stringstream loc_redirection(d_val);
+    std::string k_or_v;
+    while (std::getline(loc_redirection, k_or_v, ' '))
+        redirect.push_back(k_or_v);
+    if (redirect.size() != 2)
+        throw HTTPCoreException("Error_page: Keys and Values are not correct");
+    for(size_t i = 0; i < redirect[0].size(); i++)
+        if (!std::isdigit(redirect[0][i]))
+            throw HTTPCoreException("Error_page: Key should be an INTEGER");
+    loc.setRedirection(std::atoi(redirect[0].c_str()), redirect[1]);
 }
