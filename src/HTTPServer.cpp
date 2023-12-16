@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/12 21:59:18 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/16 14:32:49 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,12 +126,14 @@ const Location* HTTPServer::find(std::string const &prefix) const
     return (NULL);
 }
 
-
-
-
 std::vector<std::string> const &HTTPServer::getServerNames( void ) const
 {
     return (ServerName);
+}
+
+std::map<std::string, Location> const &HTTPServer::getLocations( void ) const
+{
+    return (locations);
 }
 
 sock_t HTTPServer::getfd( void ) const

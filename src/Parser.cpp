@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/15 01:12:21 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/16 16:16:00 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,12 @@ Parser::Parser(const char *confFile)
     directives["error_page"] = &Parser::d_err_page;
     directives["client_body_size"] = &Parser::d_body_size;
     directives["listen"] = &Parser::d_listen;
+
+    location_directives["root"] = &Parser::l_root;
+    location_directives["index"] = &Parser::l_index;
+    location_directives["autoindex"] = &Parser::l_autoindex;
+    location_directives["methods"] = &Parser::l_methods;
+    location_directives["error_page"] = &Parser::l_err_page;
 }
 
 Parser::~Parser()
@@ -43,7 +49,7 @@ void Parser::start(ServerManager &mgn)
     Parser::intermediate_code_generation();
     Parser::syntax_analysis();
     Parser::fill_servers(mgn);
-
+    
     // std::list<Token>::iterator tok = tokens.begin();
     // for(; tok != tokens.end(); tok++)
     //     std::cout << tok->type << " : " << "|" << tok->token << "|" << std::endl;
@@ -74,7 +80,9 @@ std::string Parser::context_keyword(std::string const &context_token)
             config += (line.size() > 0) ? HTTPRequest::trim(line) + '\a' : "";
         }
         else
+        {
             config += HTTPRequest::trim(line) + '\a';
+        }
     }
     if (config.empty())
         throw HTTPCoreException("Error: File is Empty");
@@ -102,7 +110,6 @@ void Parser::semantic_analysis( void )
 
 void Parser::intermediate_code_generation( void )
 {
-    
     bool isSecond = false;
     std::list<Token>::iterator ch = tokens.begin();
     std::list<Token>::iterator next = ch;
@@ -135,11 +142,11 @@ void Parser::syntax_analysis( void )
     for(; ch != tokens.end(); ch++)
     {
         if (ch->type == WORD)
-            throw HTTPCoreException(std::string("Config: Syntax error. ( " +  ch->token + " )").c_str());
+            throw HTTPCoreException(std::string("Config: Syntax error.").c_str());
         if (ch == tokens.begin())
         {
             if (ch->type != CONTEXT)
-                throw HTTPCoreException(std::string("Config: Syntax error. ( " +  ch->token + " )").c_str());
+                throw HTTPCoreException(std::string("Config: Syntax error.").c_str());
         }
     }
 }
@@ -223,7 +230,6 @@ void Parser::fill_servers(ServerManager &mgn)
     for(ch = tokens.begin(); ch != tokens.end(); ch++)
     {
         if (ch->type == CONTEXT && context_keyword(ch->token) == "server") {
-            std::cout << "CONTEXT \n";
             create_server(mgn, ch);
         }
     }
@@ -286,7 +292,7 @@ size_t Parser::contextWord(std::string const &config, size_t p)
     t.token = contextWordPart;
     tokens.push_back(t);
     return (i);
-}\
+}
 
 void Parser::tolower(std::string &s)
 {
@@ -304,7 +310,7 @@ void Parser::create_server(ServerManager &mgn, std::list<Token>::iterator& ch)
     while (next != tokens.end())
     {
         if (next->type == DIRECTIVE)
-            directive(next, srv);
+            s_directive(next, srv);
         if (next->type == CONTEXT && context_keyword(next->token) == "server") {
             break;
         }
@@ -320,40 +326,37 @@ void Parser::create_server(ServerManager &mgn, std::list<Token>::iterator& ch)
 
 void Parser::location(std::list<Token>::iterator& node, HTTPServer &srv)
 {
-    std::cout << node->token << std::endl;
     std::list<Token>::iterator next = node;
     std::stringstream l_context(node->token);
     std::vector<std::string> location_Components;
     std::string comp;
     while (std::getline(l_context, comp, ' '))
         location_Components.push_back(comp);
+    Location loc(location_Components[1]);
     if (location_Components.size() != 2)
         throw HTTPCoreException("Location: Syntax is not valid");
     location_Components.clear();
     comp.clear();
-    while (node->type != DIRECTIVE)
+    while (node->type != OPENBRACE)
         node++;
-    next = node;
-    Location loc(location_Components[1]);
-    while (node->type == DIRECTIVE)
+    int o_brace = 1;
+    int c_brace = 0;
+    while (o_brace)
     {
-        next = node;
-        next++;
-        if (next->type == SEMICOLON)
-        {
-            node++;
-            node++;
-        }
+        if (node->type == DIRECTIVE)
+            l_directive(node, loc);
+        if (node->type == CONTEXT && o_brace)
+            throw HTTPCoreException("Location: Nested locations are not available");
+        if (node->type == CLOSEBRACE)
+            o_brace--;
+        if (node->type == OPENBRACE)
+            o_brace++;
+        node++;
     }
-    std::cout << node->token << std::endl;
+    srv.push(location_Components[1], loc);
 }
 
-void Parser::directive(std::list<Token>::iterator &node, Location &loc)
-{
-    
-}
-
-void Parser::directive(std::list<Token>::iterator& node, HTTPServer &srv)
+void Parser::l_directive(std::list<Token>::iterator &node, Location &loc)
 {
     std::string d_key;
     std::string d_val;
@@ -375,7 +378,34 @@ void Parser::directive(std::list<Token>::iterator& node, HTTPServer &srv)
     if (d_key.empty() || d_val.empty())
         throw HTTPCoreException("Directive Value: Value Can't be NULL");
     node->token[i] = ' ';
-    Func f = directives.find(d_key);
+    LocDir f = location_directives.find(d_key);
+    if (f != location_directives.end())
+        (this->*(f->second))(d_key, d_val, loc);
+}
+
+void Parser::s_directive(std::list<Token>::iterator& node, HTTPServer &srv)
+{
+    std::string d_key;
+    std::string d_val;
+    size_t i = 0;
+    size_t s = 0;
+    while (i < node->token.size())
+    {
+        if (std::isspace(node->token[i]))
+            break;
+        i++;
+    }
+    d_key = node->token.substr(0, i);
+    if (std::isspace(node->token[i]))
+    {
+        node->token[i] = '\a';
+        node->token = HTTPRequest::trim(node->token);
+        d_val = node->token.substr(i+1);
+    }
+    if (d_key.empty() || d_val.empty())
+        throw HTTPCoreException("Directive Value: Value Can't be NULL");
+    node->token[i] = ' ';
+    FuncDir f = directives.find(d_key);
     if (f != directives.end())
         (this->*(f->second))(d_key, d_val, srv);
 }
@@ -456,4 +486,54 @@ void Parser::d_body_size(std::string &d_key, std::string &d_val, HTTPServer &srv
         if (!std::isdigit(d_val[i]))
             throw HTTPCoreException("Body_size: Size should be an INTEGER");
     srv.setSize(d_val);
+}
+
+
+void Parser::l_root(std::string &d_key, std::string &d_val, Location &loc)
+{
+    // std::cout << d_key << " ___ " << d_val << std::endl;
+    loc.setRoot(d_val);
+}
+
+void Parser::l_index(std::string &d_key, std::string &d_val, Location &loc)
+{
+    // std::cout << d_key << " ___ " << d_val << std::endl;
+    std::stringstream loc_indexes(d_val);
+    std::string index;
+    while (std::getline(loc_indexes, index, ' '))
+        loc.pushIndex(index);
+}
+
+void Parser::l_autoindex(std::string &d_key, std::string &d_val, Location &loc)
+{
+    // std::cout << d_key << " ___ " << d_val << std::endl;
+    if (d_val == "on" || d_val == "off")
+        loc.setAutoindex(d_val);
+    else
+        throw HTTPCoreException("Autoindex: undefined set of BOOLEAN value");
+}
+
+void Parser::l_methods(std::string &d_key, std::string &d_val, Location &loc)
+{
+    // std::cout << d_key << " ___ " << d_val << std::endl;
+    std::stringstream loc_methods(d_val);
+    std::string method;
+    while (std::getline(loc_methods, method, ' '))
+        loc.pushMethods(method);
+}
+
+void Parser::l_err_page(std::string &d_key, std::string &d_val, Location &loc)
+{
+    // std::cout << d_key << " ___ " << d_val << std::endl;
+    std::vector<std::string> err_page;
+    std::stringstream loc_err_page(d_val);
+    std::string k_or_v;
+    while (std::getline(loc_err_page, k_or_v, ' '))
+        err_page.push_back(k_or_v);
+    if (err_page.size() != 2)
+        throw HTTPCoreException("Error_page: Keys and Values are not correct");
+    for(size_t i = 0; i < err_page[0].size(); i++)
+        if (!std::isdigit(err_page[0][i]))
+            throw HTTPCoreException("Error_page: Key should be an INTEGER");
+    loc.pushErrPage(std::atoi(err_page[0].c_str()), err_page[1]);
 }

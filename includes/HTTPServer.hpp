@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/07 18:31:31 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/16 14:26:41 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
         const Location* findMatching(std::string const &realPath) const;
         bool exist(sock_t fd);
         std::vector<std::string> const &getServerNames( void ) const;
+        std::map<std::string, Location> const &getLocations( void ) const;
     public:
         void request(Client &cl);
     private:
