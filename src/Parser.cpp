@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/17 15:01:33 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/17 15:29:27 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,6 @@ void Parser::start(ServerManager &mgn)
     Parser::intermediate_code_generation();
     Parser::syntax_analysis();
     Parser::fill_servers(mgn);
-
-
     // std::map<std::string, Location>::const_iterator it = mgn[0].getLocations().begin();
     // std::cout << it->second.getRoot() << std::endl;
     // std::cout << it->second.getAutoindex() << std::endl;
