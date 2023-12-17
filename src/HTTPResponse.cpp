@@ -15,6 +15,7 @@
 HTTPResponse::HTTPResponse( void )
 {
     _responseHeader["server"] = "webserv";
+    _cgiPipeFd = -1;
 }
 
 HTTPResponse::~HTTPResponse()
@@ -22,22 +23,22 @@ HTTPResponse::~HTTPResponse()
     
 }
 
-std::string HTTPResponse::file(std::string const &filename)
-{
-    std::fstream f;
-    std::string tmp;
-    std::string content;
-    f.open(filename.c_str());
-    if (f.is_open())
-    {
-        while (std::getline(f, tmp, '\n'))
-        {
-            content += tmp;
-            tmp.clear();
-        }
-    }
-    return (content);
-}
+// std::string HTTPResponse::file(std::string const &filename)
+// {
+//     std::fstream f;
+//     std::string tmp;
+//     std::string content;
+//     f.open(filename.c_str());
+//     if (f.is_open())
+//     {
+//         while (std::getline(f, tmp, '\n'))
+//         {
+//             content += tmp;
+//             tmp.clear();
+//         }
+//     }
+//     return (content);
+// }
 
 std::string const &HTTPResponse::getResponse( void ) const
 {
@@ -60,6 +61,7 @@ std::string const &HTTPResponse::getReserve(int statusCode) const
     return (reserve);
 }
 
+
 std::unordered_map<std::string, std::string> &HTTPResponse::getResponseHeader() {
     return (_responseHeader);
 }
@@ -77,5 +79,6 @@ void HTTPResponse::buildHeader() {
             _response += it->second;
             _response += "\r\n";
     }
-    _response +=  "\r\n";
+    _response += "\r\n";
+
 }

@@ -3,8 +3,7 @@
 #include <sstream>
 
 std::string fileToString(std::string const &fileName) {
-    std::ifstream file;
-	file.open(fileName.c_str());
+    std::ifstream file(fileName);
 	std::string fileContent;
 
     if (file.is_open()) {
@@ -13,7 +12,7 @@ std::string fileToString(std::string const &fileName) {
 		stream << file.rdbuf();
 		fileContent = stream.str();
     }  else {
-		throw std::logic_error("can not open file"); // TODO replace with Error exception
+		throw std::logic_error("can not open file");
 	}
     file.close();
 	return fileContent;

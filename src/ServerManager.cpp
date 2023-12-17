@@ -19,12 +19,11 @@ bool ServerManager::newClient(int fd) {
         if ((*this)[i].getfd() == fd) {
             sock_t clientFd = accept((*this)[i].getfd(), 0, 0);
             fcntl(clientFd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-            Client *client = new Client(clientFd, (*this)[i].getfd(), (*this)[i]);  // TODO delete in destructor
+            Client *client = new Client(clientFd, (*this)[i].getfd(), (*this)[i]);
             // if (client.getFd() == -1) {  // TODO is it needed
             //     throw std::runtime_error(std::string("accept: ") + strerror(errno));
             // }
             EvManager::addEvent(clientFd, EvManager::read);
-            // std::cout << "clientFd = " << clientFd << std::endl;
             (*this)[i].push(clientFd, client);
             return (true);
         }
@@ -77,9 +76,6 @@ void ServerManager::start() {
                     client->setResponse(generateResponse(*client));
                 }
             } else if (client->isResponseReady() && event.first == EvManager::write) {
-                // std::cout << "event.first == EvManager::write\n";
-                // std::cout << "\nEVFILT_WRITE\n" << std::endl;
-                // TODO send response little by little
                 if (client->sendResponse() == true) {
                     closeConnetcion(client->getFd());
                 }
@@ -98,11 +94,28 @@ void ServerManager::start() {
 };
 
 
-std::string ServerManager::generateErrorResponse(const ResponseError& e, Client &client) {  //TODO put inside class or namespace
+std::string ServerManager::generateErrorResponse(const ResponseError& e, Client &client) {
     // TODO automate it   404, 405, 411, 412, 413, 414, 431, 500, 501, 505, 503, 507, 508
     std::string response;
+    std::string fileContent;
 
-    std::string fileContent = fileToString("./www/server1/error_pages/404.html");
+    if (e.getStatusCode() == 301) {
+        client.addHeader(std::make_pair("Location", "/pictures"));
+    }
+    try
+    {
+        fileContent = fileToString("./www/server1/error_pages/404.html");
+    }
+    catch(const std::exception& e)
+    {
+        if (e.what() == std::string("can not open file")) {
+            throw ResponseError(500, "Internal Server Error");
+        }
+        if (e.what() == std::string("is not a directory")) {
+            throw ResponseError(500, "Internal Server Error");
+        }
+    }
+    
 
     size_t pos = fileContent.find("404");
     if (pos != std::string::npos) {
@@ -140,7 +153,6 @@ std::string ServerManager::generateResponse(Client &client) {
     {
         response = generateErrorResponse(e, client);
     }
-    // std::cout << "--Final response = " << response << std::endl;
     return (response);
 }
 

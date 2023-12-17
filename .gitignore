@@ -1,0 +1,7 @@
+.vscode
+webserver
+*.o
+.DS_Store
+*.json
+tmp
+Server_tmp.hpp

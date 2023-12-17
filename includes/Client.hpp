@@ -26,16 +26,17 @@ class Client : public HTTPRequest, public HTTPResponse
         ~Client();
     public:
         // void processing(HTTPServer &srv);
-        void appendRequest(HTTPServer &srv);
     public:
         sock_t getFd( void ) const;
         sock_t getServerFd( void ) const;
+        std::string getServerPort( void ) const;
         // const HTTPRequest &getRequest() const;
         // HTTPResponse &getResponse();
         int receiveRequest();
         void parse();
         bool sendResponse();
         void setResponse(const std::string &response);
+        const HTTPServer &getSrv( void ) const;
     private:
         int rd;
         sock_t fd;

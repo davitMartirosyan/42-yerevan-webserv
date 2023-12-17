@@ -25,15 +25,23 @@ class HTTPRequest
 		HTTPRequest( void );
 		~HTTPRequest();
     public:
-        std::string findInMap(std::string key);
-        void showHeaders( void );
+        std::string findInMap(std::string key) const;
+        void showHeaders( void ) const;
         std::string const &getMethod( void ) const;
         std::string const &getPath( void ) const;
+        std::string const &getDisplayPath( void ) const;
         std::string const &getVersion( void ) const;
         std::string getHttpRequest() const;
+        std::string const &getExtension() const;
+        std::string const &getRedirectPath() const;
+        std::string const &getQueryString() const;
+        void setRedirectPath(const std::string &path);
+        void setCgiPath(const std::string &cgiPath);
+        std::string const &getCgiPath() const;
         std::string getBody() const;
         bool isRequestReady() const;
         bool isResponseReady() const;
+        bool isCgi() const;
     public:
         static bool isDir(std::string const &filePath);
         static bool isFile(std::string const &filePath);
@@ -68,19 +76,20 @@ class HTTPRequest
         std::string httpRequest;
         std::string request;
         std::string method;
-        std::string path;
+        std::string _path;
         std::string realPath;
         std::string actualPath;
-        std::string absolutePath;
+        std::string _relativePath;
         std::string reqStatus;
         std::string filename;
-        std::string extension;
+        std::string _extension;
         std::string queryString;
         std::string version;
         std::string headers;
         std::string _body;
     protected:
         int statusCode;
+        std::string _redirectPath;
     protected:
         std::map<std::string, std::string> httpHeaders;
     protected:
@@ -94,17 +103,14 @@ class HTTPRequest
         const Location* location;
     protected:
         std::vector<std::string> methods;
-        // std::map<std::string, void (HTTPRequest::*)(HTTPServer&)> methodsMap;
-        // std::map<std::string, void (HTTPRequest::*)(sock_t)> contentMap;
-    // protected:
-    //     void get(HTTPServer &srv);
-    //     void post(HTTPServer &srv);
-    //     void delet(HTTPServer &srv);
-
-
+    protected:
+        std::string _cgiPath;
+        
     protected:
         std::string dir_content(std::string const &realPath);
         void multipart(void);
+        void setExtension(const std::string &path);
+        void checkRedirect(const std::string &path, const std::string &redirectPath);
     protected:
         std::string response;
     protected:
@@ -113,13 +119,12 @@ class HTTPRequest
         bool _isRequestReady;
         bool _isOpenConnection;
         bool _isResponseReady;
+        bool _isCgi;
         size_t _maxSizeRequest;
         std::unordered_map<std::string, std::string> _uploadedFiles;
     public:
         const std::unordered_map<std::string, std::string> &getUploadedFiles() const;
 
 };
-
-
 
 #endif

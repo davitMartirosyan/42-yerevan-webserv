@@ -12,6 +12,13 @@
 
 #include "ServerCore.hpp"
 
+ServerCore::ServerCore() {
+	_autoindex = false;
+	_redirect = false;
+	client_body_size = 0;
+};
+
+
 int ServerCore::getClientBodySize( void )
 {
 	return (client_body_size);
@@ -50,7 +57,7 @@ std::string const &ServerCore::getRoot( void ) const
 	return (this->root);
 }
 
-const char* ServerCore::findIndex(std::string const &filename) const
+const char* ServerCore::findIndex(std::string const &filename) const // TODO useless
 {
 	size_t i = 0;
 	for(; i < index.size(); i++)
@@ -70,11 +77,11 @@ const char* ServerCore::findMethod(std::string const &method) const
 
 void ServerCore::setAutoindex(std::string const &sw)
 {
-	(sw == "on") ? this->autoindex = true : this->autoindex = false;
+	(sw == "on") ? this->_autoindex = true : this->_autoindex = false;
 	if (sw == "on")
-		this->autoindex = true;
+		this->_autoindex = true;
 	else if (sw == "off")
-		this->autoindex = false;
+		this->_autoindex = false;
 }
 
 void ServerCore::pushErrPage(int key, std::string const &errpage_filename)
@@ -87,13 +94,17 @@ std::string ServerCore::getErrPage(int key) const
 	std::string nill;
 	std::map<int, std::string>::const_iterator it = error_page.find(key);
 	if (it != error_page.end())
-			return (it->second);
+		return (it->second);
 	return (nill);
 }
 
 void ServerCore::setSize(std::string const &bodySize)
 {
-	unsigned long long int toLong = std::strtoull(bodySize.c_str(), NULL, 10);
+	char *ptr;
+	unsigned long int toLong = std::strtoul(bodySize.c_str(), &ptr, 10);
+	if (*ptr != '\0') {
+		throw std::logic_error("client_body_size out of range unsigned long int max");
+	}
 	if (errno == ERANGE && toLong == ULLONG_MAX)
 		this->client_body_size = 200;
 	else
@@ -102,5 +113,37 @@ void ServerCore::setSize(std::string const &bodySize)
 
 bool ServerCore::getAutoindex( void ) const
 {
-	return (autoindex);
+	return (_autoindex);
 }
+
+void ServerCore::setRedirection(int status, std::string redirectPath)
+{
+	_redirections.insert(std::make_pair(status, redirectPath));
+}
+
+std::map<int, std::string> const &ServerCore::getRedirection( void ) const
+{
+	return (_redirections);
+}
+
+std::string ServerCore::getRedirection(int status) const
+{
+	std::string nill;
+	std::map<int, std::string>::const_iterator it = _redirections.find(status);
+	if (it != _redirections.end())
+		return (it->second);
+	return (nill);
+}
+
+void ServerCore::setCgi(std::string cgiName, std::string cgiPath)
+{
+	_cgis.insert(std::make_pair(cgiName, cgiPath));
+}
+
+std::pair<std::string, std::string> ServerCore::getCgi( std::string const &cgiType) const {
+	std::string nill;
+	std::map<std::string, std::string>::const_iterator it = _cgis.find(cgiType);
+	if (it != _cgis.end())
+		return (std::make_pair(it->first, it->second));
+	return (std::make_pair("", ""));
+};

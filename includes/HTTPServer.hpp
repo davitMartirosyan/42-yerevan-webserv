@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:56:30 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/16 14:26:41 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/07 18:31:31 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,18 @@
 #define HTTPSERVER_HPP
 #include "Libs.hpp"
 #include "Tcp.hpp"
-#include "core.hpp"
+#include "IListener.hpp"
 #include "ServerCore.hpp"
 #include "ServerManager.hpp"
 #include "ResponseError.hpp"
+#include <errno.h>
 
 class HTTPRequest;
 class ServerManager;
 class Location;
 class Client;
-class HTTPServer : public Tcp, public IListener, public ServerCore 
+class HTTPServer : public Tcp, public IListener, public ServerCore
 {
-    public:
-        typedef std::map<sock_t, Client *> Map_Client;
     public:
         HTTPServer( void );
         ~HTTPServer();
@@ -60,6 +59,7 @@ class HTTPServer : public Tcp, public IListener, public ServerCore
 		virtual const char* getPort( void ) const;
         virtual uint32_t getNIp( void ) const;
 		virtual uint16_t getNPort( void ) const;
+        std::string	directory_listing(const std::string &path, std::string displayPath);
     public:
         bool operator==(HTTPServer const &);
         bool operator==(sock_t);
