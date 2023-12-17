@@ -24,7 +24,7 @@ struct ServerCore
         std::string const &getRoot( void ) const;
         std::vector<std::string> getIndexFiles( void ) const;
         std::vector<std::string> getMethods( void ) const;
-        int getClientBodySize( void );
+        int getClientBodySize( void ) const;
         bool getAutoindex( void ) const;
     public:
         const char* findIndex(std::string const &filename) const;

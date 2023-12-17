@@ -41,11 +41,9 @@ int Client::receiveRequest() {
     char buf[READ_BUFFER];
     errno = 0;
     int rdSize = recv(fd, buf, sizeof(buf), 0);
-    if (rdSize == -1) { // TODO Checking the value of errno is strictly forbidden after a read or a write operation.
-    // TODO add time information for client and throw request timout error response 408 Request Timeout
+    if (rdSize == -1) { 
         return (0);
     }
-    // std::cout << "rdSize = " << rdSize << std::endl;
     if (rdSize == 0) {
         return (-1);
     }
@@ -61,6 +59,9 @@ int Client::receiveRequest() {
             _bodySize = 0;
         } else {
             _bodySize = std::stoi(httpRequest.substr(httpRequest.find("Content-Length: ") + strlen("Content-Length: "), 10));  // TODO throw 413 if the bodt size of payload is bigger then limits predefined configs;
+            if (_bodySize > this->getSrv().getClientBodySize()) {
+                throw ResponseError(413, "Content Too Large");
+            }
         }
 
         std::string tmpBody = httpRequest.substr(headerEndPos + 3);
@@ -93,7 +94,6 @@ void Client::parse()
     size_t space = 0;
     size_t pos = httpRequest.find("\r\n");
     request = httpRequest.substr(0, pos);
-    // std::cout << "request = " << request << std::endl;
     httpRequest.erase(0, pos + 2);
 
     for (size_t i = 0; i < request.size(); i++)
@@ -121,46 +121,27 @@ void Client::parse()
         }
     }
     httpRequest.clear();
-    std::cout << "method = " << method << std::endl;
-    if (method == "POST") {
-        multipart();
-    }
+    // if (method == "POST") {
+    //     multipart();
+    // }
     
     HTTPRequest::checkPath(this->_srv);
-    //    std::cout << "method = " << method << std::endl;
-    // std::cout << "_path = " << _path << std::endl;
-    // std::cout << "version = " << version << std::endl;
-    // for (std::map<std::string, std::string>::iterator it = httpHeaders.begin(); it !=  httpHeaders.end(); ++it)
-    // {
-    //     std::cout << "key = " << it->first << ", val = " << it->second << std::endl;
-    // }
 }
 
 bool Client::sendResponse() {
     size_t sendSize = WRITE_BUFFER < _response.size() ? WRITE_BUFFER : _response.size();
 
-    if (_response.empty() == true) {
-        if (_isCgi == true) {
-            char buf[sendSize];
-            int rfd = read(_cgiPipeFd, buf, sendSize);
-            if (rfd == -1) {
-                return (0);
-            }
-            if (rfd == 0) {
-                _cgiPipeFd = -1;
-            }
-            buf[rfd] = '\0';
-            _response = buf;
-        }
-        _isResponseReady = false;
-    }
 
     if (send(fd, _response.c_str(), sendSize, 0) == -1) {
         return (false); // TODO is send function return -1 seting EAGAIN in errno
     }
     _response.erase(0, sendSize);
+
+    if (_response.empty() == true) {
+        _isResponseReady = false;
+    }
     // _response.clear();
-    return (_response.empty() && _cgiPipeFd == -1);
+    return (_response.empty());
 }
 
 void Client::setResponse(const std::string &response) {

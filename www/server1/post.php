@@ -1,5 +1,6 @@
 <?php
 
-echo "HELLO WORLD";
+echo $_POST["email"];
+echo $_POST["name"];
 
 ?>
