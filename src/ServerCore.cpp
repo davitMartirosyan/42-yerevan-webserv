@@ -121,6 +121,11 @@ void ServerCore::setRedirection(int status, std::string redirectPath)
 	_redirections.insert(std::make_pair(status, redirectPath));
 }
 
+void ServerCore::setR(bool status)
+{
+	_redirect = status;
+}
+
 std::map<int, std::string> const &ServerCore::getRedirection( void ) const
 {
 	return (_redirections);

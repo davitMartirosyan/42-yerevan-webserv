@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/12 21:59:18 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/17 13:19:27 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -358,7 +358,7 @@ std::string HTTPServer::get(Client &client) {
         std::string fileContent;
         if (client.isCgi() == true) {
             int fd = Cgi::execute(client);
-            fileContent = buf;
+            // fileContent = buf;
             int posBody = fileContent.find("<");
             if (posBody == std::string::npos) {
                 throw ResponseError(500, "not found");  // TODO change it to actual status
