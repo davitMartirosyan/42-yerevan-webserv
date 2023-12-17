@@ -111,6 +111,11 @@ void ServerCore::setSize(std::string const &bodySize)
 		this->client_body_size = toLong * 1048576 / 1;
 }
 
+void ServerCore::setUploadDir(std::string const &upload_dir)
+{
+	_uploadDir = upload_dir;
+}
+
 bool ServerCore::getAutoindex( void ) const
 {
 	return (_autoindex);

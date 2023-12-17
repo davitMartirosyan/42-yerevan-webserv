@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/17 14:22:19 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/17 14:40:41 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ Parser::Parser(const char *confFile)
     directives["client_body_size"] = &Parser::d_body_size;
     directives["return"] = &Parser::d_redirect;
     directives["cgi"] = &Parser::d_cgi;
+    directives["upload_dir"] = &Parser::d_upload_dir;
 
     location_directives["root"] = &Parser::l_root;
     location_directives["index"] = &Parser::l_index;
@@ -37,8 +38,9 @@ Parser::Parser(const char *confFile)
     location_directives["methods"] = &Parser::l_methods;
     location_directives["error_page"] = &Parser::l_err_page;
     location_directives["return"] = &Parser::l_redirect;
+    // location_directives["client_body_size"] = &Parser::l_body_size;
     location_directives["cgi"] = &Parser::l_cgi;
-
+    location_directives["upload_dir"] = &Parser::l_upload_dir;
 }
 
 Parser::~Parser()
@@ -429,6 +431,7 @@ void Parser::s_directive(std::list<Token>::iterator& node, HTTPServer &srv)
     
     std::cout << "|" << d_key << "|" << " : " << "|" << d_val << "|" << std::endl;
     FuncDir f = directives.find(d_key);
+    std::cout << "f->first = " << f->first << std::endl;
     if (f != directives.end())
         (this->*(f->second))(d_val, srv);
 }
@@ -514,6 +517,41 @@ void Parser::d_body_size(std::string &d_val, HTTPServer &srv)
     srv.setSize(d_val);
 }
 
+void Parser::d_redirect(std::string &d_val, HTTPServer &srv)
+{
+    std::vector<std::string> redirect;
+    std::stringstream loc_redirection(d_val);
+    std::string k_or_v;
+    while (std::getline(loc_redirection, k_or_v, ' '))
+        redirect.push_back(k_or_v);
+    if (redirect.size() != 2)
+        throw HTTPCoreException("Error_page: Keys and Values are not correct");
+    for(size_t i = 0; i < redirect[0].size(); i++)
+        if (!std::isdigit(redirect[0][i]))
+            throw HTTPCoreException("Error_page: Key should be an INTEGER");
+    int status = std::atoi(redirect[0].c_str());
+    if (status == 301)
+    {
+        srv.setRedirection(std::atoi(redirect[0].c_str()), redirect[1]);
+        srv.setR(true);
+    }
+}
+
+void Parser::d_cgi(std::string &d_val, HTTPServer &src)
+{
+    std::vector<std::string> cgi;
+    std::stringstream src_cgi(d_val);
+    std::string k_or_v;
+    while (std::getline(src_cgi, k_or_v, ' '))
+        cgi.push_back(k_or_v);
+    if (cgi.size() != 2)
+        throw HTTPCoreException("Cgi: Keys and Values are not correct");
+    for(size_t i = 0; i < cgi[0].size(); i++)
+        if (access(cgi[1].c_str(), X_OK) == -1)
+            throw HTTPCoreException(strerror(errno));
+    src.setCgi(cgi[0], cgi[1]);
+}
+
 void Parser::l_root(std::string &d_val, Location &loc)
 {
     size_t spaceFound = d_val.find(" ");
@@ -581,40 +619,6 @@ void Parser::l_redirect(std::string &d_val, Location &loc)
     }
 }
 
-void Parser::d_redirect(std::string &d_val, HTTPServer &srv)
-{
-    std::vector<std::string> redirect;
-    std::stringstream loc_redirection(d_val);
-    std::string k_or_v;
-    while (std::getline(loc_redirection, k_or_v, ' '))
-        redirect.push_back(k_or_v);
-    if (redirect.size() != 2)
-        throw HTTPCoreException("Error_page: Keys and Values are not correct");
-    for(size_t i = 0; i < redirect[0].size(); i++)
-        if (!std::isdigit(redirect[0][i]))
-            throw HTTPCoreException("Error_page: Key should be an INTEGER");
-    int status = std::atoi(redirect[0].c_str());
-    if (status == 301)
-    {
-        srv.setRedirection(std::atoi(redirect[0].c_str()), redirect[1]);
-        srv.setR(true);
-    }
-}
-
-void Parser::d_cgi(std::string &d_val, HTTPServer &src)
-{
-    std::vector<std::string> cgi;
-    std::stringstream src_cgi(d_val);
-    std::string k_or_v;
-    while (std::getline(src_cgi, k_or_v, ' '))
-        cgi.push_back(k_or_v);
-    if (cgi.size() != 2)
-        throw HTTPCoreException("Cgi: Keys and Values are not correct");
-    for(size_t i = 0; i < cgi[0].size(); i++)
-        if (access(cgi[1].c_str(), X_OK) == -1)
-            throw HTTPCoreException(strerror(errno));
-    src.setCgi(cgi[0], cgi[1]);
-}
 
 void Parser::l_cgi(std::string &d_val, Location &loc)
 {
@@ -633,10 +637,11 @@ void Parser::l_cgi(std::string &d_val, Location &loc)
 
 void Parser::d_upload_dir(std::string &d_val, HTTPServer &srv)
 {
-    
+    std::cout << d_val << std::endl;
 }
 
 void Parser::l_upload_dir(std::string &d_val, Location &loc)
 {
     
+    std::cout << d_val << std::endl;
 }
