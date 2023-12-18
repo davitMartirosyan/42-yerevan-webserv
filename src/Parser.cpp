@@ -433,18 +433,18 @@ void Parser::s_directive(std::list<Token>::iterator& node, HTTPServer &srv)
     FuncDir f = directives.find(d_key);
     if (f != directives.end())
     {
-        std::cout << "|" << d_key << "|" << " : " << "|" << d_val << "|" << std::endl;
-        std::cout << "f->first = " << f->first << std::endl << std::endl;
+        // std::cout << "|" << d_key << "|" << " : " << "|" << d_val << "|" << std::endl;
+        // std::cout << "f->first = " << f->first << std::endl << std::endl;
         (this->*(f->second))(d_val, srv);
     }
 }
 
 
-void Parser::make_pair(size_t i, std::list<Token>::iterator& node, HTTPServer &srv)
-{
-    std::string d_key = node->token.substr(0, i);
-    std::cout << d_key << std::endl;
-}
+// void Parser::make_pair(size_t i, std::list<Token>::iterator& node, HTTPServer &srv)
+// {
+//     std::string d_key = node->token.substr(0, i);
+//     std::cout << d_key << std::endl;
+// }
 
 void Parser::d_listen(std::string &d_val, HTTPServer &srv)
 {
@@ -510,7 +510,7 @@ void Parser::d_err_page(std::string &d_val, HTTPServer &srv)
     for(size_t i = 0; i < err_page[0].size(); i++)
         if (!std::isdigit(err_page[0][i]))
             throw HTTPCoreException("Error_page: Key should be an INTEGER");
-    srv.pushErrPage(std::atoi(err_page[0].c_str()), err_page[1]);
+    srv.pushErrPage(std::atoi(err_page[0].c_str()), srv.getRoot() + err_page[1]);
 }
 
 void Parser::d_body_size(std::string &d_val, HTTPServer &srv)
@@ -564,7 +564,7 @@ void Parser::d_upload_dir(std::string &d_val, HTTPServer &srv)
     size_t spaceFound = d_val.find(" ");
     if (spaceFound != std::string::npos)
         throw HTTPCoreException("Upload_Dir: No Matching directive value syntax");
-    srv.setUploadDir(d_val);
+    srv.setUploadDir(srv.getRoot() + d_val + "/");
 }
 
 
@@ -666,5 +666,5 @@ void Parser::l_upload_dir(std::string &d_val, Location &loc)
     size_t spaceFound = d_val.find(" ");
     if (spaceFound != std::string::npos)
         throw HTTPCoreException("Upload_Dir: No Matching directive value syntax");
-    loc.setUploadDir(d_val);
+    loc.setUploadDir(loc.getRoot() + d_val + "/");
 }
