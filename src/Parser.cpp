@@ -57,21 +57,12 @@ void Parser::start(ServerManager &mgn)
     Parser::intermediate_code_generation();
     Parser::syntax_analysis();
     Parser::fill_servers(mgn);
-    // std::map<std::string, Location>::const_iterator it = mgn[0].getLocations().begin();
-    // std::cout << it->second.getRoot() << std::endl;
-    // std::cout << it->second.getAutoindex() << std::endl;
-    // std::cout << it->second.getErrPage(403) << std::endl;
-    // std::cout << it->second.getRedirection(301) << std::endl;
-    
-    // std::list<Token>::iterator tok = tokens.begin();
-    // for(; tok != tokens.end(); tok++)
-    //     std::cout << tok->type << " : " << "|" << tok->token << "|" << std::endl;
 }
 
 std::string Parser::context_keyword(std::string const &context_token)
 {
     int i = -1;
-    while (++i < context_token.size())
+    while (++i < (int)context_token.size())
         if (std::isspace(context_token[i]))
             break;
     std::string lower = context_token;
@@ -105,7 +96,7 @@ void Parser::semantic_analysis( void )
 {
     for(size_t k = 0; k < server_ctx.size(); k++)
     {
-        for(size_t i = 0, j = 0; i < server_ctx[k].size(); i++)
+        for(size_t i = 0; i < server_ctx[k].size(); i++)
         {
             if(isWord(server_ctx[k][i]))
                 addWord(server_ctx[k], &i);
@@ -123,7 +114,6 @@ void Parser::semantic_analysis( void )
 
 void Parser::intermediate_code_generation( void )
 {
-    bool isSecond = false;
     std::list<Token>::iterator ch = tokens.begin();
     std::list<Token>::iterator next = ch;
     std::list<Token>::iterator tmpNext = ch;
@@ -330,28 +320,26 @@ void Parser::tolower(std::string &s)
 
 void Parser::create_server(ServerManager &mgn, std::list<Token>::iterator& ch)
 {
-    HTTPServer srv;
-    std::list<Token>::iterator tmpCh = ch;
+    HTTPServer *srv = new HTTPServer();
     std::list<Token>::iterator next = ch;
     next++;
     while (next != tokens.end())
     {
         if (next->type == DIRECTIVE)
-            s_directive(next, srv);
+            s_directive(next, *srv);
         if (next->type == CONTEXT && context_keyword(next->token) == "server") {
             break;
         }
         if (next->type == CONTEXT)
-            location(next, srv);
+            location(next, *srv);
         next++;
     }
-    int srvIndex = mgn.used(srv);
+    int srvIndex = mgn.used(*srv);
     if (srvIndex == -1) {
         mgn.push_back(srv);
     } else {
-        mgn[srvIndex].push(srv);
+        mgn[srvIndex]->push(*srv);
     }
-    std::cout << "***************" << std::endl;
 }
 
 void Parser::location(std::list<Token>::iterator& node, HTTPServer &srv)
@@ -364,7 +352,6 @@ void Parser::location(std::list<Token>::iterator& node, HTTPServer &srv)
         location_Components.push_back(comp);
     if (location_Components.size() != 2 || location_Components[0] != "location")
         throw HTTPCoreException("Location: Syntax is not valid");
-    location_Components.clear();
     comp.clear();
     Location loc(location_Components[1]);
     while (node->type != OPENBRACE)
@@ -388,7 +375,6 @@ void Parser::l_directive(std::list<Token>::iterator &node, Location &loc)
     std::string d_key;
     std::string d_val;
     size_t i = 0;
-    size_t s = 0;
     while (i < node->token.size())
     {
         if (std::isspace(node->token[i]))
@@ -415,7 +401,6 @@ void Parser::s_directive(std::list<Token>::iterator& node, HTTPServer &srv)
     std::string d_key;
     std::string d_val;
     size_t i = 0;
-    size_t s = 0;
     while (i < node->token.size())
     {
         if (std::isspace(node->token[i]))
@@ -436,18 +421,9 @@ void Parser::s_directive(std::list<Token>::iterator& node, HTTPServer &srv)
     FuncDir f = directives.find(d_key);
     if (f != directives.end())
     {
-        // std::cout << "|" << d_key << "|" << " : " << "|" << d_val << "|" << std::endl;
-        // std::cout << "f->first = " << f->first << std::endl << std::endl;
         (this->*(f->second))(d_val, srv);
     }
 }
-
-
-// void Parser::make_pair(size_t i, std::list<Token>::iterator& node, HTTPServer &srv)
-// {
-//     std::string d_key = node->token.substr(0, i);
-//     std::cout << d_key << std::endl;
-// }
 
 void Parser::d_listen(std::string &d_val, HTTPServer &srv)
 {
@@ -474,7 +450,7 @@ void Parser::d_server_name(std::string &d_val, HTTPServer &srv)
     std::stringstream srv_names(d_val);
     std::string name;
     while (std::getline(srv_names, name, ' '))
-        srv.setServerName(name);
+        srv.push__serverName(name);
 }
 
 void Parser::d_index(std::string &d_val, HTTPServer &srv)
@@ -497,6 +473,7 @@ void Parser::d_methods(std::string &d_val, HTTPServer &srv)
 {
     std::stringstream srv_methods(d_val);
     std::string method;
+    srv.dropMethods();
     while (std::getline(srv_methods, method, ' '))
         srv.pushMethods(method);
 }

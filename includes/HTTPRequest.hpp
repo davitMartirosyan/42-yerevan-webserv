@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HTTPRequest.hpp                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/07 21:35:53 by maharuty         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef REQ_HPP
 #define REQ_HPP
 #include "Libs.hpp"
@@ -38,9 +26,9 @@ class HTTPRequest
         void setRedirectPath(const std::string &path);
         void setCgiPath(const std::string &cgiPath);
         std::string const &getCgiPath() const;
-        std::string getBody() const;
+        const std::string &getRequestBody() const;
+        std::string &getRequestBody();
         bool isRequestReady() const;
-        bool isResponseReady() const;
         bool isCgi() const;
     public:
         static bool isDir(std::string const &filePath);
@@ -62,11 +50,7 @@ class HTTPRequest
         void processing(sock_t fd);
     protected:
         std::vector<std::string> pathChunks;
-        // enum PathInfo {ISDIR, ISFILE, NOTFOUND, FORBIDDEN};
         enum PathStatus{ISDIR, DIROFF, DIRON, ISFILE, NOTFOUND, FORBIDDEN, UNDEFINED};
-        // PathStatus path_status(std::string const &checkPath);
-        // PathStatus path_status(HTTPServer const &srv, std::string const &checkPath);
-        // PathStatus path_status(const Location* location, std::string const &checkPath);
         PathStatus path_status(bool autoindex, std::string const &checkPath);
         PathStatus pathinfo;
     protected:
@@ -87,6 +71,7 @@ class HTTPRequest
         std::string version;
         std::string headers;
         std::string _body;
+        std::string _requestBuf;
     protected:
         int statusCode;
         std::string _redirectPath;
@@ -100,7 +85,7 @@ class HTTPRequest
         std::string type;
         unsigned long int _bodySize;
     protected:
-        const Location* location;
+        const Location* _location;
     protected:
         std::vector<std::string> methods;
     protected:
@@ -112,18 +97,18 @@ class HTTPRequest
         void setExtension(const std::string &path);
         void checkRedirect(const std::string &path, const std::string &redirectPath);
     protected:
-        std::string response;
-    protected:
         bool _isHeaderReady;
         bool _isBodyReady;
         bool _isRequestReady;
         bool _isOpenConnection;
-        bool _isResponseReady;
         bool _isCgi;
+        bool _isChunked;
+        bool _isChunkNewLineCuted;
+        size_t _chunkSize;
         size_t _maxSizeRequest;
         std::unordered_map<std::string, std::string> _uploadedFiles;
     public:
-        const std::unordered_map<std::string, std::string> &getUploadedFiles() const;
+        std::unordered_map<std::string, std::string> &getUploadedFiles();
 
 };
 

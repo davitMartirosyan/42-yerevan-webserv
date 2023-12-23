@@ -21,18 +21,23 @@ class HTTPResponse
         HTTPResponse( void );
         ~HTTPResponse();
     public:
-        std::string const &getResponse( void ) const;
-        std::string const &getReserve404( void ) const;
-        std::string const &getReserve403( void ) const;
-        std::string const &getReserve(int statusCode) const;
+        std::string const getResponse( void ) const;
         std::unordered_map<std::string, std::string> &getResponseHeader();
         void addHeader(const std::pair<std::string, std::string> &);
         void buildHeader();
         void setCgiPipeFd(int fd);
+        std::string &getResponseBody();
+        void setBody(const std::string &body);
+        bool isResponseReady() const;
+        bool &isResponseReady();
+        bool isStarted() const;
+        void setStartStatus(bool);
     protected:
-        std::string _response;
+        std::string _header;
+        std::string _responseBody;
         std::unordered_map<std::string, std::string> _responseHeader;
-        int _cgiPipeFd;
+        bool _isResponseReady;
+        bool _isStarted;
     private:
         std::string reserve;
 };

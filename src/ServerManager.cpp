@@ -13,29 +13,65 @@
 #include "ServerManager.hpp"
 #include "EvManager.hpp"
 #include "HelperFunctions.hpp"
+#include "InnerFd.hpp"
 
 bool ServerManager::newClient(int fd) {
-    for (int i = 0; i < this->size(); ++i) {
-        if ((*this)[i].getfd() == fd) {
-            sock_t clientFd = accept((*this)[i].getfd(), 0, 0);
+    for (size_t i = 0; i < this->size(); ++i) {
+        if ((*this)[i]->getfd() == fd) {
+            sock_t clientFd = accept((*this)[i]->getfd(), 0, 0);
+            if (clientFd == -1) {
+                throw std::runtime_error(std::string("accept: ") + strerror(errno));
+            }
             fcntl(clientFd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-            Client *client = new Client(clientFd, (*this)[i].getfd(), (*this)[i]);
-            // if (client.getFd() == -1) {  // TODO is it needed
-            //     throw std::runtime_error(std::string("accept: ") + strerror(errno));
-            // }
+            Client *client = new Client(clientFd, (*this)[i]->getfd(), *(*this)[i]);
             EvManager::addEvent(clientFd, EvManager::read);
-            (*this)[i].push(clientFd, client);
+            (*this)[i]->push(clientFd, client);
             return (true);
         }
     }
     return (false);
 }
 
+bool checkInnerFd(HTTPServer &srv, int fd) {
+        InnerFd *innerFd = srv.getInnerFd(fd);
+        if (innerFd) {
+            Client &client = innerFd->_client;
+            if (innerFd->_flag ==  EvManager::read) {
+                if (client.getResponseBody().empty()) {
+                    EvManager::addEvent(innerFd->_fd, EvManager::write);
+                }
+                // std::cout << "readFromFd\n";
+                if (readFromFd(innerFd->_fd, innerFd->_str) == true) {
+                    client.addHeader(std::pair<std::string, std::string>("Content-Length", std::to_string(client.getResponseBody().size())));
+                    client.buildHeader();
+                    client.isResponseReady() = true;
+                    EvManager::delEvent(innerFd->_fd, EvManager::read);
+                    EvManager::delEvent(innerFd->_fd, EvManager::write);
+                    close(innerFd->_fd);
+                    client.removeInnerFd(innerFd->_fd);
+                };
+            } else if (innerFd->_flag == EvManager::write) {
+                // std::cout << "writeInFd\n";
+                if (writeInFd(innerFd->_fd, innerFd->_str) == true) {
+                    client.addHeader(std::pair<std::string, std::string>("Content-Length", std::to_string(client.getResponseBody().size())));
+                    client.buildHeader();
+                    client.isResponseReady() = true;
+                    EvManager::delEvent(innerFd->_fd, EvManager::read);
+                    EvManager::delEvent(innerFd->_fd, EvManager::write);
+                    close(innerFd->_fd);
+                    client.removeInnerFd(innerFd->_fd);
+                };
+            }
+            return (true);
+        }
+    return (false);
+}
+
 void ServerManager::start() {
     EvManager::start();
 
-    for (int i = 0; i < this->size(); ++i) {
-        EvManager::addEvent((*this)[i].getfd(), EvManager::read);
+    for (size_t i = 0; i < this->size(); ++i) {
+        EvManager::addEvent((*this)[i]->getfd(), EvManager::read);
     }
 
     while(true) {
@@ -43,63 +79,84 @@ void ServerManager::start() {
         Client *client = NULL;
     
         event = EvManager::listen();
+        // std::cout << "event = " << event.first << std::endl;
+        std::cout << "second = " << event.second << std::endl;
         if (newClient(event.second)) {
-            continue ;
-        }
-        for (int i = 0; i < this->size(); ++i) {
-            client = (*this)[i].getClient(event.second);
-            if (client) {
-                break;
-            }
-        }
-        if (client == NULL) {
             continue ;
         }
         try
         {
+            bool found = false;
+            for (size_t i = 0; i < this->size(); ++i) {
+                found = checkInnerFd(*(*this)[i], event.second);
+                if (found == true) {
+                    break ;
+                }
+            }
+            if (found == true) {
+                continue ;
+            }
+
+            for (size_t i = 0; i < this->size(); ++i) {
+                client = (*this)[i]->getClient(event.second);
+                if (client) {
+                    break;
+                }
+            }
+            if (client == NULL) {
+                continue ;
+            }
             if (event.first == EvManager::eof) {
-                closeConnetcion(client->getFd());
-            } else if (event.first == EvManager::read || client->isRequestReady() == false) {
+                closeConnetcion(*client);
+                continue ;
+            } else if ((client->isRequestReady() == false)
+                        && client->isResponseReady() == false) {
                 if (client->getHttpRequest().empty()) {
                     EvManager::addEvent(client->getFd(), EvManager::write);
                 }
+                // std::cout << "receiveRequest" << std::endl;
                 if (client->receiveRequest() == -1) {
-                    closeConnetcion(client->getFd());
+                    closeConnetcion(*client);
+                    continue ;
                 }
-                if (client->isRequestReady()) {
+                if (client->isRequestReady() && client->isStarted() == false) {
+                    client->setStartStatus(true);
+                    // std::cout << "request received " << std::endl;
                     client->parseBody();
-                    client->setResponse(generateResponse(*client));
+                    generateResponse(*client);
                 }
             } else if (client->isResponseReady() && event.first == EvManager::write) {
+                // std::cout << "sendResponse" << std::endl;
                 if (client->sendResponse() == true) {
-                    closeConnetcion(client->getFd());
+                    closeConnetcion(*client);
+                    continue ;
                 }
+            } else if (client->isCgi() == true) {
+                client->checkCgi();
             }
         }
         catch(const ResponseError& e)
         {
-            client->setResponse(generateErrorResponse(e, *client));
+            generateErrorResponse(e, *client);
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << std::endl;
-            exit(1);
         }
     }
 };
 
 
-std::string ServerManager::generateErrorResponse(const ResponseError& e, Client &client) {
-    // TODO automate it   404, 405, 411, 412, 413, 414, 431, 500, 501, 505, 503, 507, 508
+void ServerManager::generateErrorResponse(const ResponseError& e, Client &client) {
     std::string response;
     std::string resBody;
-
+    // std::cout << "generateErrorResponse\n";
     if (e.getStatusCode() == 301) {
         client.addHeader(std::make_pair("Location", client.getRedirectPath()));
     }
     try
     {
-        resBody = fileToString(client.getSrv().getErrPage(e.getStatusCode()));
+        resBody = fileToString(client.getCurrentLoc().getErrPage(e.getStatusCode()));
     }
     catch(...)
     {
@@ -116,41 +173,38 @@ std::string ServerManager::generateErrorResponse(const ResponseError& e, Client 
     response += " ";
     response += e.what();
     response += "\r\n";
-    client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/html")); // TODO check actual type
+    client.setResponseLine(response);
+    client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/html"));
     client.addHeader(std::pair<std::string, std::string>("Content-Length", std::to_string(resBody.size())));
     client.buildHeader();
-    response += client.getResponse();
-    response +=  resBody;
-    return (response);
+    client.setBody(resBody);
 }
 
-std::string ServerManager::generateResponse(Client &client) {
+void ServerManager::generateResponse(Client &client) {
     std::string response;
-    client.addHeader(std::make_pair("server", "webserv"));
+
     response = client.getVersion();
     response += " " + std::string("200") + " ";
     response += SUCCSSES_STATUS;
     response += "\r\n";
+    client.setResponseLine(response);
     try
     {
-        std::vector<HTTPServer>::iterator it = std::find(this->begin(), this->end(), client.getFd());
-        if (it == this->end()) {  // TODO never work
-            throw std::runtime_error("std::find(this->begin(), this->end(), client.getFd());");
-        }
-        response += it->processing(client);
+       client.getSrv().processing(client);
     }
     catch(const ResponseError& e)
     {
-        response = generateErrorResponse(e, client);
+        generateErrorResponse(e, client);
     }
-    return (response);
 }
 
-bool ServerManager::closeConnetcion(sock_t fd) {
+bool ServerManager::closeConnetcion(Client &client) {
+    int fd = client.getFd();
     EvManager::delEvent(fd, EvManager::read);
     EvManager::delEvent(fd, EvManager::write);
     close(fd);
-    getServerByClientSocket(fd)->removeClient(fd);
+    HTTPServer &srv = client.getDefaultSrv();
+    srv.removeClient(fd);
     return (true);
 };
 
@@ -162,7 +216,9 @@ ServerManager::ServerManager(const char *configfile)
 
 ServerManager::~ServerManager()
 {
-    
+    for (size_t i = 0; i < this->size(); i++) {
+        delete (*this)[i];
+    }
 }
 
 
@@ -174,8 +230,8 @@ HTTPServer *ServerManager::getServerBySocket(sock_t fd)
 {
     for(size_t i = 0; i < this->size(); i++)
     {
-        if (fd == (*this)[i].getfd())
-            return (&(*this)[i]);
+        if (fd == (*this)[i]->getfd())
+            return ((*this)[i]);
     }
     return (NULL);
 }
@@ -184,8 +240,8 @@ HTTPServer *ServerManager::getServerByClientSocket(sock_t fd)
 {
     for(size_t i = 0; i < this->size(); i++)
     {
-        if ((*this)[i].getClient(fd))
-            return (&(*this)[i]);
+        if ((*this)[i]->getClient(fd))
+            return ((*this)[i]);
     }
     throw std::logic_error("getServerByClientSocket");
     return (NULL);
@@ -194,65 +250,9 @@ HTTPServer *ServerManager::getServerByClientSocket(sock_t fd)
 int ServerManager::used(HTTPServer &srv) const
 {
     for(size_t i = 0; i < this->size(); i++)
-        if (std::strcmp((*this)[i].getPort(), srv.getPort()) == 0)
+        if (std::strcmp((*this)[i]->getPort(), srv.getPort()) == 0)
         {
-            std::cout << "return (-1);\n";
             return (i);
         }
     return (-1);
 }
-
-
-
-sock_t ServerManager::findServerBySocket(sock_t issetfd) 
-{
-    if (issetfd == -1)
-        return (-1);
-    for(size_t i = 0; i < this->size(); i++)
-    {
-        HTTPServer server = (*this)[i];
-        if (issetfd == server.getfd())
-            return (server.getfd());
-    }
-    return (-1);
-}
-
-
-sock_t ServerManager::findClientBySocket(sock_t issetfd)
-{
-    if (issetfd == -1)
-        return (-1);
-    for(size_t i = 0; i < this->size(); i++)
-    {
-        Client* client = (*this)[i].getClient(issetfd);
-        if (client)
-            return (client->getFd());
-    }
-    return (-1);
-}
-
-
-
-/*******************************************************************
-Select Multiplexing  I/O Helper funtions based on ::ServerManager::
-*******************************************************************/
-
-int ServerManager::isServer(sock_t fd)
-{
-    return (0);
-}
-
-int ServerManager::isClient(sock_t fd)
-{
-    return (0);
-}
-
-// void ServerManager::push(HTTPServer const &srv)
-// {
-//     srvs.push_back(srv);
-// }
-
-// void ServerManager::push(HTTPServer const &srv)
-// {
-//     srvs.push_back(srv);
-// }

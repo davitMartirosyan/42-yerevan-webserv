@@ -14,17 +14,16 @@
 #include "ServerManager.hpp"
 #include "Cgi.hpp"
 
-int main(int ac, char **av, char **env)
+int main(int ac, char **av)
 {
     (void)ac;
     (void)av;
     try
     {
         ServerManager mgn(ac == 2 ? av[1] : DFLT);
-        std::cout << "mgn.size() = " << mgn.size() << std::endl;
         for (size_t i = 0; i < mgn.size(); i++)
         {
-            mgn[i].up(mgn);
+            mgn[i]->up();
         }
         mgn.start();
     }
@@ -32,5 +31,4 @@ int main(int ac, char **av, char **env)
     {
         std::cout << e.what() << std::endl;
     }
-   
 }

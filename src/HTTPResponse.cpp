@@ -15,7 +15,8 @@
 HTTPResponse::HTTPResponse( void )
 {
     _responseHeader["server"] = "webserv";
-    _cgiPipeFd = -1;
+    _isResponseReady = false;
+    _isStarted = false;
 }
 
 HTTPResponse::~HTTPResponse()
@@ -23,44 +24,10 @@ HTTPResponse::~HTTPResponse()
     
 }
 
-// std::string HTTPResponse::file(std::string const &filename)
-// {
-//     std::fstream f;
-//     std::string tmp;
-//     std::string content;
-//     f.open(filename.c_str());
-//     if (f.is_open())
-//     {
-//         while (std::getline(f, tmp, '\n'))
-//         {
-//             content += tmp;
-//             tmp.clear();
-//         }
-//     }
-//     return (content);
-// }
-
-std::string const &HTTPResponse::getResponse( void ) const
+std::string const HTTPResponse::getResponse( void ) const
 {
-    return (_response);
+    return (_header + _responseBody);
 }
-
-std::string const &HTTPResponse::getReserve404( void ) const
-{
-    return (reserve);
-}
-
-std::string const &HTTPResponse::getReserve403( void ) const
-{
-    return (reserve);
-}
-
-
-std::string const &HTTPResponse::getReserve(int statusCode) const
-{
-    return (reserve);
-}
-
 
 std::unordered_map<std::string, std::string> &HTTPResponse::getResponseHeader() {
     return (_responseHeader);
@@ -72,18 +39,38 @@ void HTTPResponse::addHeader(const std::pair<std::string, std::string> &pair) {
 
 
 void HTTPResponse::buildHeader() {
-    _response.clear();
     for (std::unordered_map<std::string, std::string>::iterator it = _responseHeader.begin();
         it != _responseHeader.end(); ++it) {
-            _response += it->first;
-            _response += ": ";
-            _response += it->second;
-            _response += "\r\n";
+            _header += it->first;
+            _header += ": ";
+            _header += it->second;
+            _header += "\r\n";
     }
-    _response += "\r\n";
+    _header += "\r\n";
 
 }
 
-void HTTPResponse::setCgiPipeFd(int fd) {
-    _cgiPipeFd = fd;
+std::string &HTTPResponse::getResponseBody() {
+    return (_responseBody);
 };
+
+void HTTPResponse::setBody(const std::string &body) {
+    _responseBody = body;
+    _isResponseReady = true;
+}
+
+bool HTTPResponse::isResponseReady() const {
+    return (_isResponseReady);
+}
+
+bool &HTTPResponse::isResponseReady() {
+    return (_isResponseReady);
+}
+
+bool HTTPResponse::isStarted() const {
+    return (_isStarted);
+}
+
+void HTTPResponse::setStartStatus(bool is) {
+    _isStarted = is;
+}

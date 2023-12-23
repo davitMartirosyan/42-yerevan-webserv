@@ -24,7 +24,7 @@ struct ServerCore
         std::string const &getRoot( void ) const;
         std::vector<std::string> getIndexFiles( void ) const;
         std::vector<std::string> getMethods( void ) const;
-        int getClientBodySize( void ) const;
+        unsigned long getClientBodySize( void ) const;
         bool getAutoindex( void ) const;
     public:
         const char* findIndex(std::string const &filename) const;
@@ -34,14 +34,12 @@ struct ServerCore
         void pushMethods(std::string const &method);
         void pushErrPage(int, std::string const &errpage_filename);
         std::string getErrPage(int key) const;
-        void setServerName(std::string const &serverName);
-        std::string const &getServerName(void) const;
-        std::string getServerName(void);
         void setRoot(std::string const &root);
         void setAutoindex(std::string const &sw);
         void setSize(std::string const &bodySize);
         void setUploadDir(std::string const &upload_dir);
         std::string const &getUploadDir(void) const;
+        void dropMethods();
     public:
         void setRedirection(int status, std::string redirectPath);
         void setR(bool status);
@@ -50,7 +48,6 @@ struct ServerCore
         void setCgi(std::string cgiName, std::string cgiPath);
         std::pair<std::string, std::string> getCgi( std::string const &cgiType) const;
     protected:
-        std::string _serverName;
         std::string root;                                       // [root]               www/server1/
         std::vector<std::string> index;                         // [index]              index.html barev.html index.htm ....
         std::vector<std::string> methods;                       // [allow_methods]      GET | POST | DELETE
@@ -59,7 +56,7 @@ struct ServerCore
         unsigned long int client_body_size;                     // [client_body_size]   200m -> 200.000.000byte -> 200mb
         bool _redirect;
         std::map<int, std::string> _redirections;
-        std::map<std::string, std::string> _cgis;               // Example: cgi [php] [/usr/bin/php-cgi;]   // TODO get from config
-        std::string _uploadDir;                                 // Example: upload_dir /Imgs/;     // TODO get from config'
+        std::map<std::string, std::string> _cgis;               // Example: cgi [php] [/usr/bin/php-cgi;]
+        std::string _uploadDir;                                 // Example: upload_dir /Imgs/; 
 };
 #endif

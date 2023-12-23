@@ -16,10 +16,13 @@ ServerCore::ServerCore() {
 	_autoindex = false;
 	_redirect = false;
 	client_body_size = 0;
+	methods.push_back("GET");
+    methods.push_back("POST");
+    methods.push_back("DEL");
 };
 
 
-int ServerCore::getClientBodySize( void ) const
+unsigned long ServerCore::getClientBodySize( void ) const
 {
 	return (client_body_size);
 }
@@ -47,18 +50,6 @@ std::vector<std::string> ServerCore::getMethods( void ) const
 	return (this->methods);
 }
 
-void ServerCore::setServerName(std::string const &serverName) {
-	_serverName = serverName;
-};
-
-std::string const &ServerCore::getServerName(void) const {
-	return (_serverName);
-};
-
-std::string ServerCore::getServerName(void) {
-	return (_serverName);
-};
-
 void ServerCore::setRoot(std::string const &root)
 {
 	this->root = root;
@@ -69,7 +60,7 @@ std::string const &ServerCore::getRoot( void ) const
 	return (this->root);
 }
 
-const char* ServerCore::findIndex(std::string const &filename) const // TODO useless
+const char* ServerCore::findIndex(std::string const &filename) const
 {
 	size_t i = 0;
 	for(; i < index.size(); i++)
@@ -172,4 +163,8 @@ std::pair<std::string, std::string> ServerCore::getCgi( std::string const &cgiTy
 	if (it != _cgis.end())
 		return (std::make_pair(it->first, it->second));
 	return (std::make_pair("", ""));
+};
+
+void ServerCore::dropMethods() {
+	methods.clear();
 };

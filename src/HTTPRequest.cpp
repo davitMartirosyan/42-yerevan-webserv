@@ -14,23 +14,22 @@
 #include "HTTPServer.hpp"
 
 
-// class HTTPServer;
 HTTPRequest::HTTPRequest(void)
 {
     reqLineEnd = 0;
     bodyEnd = 0;
     _bodySize = 0;
     statusCode = 0;
-    location = NULL;
     _maxSizeRequest = 0;
-    _bodySize = 0;
     _isHeaderReady = false;
     _isBodyReady = false;
     _isRequestReady = false;
     _isOpenConnection = false;
-    _isResponseReady = false;
     _isCgi = false;
-    //boundary = "&"; // !IMPORTANT: if GET request: the boundary is (&) else if POST request: boundary is read from (Headers)
+    _isChunked = false;
+    _isChunkNewLineCuted = true;
+    _chunkSize = std::string::npos;
+    _location = NULL;
 }
 
 HTTPRequest::~HTTPRequest()
@@ -42,7 +41,12 @@ std::string const &HTTPRequest::getMethod( void ) const
     return (method);
 }
 
-std::string HTTPRequest::getBody() const
+const std::string &HTTPRequest::getRequestBody() const
+{
+    return (_body);
+}
+
+std::string &HTTPRequest::getRequestBody()
 {
     return (_body);
 }
@@ -70,16 +74,12 @@ std::string HTTPRequest::getHttpRequest() const {
     return (httpRequest);
 }
 
-const std::unordered_map<std::string, std::string> &HTTPRequest::getUploadedFiles() const {
+std::unordered_map<std::string, std::string> &HTTPRequest::getUploadedFiles() {
     return(_uploadedFiles);
 }
 
 bool HTTPRequest::isRequestReady() const {
     return (_isRequestReady);
-}
-
-bool HTTPRequest::isResponseReady() const {
-    return (_isResponseReady);
 }
 
 std::string HTTPRequest::rtrim(const std::string &str)
@@ -99,9 +99,6 @@ std::string HTTPRequest::trim(const std::string &str)
     return (ltrim(rtrim(str)));
 }
 
-// void HTTPRequest::processing(sock_t fd)
-// {
-// }
 
 void HTTPRequest::charChange(std::string &str, char s, char d)
 {
@@ -134,19 +131,17 @@ void HTTPRequest::multipart(void)
     contentType.erase(0, contentType.find(";")+1);
     size_t posEqualsign = contentType.find("=");
     if (posEqualsign == std::string::npos) {
-        throw ResponseError(428, "Precondition Required");
+        throw ResponseError(428, "Precondition Required posEqualsign");
     }
     boundary = "--" + contentType.substr(posEqualsign + 1);
     boundaryEnd = boundary + "--";
-
     size_t boundaryPos = _body.find(boundary);
     size_t endPos = _body.find(boundaryEnd);
-
     do {
         size_t filenameStart = _body.find("filename", boundaryPos);
 
         if(filenameStart == std::string::npos) {
-            throw ResponseError(428, "Precondition Required");
+            throw ResponseError(428, "Precondition Required filenameStart == std::string::npos");
         }
         filenameStart += strlen("filename") + 2;
         std::string filename = _body.substr(filenameStart, _body.find("\"", filenameStart) - filenameStart);
@@ -154,7 +149,7 @@ void HTTPRequest::multipart(void)
         size_t contentStart = _body.find("\r\n\r\n", filenameStart) + strlen("\r\n\r\n");
         std::string fileContent = _body.substr(contentStart, boundaryPos - contentStart - strlen("\r\n"));
         _uploadedFiles[filename] = fileContent;
-    } while (boundaryPos != endPos);
+    } while (boundaryPos < endPos);
 }
 
 void HTTPRequest::showHeaders( void ) const
@@ -229,46 +224,39 @@ std::string HTTPRequest::dir_content(std::string const &realPath)
 }
 
 void HTTPRequest::setExtension(const std::string &path) {
-    std::cout << "path = " << path << "$" << std::endl;
-
+    (void)path;
     size_t pos = _relativePath.rfind(".");
     std::string tmpExtension = _relativePath.substr(pos + 1);
     if (tmpExtension.find("/") == std::string::npos) {
         _extension = tmpExtension;
     }
-    std::cout << "_extension = " << _extension << "$" << std::endl;
 }
 
 void HTTPRequest::checkRedirect(const std::string &path, const std::string &redirectPath) {
-    // TODO 508 Loop Detected
-    if (path == redirectPath) {  // TODO change path to redirect path defined in congige file
+    if (path == redirectPath) {
         throw ResponseError(508, "Loop Detected");
     }
-    // TODO set redirect path on client
     this->setRedirectPath(redirectPath);
     throw ResponseError(301, "Moved Permanently");
 }
 
-void HTTPRequest::checkPath(HTTPServer const &srv)
+void HTTPRequest::checkPath(const HTTPServer &srv)
 {
     size_t use = 0;
     if ((use = _path.find_first_of("?")) != std::string::npos)
     {
-        queryString = _path.substr(use+1); // TODO determine the
+        queryString = _path.substr(use+1);
         _path = _path.substr(0, use);
     }
-    location = srv.find(_path);
-    if (location)
+    _location = srv.find(_path);
+    if (_location)
     {
-        if (location->getRedirection().empty() == false) {
-            // std::cout << "slocation.begin()->seco`nd = " << srv.getRedirection().begin()->second << std::endl;
-
-            checkRedirect(location->getLocation(), location->getRedirection().begin()->second); // TODO change path to redirect path defined in congige file
+        if (_location->getRedirection().empty() == false) {
+            checkRedirect(_location->getLocation(), _location->getRedirection().begin()->second);
         }
-
         pathChunks = pathChunking(_path);
-        _relativePath = srv.getRoot() + middle_slash(location->getRoot(), '/', pathChunks[pathChunks.size() - 1]);
-        std::vector<std::string> indexes = location->getIndexFiles();
+        _relativePath = srv.getRoot() + "/" + _path;
+        std::vector<std::string> indexes = _location->getIndexFiles();
 
         for (size_t i = 0; i < indexes.size(); i++) {
             std::string path = _relativePath;
@@ -285,8 +273,7 @@ void HTTPRequest::checkPath(HTTPServer const &srv)
     }
     else {
         if (srv.getRedirection().empty() == false && _path == "/") {
-            // std::cout << "srv.getRedirection().begin()->seco`nd = " << srv.getRedirection().begin()->second << std::endl;
-            checkRedirect("/", srv.getRedirection().begin()->second); // TODO change path to redirect path defined in congige file
+            checkRedirect("/", srv.getRedirection().begin()->second);
         }
         _relativePath = middle_slash(srv.getRoot(), '/', _path);
         if (_path == "/") {
@@ -306,7 +293,6 @@ void HTTPRequest::checkPath(HTTPServer const &srv)
     setExtension(_relativePath);
     if (srv.getCgi(_extension).first.empty() == false) {
         _isCgi = true;
-        std::cout << "_isCgi = true;\n";
     }
 }
 
@@ -356,36 +342,6 @@ size_t HTTPRequest::slashes(std::string const &pathtosplit)
             count++;
     return (count);
 }
-
-
-// HTTPRequest::PathStatus HTTPRequest::path_status(HTTPServer const &srv, std::string const &checkPath)
-// {
-//     if (path_status(checkPath) == PathStatus::ISDIR)
-//         if (srv.getAutoindex() == true)
-//             return (PathStatus::DIRON);
-//     return (PathStatus::DIROFF);
-// }
-
-// HTTPRequest::PathStatus HTTPRequest::path_status(const Location* location, std::string const &checkPath)
-// {
-//     if (path_status(checkPath) == PathStatus::ISDIR)
-//         if (location->getAutoindex() == true)
-//             return (PathStatus::DIRON);
-//     return (PathStatus::DIROFF);
-// }
-
-// HTTPRequest::PathStatus HTTPRequest::path_status(std::string const &checkPath)
-// {
-//     if (isExist(checkPath))
-//     {
-//         if (isDir(checkPath))
-//             return (PathStatus::ISDIR);
-//         else if (isFile(checkPath))
-//             return (PathStatus::ISFILE);
-//     }
-//     return (PathStatus::NOTFOUND);
-// }
-
 
 bool HTTPRequest::isDir(const std::string& filePath) {
     struct stat file;

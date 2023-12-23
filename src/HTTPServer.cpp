@@ -14,18 +14,18 @@
 #include <unordered_map>
 #include "HelperFunctions.hpp"
 #include "Cgi.hpp"
+#include "EvManager.hpp"
+#include "InnerFd.hpp"
 
 size_t longestMatch(std::string const &s1, std::string const &s2);
 
 HTTPServer::HTTPServer( void )
 {
-    //defualt initializations
     this->port = DEFAULT_HTTP_PORT;
     this->ip = DEFAULT_MASK;
     methodsMap["GET"] = &HTTPServer::get;
     methodsMap["POST"] = &HTTPServer::post;
     methodsMap["DELETE"] = &HTTPServer::del;
-    //boundary = "&"; // !IMPORTANT: if GET request: the boundary is (&) else if POST request: boundary is read from (Headers)
 }
 
 HTTPServer::~HTTPServer()
@@ -103,12 +103,12 @@ void HTTPServer::push(std::string const &prefix, Location locationDirective)
 }
 
 
-// void HTTPServer::push_serverName(std::string const &srvName)
-// {
-//     std::vector<std::string>::iterator it = std::find(ServerName.begin(), ServerName.end(), srvName);
-//     if (it == ServerName.end())
-//         ServerName.push_back(srvName);
-// }
+void HTTPServer::push__serverName(std::string const &srvName)
+{
+    std::vector<std::string>::iterator it = std::find(_serverName.begin(), _serverName.end(), srvName);
+    if (it == _serverName.end())
+        _serverName.push_back(srvName);
+}
 
 const Location* HTTPServer::find(std::string const &prefix) const
 {
@@ -117,17 +117,18 @@ const Location* HTTPServer::find(std::string const &prefix) const
     for(size_t i = 0; i <= sl; i++)
     {
         std::map<std::string, Location>::const_iterator route = locations.find(path);
-        if (route != locations.end())
+        if (route != locations.end()) {
             return (&route->second);
+        }
         path = path.substr(0, path.find_last_of("/"));
     }
     return (NULL);
 }
 
-// std::vector<std::string> const &HTTPServer::getServerNames( void ) const
-// {
-//     return (ServerName);
-// }
+std::vector<std::string> const &HTTPServer::get_serverNames( void ) const
+{
+    return (_serverName);
+}
 
 std::map<std::string, Location> const &HTTPServer::getLocations( void ) const
 {
@@ -137,10 +138,10 @@ std::map<std::string, Location> const &HTTPServer::getLocations( void ) const
 
 sock_t HTTPServer::getfd( void ) const
 {
-    return (this->fd);
+    return (this->_fd);
 }
 
-void HTTPServer::up(ServerManager &mgn)
+void HTTPServer::up()
 {
     const char* givenIp = ip.c_str();
     const char* givenPort = port.c_str();
@@ -157,29 +158,20 @@ void HTTPServer::push(sock_t clFd, Client *clt)
     clnt.insert(std::make_pair(clFd, clt));
 }
 
-void HTTPServer::push(HTTPServer srv) {
-    _srvs.insert(std::make_pair(srv.getServerName(), srv));
+void HTTPServer::push(HTTPServer &srv) {
+    _srvs.push_back(srv);
 };
 
-const HTTPServer &HTTPServer::getServerByName(std::string const &serverName) const {
-    std::map<std::string, HTTPServer>::const_iterator it = _srvs.find(serverName);
-    if (it == _srvs.end()) {
-        throw std::logic_error("logic_error");
+HTTPServer *HTTPServer::getSubServerByName(std::string const &serverName) {
+    for (size_t i = 0; i < _srvs.size(); ++i) {
+        const std::vector<std::string> &srvNames =  _srvs[i].get_serverNames();
+        std::vector<std::string>::const_iterator it = std::find(srvNames.cbegin(),srvNames.cend(), serverName);
+        if (it != srvNames.end()) {
+            return (&_srvs[i]);
+        }
     }
-    return (it->second);
+    return (NULL);
 };
-
-int HTTPServer::pop(sock_t clFd)
-{
-    std::map<sock_t, Client*>::iterator it = clnt.find(clFd);
-    if (it != clnt.end())
-    {
-        delete it->second;
-        clnt.erase(it);
-        return (0);
-    }
-    return (-1);
-}
 
 bool HTTPServer::exist(sock_t fd)
 {
@@ -187,7 +179,7 @@ bool HTTPServer::exist(sock_t fd)
 }
 
 
-bool HTTPServer::operator==(HTTPServer const &sibling)
+bool HTTPServer::operator==(HTTPServer const &sibling) const
 {
     if (std::strcmp(this->getIp(), sibling.getIp()) == 0 \
         && std::strcmp(this->getPort(),sibling.getPort()) == 0)
@@ -195,7 +187,7 @@ bool HTTPServer::operator==(HTTPServer const &sibling)
     return (false);
 }
 
-bool HTTPServer::operator==(sock_t fd)
+bool HTTPServer::operator==(sock_t fd) const
 {
     if (clnt.find(fd) != clnt.end()) {
       return (true);
@@ -206,20 +198,38 @@ bool HTTPServer::operator==(sock_t fd)
 Client* HTTPServer::getClient(sock_t fd)
 {
     std::map<sock_t, Client*>::iterator it = clnt.find(fd);
-    if (it != clnt.end())
+    if (it != clnt.end()) {
         return (it->second);
+    }
     return (NULL);
 }
 
 void HTTPServer::removeClient(sock_t fd)
 {
     std::map<sock_t, Client*>::iterator it = clnt.find(fd);
+
     if (it != clnt.end()) {
         delete it->second;
         clnt.erase(it);
+        EvManager::delEvent(fd, EvManager::read);
+        EvManager::delEvent(fd, EvManager::write);
     }
     return ;
 }
+
+InnerFd *HTTPServer:: getInnerFd(int fd) {
+    std::map<sock_t, Client *>::iterator it = clnt.begin();
+    
+    while (it != clnt.end()) {
+        InnerFd *innerFd = it->second->getInnerFd(fd);
+
+        if (innerFd) {
+            return(innerFd);
+        }
+        ++it;
+    }
+    return (NULL);
+};
 
 const Location* HTTPServer::findMatching(std::string const &realPath) const
 {
@@ -256,124 +266,72 @@ size_t longestMatch(std::string const &s1, std::string const &s2)
     return (match);
 }
 
-std::string HTTPServer::executeCgi(Client &client) {
-    std::string fileContent;
-    int fd = Cgi::execute(client);
-    char buf[READ_BUFFER];
-    int rsize = 1;
-
-    while (rsize != 0 && rsize != -1) {
-        rsize = read(fd, buf, READ_BUFFER - 1);
-        if (rsize == -1) {
-            throw ResponseError(500, "Internal Server Error rsize == -1");
-        }
-        buf[rsize] = '\0';
-        fileContent.append(buf);
-    }
-    int posBody = fileContent.find("\r\n\r\n");
-    if (posBody == std::string::npos) {
-        throw ResponseError(500, "Internal Server Error int posBody = fileContent.find");
-    }
-    fileContent.erase(0, posBody);
-    client.setCgiPipeFd(fd);
-    client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/html")); // TODO check actual type
-    return (fileContent);
-}
-
-std::string HTTPServer::get(Client &client) {
+void HTTPServer::get(Client &client) {
     const std::string &path = client.getPath();
 
-    // TODO unrecognized types "application/octet- stream"
-    // TODO check is method allowed. 405
-    // TODO Content-Length is not defined in case post method called 411
-    // TODO valid request line 412
-    // TODO body is large 413
-    // TODO The URI requested is long  414
-    // TODO header is large 431
     if (access(path.c_str(), R_OK) == 0) {
         std::string fileContent;
         if (client.isCgi() == true) {
-            fileContent = executeCgi(client);
+            int fd = Cgi::execute(client);
+            client.setCgiPipeFd(fd);
         } else {
-            try
-            {
-                if (this->getAutoindex() == true && HTTPRequest::isDir(path)) {
-                    fileContent = directory_listing(path, client.getDisplayPath());
-                } else if (HTTPRequest::isDir(path)) {  //  TODO Set a default file to answer if the request is a directory.
+                if (client.getCurrentLoc().getAutoindex() == true && HTTPRequest::isDir(path)) {
+                    client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/html"));
+                    client.buildHeader();
+                    client.setBody(directory_listing(path, client.getDisplayPath()));
+                } else if (HTTPRequest::isDir(path)) {
                     throw ResponseError(404, "not found");
                 } else {
-                    fileContent = fileToString(path);
+                    int fd = open(path.c_str(), O_RDONLY);
+                    if (fd == -1) {
+                        throw ResponseError(500, "Internal Server Error");
+                    }
+                    EvManager::addEvent(fd, EvManager::read);
+                    client.addInnerFd(new InnerFd(fd, client, client.getResponseBody(),  EvManager::read));
                 }
-            }
-            catch(const ResponseError& e) {
-                throw e;
-            } catch(const std::exception& e)
-            {
-                throw ResponseError(500, "Internal Server Error");
-            }
-            client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/" + client.getExtension())); // TODO check actual type
+            client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/" + client.getExtension()));
         }
-        client.addHeader(std::pair<std::string, std::string>("Content-Length", std::to_string(fileContent.size())));
-        client.buildHeader();
-        return (client.getResponse() + fileContent);
     } else {
         throw ResponseError(404, "not found");
-        // TODO automate it   404, 405, 408, 411, 412, 413, 414, 431, 500, 501, 505, 503, 507, 508
     }
-    return ("");
 };
 
-std::string HTTPServer::post(Client &client) {
-    
-    std::cout << "\n--- in Post function \n" << std::endl;
-    std::string fileContentCgi = "ok";
+void HTTPServer::post(Client &client) {
     if (client.isCgi() == true) {
-        fileContentCgi = executeCgi(client);
+        int fd = Cgi::execute(client);
+        client.setCgiPipeFd(fd);
     } else {
-        // TODO if cgi exstention detected go through cgi and give body as stdin else get files
-        // TODO if multipart data not detected throw precondition failed
-        const std::unordered_map<std::string, std::string> &uploadedFiles = client.getUploadedFiles();
-        std::unordered_map<std::string, std::string>::const_iterator it = uploadedFiles.cbegin();
+        std::unordered_map<std::string, std::string> &uploadedFiles = client.getUploadedFiles();
+        std::unordered_map<std::string, std::string>::iterator it = uploadedFiles.begin();
         for (; it != uploadedFiles.cend(); ++it) {
             const std::string &fileName = it->first;
-            const std::string &fileContent = it->second;
-            std::ofstream ofs(client.getSrv().getUploadDir() + fileName);
-            
-            if (ofs.is_open() == false) {
+            std::string &fileContent = it->second;
+            int fd = open((client.getCurrentLoc().getUploadDir() + fileName).c_str(),  O_WRONLY | O_TRUNC | O_CREAT, S_IRWXU);
+            if (fd == -1) {
                 throw ResponseError(500 , "Internal Server Error");
             }
-            ofs << fileContent;
-            if (ofs.good() == false) {
-                throw ResponseError(507 , "Insufficient Storage");
-            }
-            ofs.close();
+            EvManager::addEvent(fd, EvManager::write);
+            client.addInnerFd(new InnerFd(fd, client, fileContent, EvManager::write));
         }
     }
-    std::string response;
     client.addHeader(std::pair<std::string, std::string>("content-type", "text/plain"));
-    client.buildHeader();
-    response = client.getResponse();
-    response.append(fileContentCgi);
-    return (response);
 };
 
-std::string HTTPServer::del(Client &client) {
-    std::string response;
+void HTTPServer::del(Client &client) {
     if (std::remove(client.getPath().c_str()) == -1) {
         throw ResponseError(404, "not found");
     };
-    return (response);
 };
 
-std::string HTTPServer::processing(Client &client)
+void HTTPServer::processing(Client &client)
 {
-    std::map<std::string, std::string(HTTPServer::*)(Client&)>::iterator function = methodsMap.find(client.getMethod());
-    if (function != methodsMap.end() && this->findMethod(client.getMethod()) != NULL)
+    std::map<std::string, void (HTTPServer::*)(Client&)>::iterator function = methodsMap.find(client.getMethod());
+    if (function != methodsMap.end() && client.getCurrentLoc().findMethod(client.getMethod()) != NULL)
     {
-       return ((this->*(function->second))(client));
+       (this->*(function->second))(client);
+    } else {
+        throw ResponseError(405, "Method Not Allowed");
     }
-    throw ResponseError(405, "Method Not Allowed");
-    return ("");
 }
 
 std::string	HTTPServer::directory_listing(const std::string &path, std::string displayPath)
@@ -445,3 +403,4 @@ std::string	HTTPServer::directory_listing(const std::string &path, std::string d
 	closedir(opened_dir);
     return table;
 }
+
