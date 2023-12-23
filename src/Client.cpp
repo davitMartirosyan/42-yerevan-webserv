@@ -126,6 +126,7 @@ int Client::receiveRequest() {
             return (0);
         } else {
             if (_bodySize == 0) {
+                EvManager::delEvent(_fd, EvManager::read);
                 _isBodyReady = true;
                 _isRequestReady = true;
                 return (0);
@@ -134,6 +135,7 @@ int Client::receiveRequest() {
             _requestBuf.clear();
             if (_bodySize <= _body.size()) {
                 _body.erase(_bodySize);
+                EvManager::delEvent(_fd, EvManager::read);
                 _isBodyReady = true;
                 _isRequestReady = true;
             }
