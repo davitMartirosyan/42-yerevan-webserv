@@ -24,29 +24,12 @@ HTTPResponse::~HTTPResponse()
     
 }
 
-// std::string HTTPResponse::file(std::string const &filename)
-// {
-//     std::fstream f;
-//     std::string tmp;
-//     std::string content;
-//     f.open(filename.c_str());
-//     if (f.is_open())
-//     {
-//         while (std::getline(f, tmp, '\n'))
-//         {
-//             content += tmp;
-//             tmp.clear();
-//         }
-//     }
-//     return (content);
-// }
-
 std::string const HTTPResponse::getResponse( void ) const
 {
     return (_header + _responseBody);
 }
 
-std::unordered_map<std::string, std::string> &HTTPResponse::getResponseHeader() {
+std::map<std::string, std::string> &HTTPResponse::getResponseHeader() {
     return (_responseHeader);
 }
 
@@ -56,7 +39,7 @@ void HTTPResponse::addHeader(const std::pair<std::string, std::string> &pair) {
 
 
 void HTTPResponse::buildHeader() {
-    for (std::unordered_map<std::string, std::string>::iterator it = _responseHeader.begin();
+    for (std::map<std::string, std::string>::iterator it = _responseHeader.begin();
         it != _responseHeader.end(); ++it) {
             _header += it->first;
             _header += ": ";

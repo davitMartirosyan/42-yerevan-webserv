@@ -10,7 +10,7 @@ std::map<std::string, std::string> Cgi::_env;
 
 int Cgi::execute(Client &client) {
     char *argv[3];
-    const std::string &argv1 = client.getSrv().getCgi(client.getExtension()).second;
+    const std::string &argv1 = client.getCurrentLoc().getCgi(client.getExtension()).second;
     argv[0] = const_cast<char *>(argv1.c_str());
     const std::string &argv2 =  client.getPath();
     argv[1] = const_cast<char *>(argv2.c_str());
@@ -21,7 +21,6 @@ int Cgi::execute(Client &client) {
     if (pipe(pipe_from_child) == -1 || pipe(pipe_to_child) == -1) {
         throw ResponseError(500, "Internal Server Error");
     }
-
     fcntl(pipe_to_child[1], F_SETFL, O_NONBLOCK, O_CLOEXEC);
 	fcntl(pipe_from_child[0], F_SETFL, O_NONBLOCK, O_CLOEXEC);
     int pid = fork();
@@ -57,22 +56,9 @@ int Cgi::execute(Client &client) {
 char **Cgi::initEnv(Client const &client)
 {
     char *pwd;
-    const HTTPServer &srv = client.getSrv();
-    // client.showHeaders();
-    // // std::cout << client.findInMap("Content-Length") << std::endl;
-    // // std::cout << client.findInMap("Content-Type") << std::endl;
-
-    // std::cout << "_______________________________" << std::endl;
-    // std::cout << client.getRequestBody() << "   ::   " << client.getRequestBody().size() << std::endl;
-    // std::cout << "_______________________________" << std::endl;
+    const ServerCore &srv = client.getCurrentLoc();
 
     pwd = getcwd(NULL, 0);
-
-    std::cout << "MULTIPART -----------------------------------------------------------" << std::endl;
-    // std::cout << client.getRequestBody() << std::endl;
-    
-    std::cout << "MULTIPART -----------------------------------------------------------" << std::endl;
-
     _env["AUTH_TYPE"] = "Basic";
     _env["CONTENT_LENGTH"] = std::to_string(client.getRequestBody().size());
     _env["CONTENT_TYPE"] = client.findInMap("Content-Type");

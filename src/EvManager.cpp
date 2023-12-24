@@ -1,5 +1,7 @@
 #include "EvManager.hpp"
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 
 int EvManager::_i = 0;
 int EvManager::_numEvents = 0;
@@ -83,6 +85,9 @@ std::pair<EvManager::Flag, int> EvManager::listen() {
             _activeRfds = _rfds;
             _activeWfds = _wfds;
             _numEvents = select(_nfds, &_activeRfds, &_activeWfds, NULL, NULL);
+            if (_numEvents == -1) {
+                throw std::runtime_error(std::string("kevent: ") + strerror(errno));
+            }
             for (std::set<int>::iterator it = _fdRSet.begin();
                 it != _fdRSet.end(); ++it) {
                 if (FD_ISSET(*it, &_activeRfds) || FD_ISSET(*it, &_activeWfds)) {
@@ -149,6 +154,7 @@ bool EvManager::delEvent(int fd, Flag flag) {
 std::pair<EvManager::Flag, int> EvManager::listen() {
     while (_numEvents == 0) {
         _numEvents = kevent(_kq, NULL, 0, _evList, CLIENT_LIMIT, NULL);
+        std::cout << "_numEvents = " << _numEvents << std::endl;
     }
 
     if (_numEvents == -1) {

@@ -14,8 +14,6 @@
 #include "ServerManager.hpp"
 #include "Cgi.hpp"
 
-// TODO check memory leaks
-
 int main(int ac, char **av)
 {
     (void)ac;

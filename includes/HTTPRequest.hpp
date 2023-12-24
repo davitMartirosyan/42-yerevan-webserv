@@ -1,21 +1,9 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HTTPRequest.hpp                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/12 22:14:28 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/07 21:35:53 by maharuty         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef REQ_HPP
 #define REQ_HPP
 #include "Libs.hpp"
 #include "HTTPResponse.hpp"
 #define MAX_SIZE_REQUEST 1000
-#include <unordered_map>
+#include <map>
 
 class Location;
 class HTTPServer;
@@ -62,11 +50,7 @@ class HTTPRequest
         void processing(sock_t fd);
     protected:
         std::vector<std::string> pathChunks;
-        // enum PathInfo {ISDIR, ISFILE, NOTFOUND, FORBIDDEN};
         enum PathStatus{ISDIR, DIROFF, DIRON, ISFILE, NOTFOUND, FORBIDDEN, UNDEFINED};
-        // PathStatus path_status(std::string const &checkPath);
-        // PathStatus path_status(HTTPServer const &srv, std::string const &checkPath);
-        // PathStatus path_status(const Location* location, std::string const &checkPath);
         PathStatus path_status(bool autoindex, std::string const &checkPath);
         PathStatus pathinfo;
     protected:
@@ -101,7 +85,7 @@ class HTTPRequest
         std::string type;
         unsigned long int _bodySize;
     protected:
-        const Location* location;
+        const Location* _location;
     protected:
         std::vector<std::string> methods;
     protected:
@@ -113,8 +97,6 @@ class HTTPRequest
         void setExtension(const std::string &path);
         void checkRedirect(const std::string &path, const std::string &redirectPath);
     protected:
-        // std::string response;
-    protected:
         bool _isHeaderReady;
         bool _isBodyReady;
         bool _isRequestReady;
@@ -124,9 +106,9 @@ class HTTPRequest
         bool _isChunkNewLineCuted;
         size_t _chunkSize;
         size_t _maxSizeRequest;
-        std::unordered_map<std::string, std::string> _uploadedFiles;
+        std::map<std::string, std::string> _uploadedFiles;
     public:
-        std::unordered_map<std::string, std::string> &getUploadedFiles();
+        std::map<std::string, std::string> &getUploadedFiles();
 
 };
 
