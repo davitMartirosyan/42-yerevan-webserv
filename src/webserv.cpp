@@ -14,6 +14,8 @@
 #include "ServerManager.hpp"
 #include "Cgi.hpp"
 
+// TODO check memory leaks
+
 int main(int ac, char **av)
 {
     (void)ac;
@@ -21,6 +23,7 @@ int main(int ac, char **av)
     try
     {
         ServerManager mgn(ac == 2 ? av[1] : DFLT);
+        std::cout << "mgn.size() = " << mgn.size() << std::endl;
         for (size_t i = 0; i < mgn.size(); i++)
         {
             mgn[i]->up();

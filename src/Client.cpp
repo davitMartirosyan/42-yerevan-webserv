@@ -3,21 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 10:29:55 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/21 01:45:16 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/24 00:45:53 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "ResponseError.hpp"
-#include "InnerFd.hpp"
-
 
 Client::Client(sock_t clfd, sock_t srfd, HTTPServer &srv) : _defaultSrv(srv)
 {
-    this->_fd = clfd;
+    this->fd = clfd;
     this->serverFd = srfd;
     this->rd = 0;
     _subSrv = NULL;
@@ -28,18 +26,11 @@ Client::Client(sock_t clfd, sock_t srfd, HTTPServer &srv) : _defaultSrv(srv)
 
 Client::~Client()
 {
-    std::map<int, InnerFd *>::iterator it = _innerFds.begin();
-    while (it != _innerFds.end()) {
-        delete it->second;
-        EvManager::delEvent(it->first, EvManager::read);
-        EvManager::delEvent(it->first, EvManager::write);
-        ++it;
-    }
 }
 
 sock_t Client::getFd( void ) const
 {
-    return (this->_fd);
+    return (this->fd);
 }
 
 sock_t Client::getServerFd( void ) const
@@ -81,11 +72,11 @@ void Client::readChunkedRequest() {
 int Client::receiveRequest() {
     char buf[READ_BUFFER];
     errno = 0;
-    int rdSize = recv(_fd, buf, sizeof(buf), 0);
+    int rdSize = recv(fd, buf, sizeof(buf), 0);
     if (rdSize == -1) { 
-        // if (time(NULL) - _lastSeen == LAST_SENN_RIMEOUT) {
-        //     return (-1);
-        // }
+        if (time(NULL) - _lastSeen == LAST_SENN_RIMEOUT) {
+            return (-1);
+        }
         return (0);
     }
     _lastSeen = time(NULL);
@@ -107,7 +98,7 @@ int Client::receiveRequest() {
         if (it != httpHeaders.end()) {
             char *ptr;
             _bodySize = std::strtoul(it->second.c_str(), &ptr, 10);
-            if (_bodySize > this->getCurrentLoc().getClientBodySize()) {
+            if (_bodySize > this->getSrv().getClientBodySize()) {
                 throw ResponseError(413, "Content Too Large");
             }
         }
@@ -126,7 +117,6 @@ int Client::receiveRequest() {
             return (0);
         } else {
             if (_bodySize == 0) {
-                EvManager::delEvent(_fd, EvManager::read);
                 _isBodyReady = true;
                 _isRequestReady = true;
                 return (0);
@@ -135,7 +125,6 @@ int Client::receiveRequest() {
             _requestBuf.clear();
             if (_bodySize <= _body.size()) {
                 _body.erase(_bodySize);
-                EvManager::delEvent(_fd, EvManager::read);
                 _isBodyReady = true;
                 _isRequestReady = true;
             }
@@ -143,7 +132,8 @@ int Client::receiveRequest() {
     }
     return 0;
 }
-
+// echo -ne '6\r\nHello,\r\n6\r\nworld!\r\n\r\n' | curl -X POST http://localhost:3000/chunked-H "Transfer-Encoding: chunked" --data @-
+// curl -H "Transfer-Encoding: chunked" http://localhost:3000/--data --data-binary "This is the second chunk." --data-binary "And this is the third chunk."
 void Client::parseHeader()
 {
     size_t space = 0;
@@ -195,7 +185,7 @@ void Client::parseBody()
 bool Client::sendResponse() {
     if (_responseLine.empty() == false) {
         size_t sendSize = WRITE_BUFFER < _responseLine.size() ? WRITE_BUFFER : _responseLine.size();
-        if (send(_fd, _responseLine.c_str(), sendSize, 0) == -1) {
+        if (send(fd, _responseLine.c_str(), sendSize, 0) == -1) {
             return (false);
         }
         _responseLine.erase(0, sendSize);
@@ -203,13 +193,13 @@ bool Client::sendResponse() {
     }
     else if (_header.empty() == false) {
         size_t sendSize = WRITE_BUFFER < _header.size() ? WRITE_BUFFER : _header.size();
-        if (send(_fd, _header.c_str(), sendSize, 0) == -1) {
+        if (send(fd, _header.c_str(), sendSize, 0) == -1) {
             return (false);
         }
         _header.erase(0, sendSize);
     } else if (_responseBody.empty() == false) {
         size_t sendSize = WRITE_BUFFER < _responseBody.size() ? WRITE_BUFFER : _responseBody.size();
-        if (send(_fd, _responseBody.c_str(), sendSize, 0) == -1) {
+        if (send(fd, _responseBody.c_str(), sendSize, 0) == -1) {
             return (false);
         }
         _responseBody.erase(0, sendSize);
@@ -221,10 +211,6 @@ const HTTPServer &Client::getSrv( void ) const {
     if (_subSrv) {
         return (*_subSrv);
     }
-    return (_defaultSrv);
-};
-
-HTTPServer &Client::getDefaultSrv( void ) {
     return (_defaultSrv);
 };
 
@@ -248,6 +234,7 @@ bool Client::checkCgi() {
         int status;
         int waitRet;
         waitRet = waitpid(_cgiPID, &status, WNOHANG);
+        // std::cout << "waitRet = " <<waitRet << std::endl;
         if (waitRet == -1) {
             throw ResponseError(500, "Internal Server Error");
         }
@@ -269,7 +256,7 @@ bool Client::checkCgi() {
                 throw ResponseError(500, "Internal Server Error");
             }
             EvManager::addEvent(_cgiPipeFd, EvManager::read);
-            this->addInnerFd(new InnerFd(_cgiPipeFd, *this, this->getResponseBody(), EvManager::read));
+            this->getSrv().addInnerFd(new InnerFd(_cgiPipeFd, *this, this->getResponseBody(), EvManager::read));
         }
     }
     return (true);
@@ -284,38 +271,39 @@ void Client::setCgiPID(int pid) {
     _cgiPID = pid;
 };
 
-const ServerCore &Client::getCurrentLoc() const {
-    if (_location) {
-        return (*_location);
+std::string Client::getUser(std::string const &pwd) const
+{
+    std::string user = pwd;
+    if (user.find("/home/") != std::string::npos)
+    {
+        user = user.substr(user.find("/home/") + 6);
+        if (user.find("/") != std::string::npos)
+            user = user.substr(0, user.find("/"));
     }
-    if (_subSrv) {
-        return (*_subSrv);
-    }
-    return (_defaultSrv);
-};
+    return (user);
+}
 
+void Client::setSocketAddress(struct sockaddr_in *addr)
+{
+    this->clientInfo = *addr;
+}
 
-InnerFd *Client:: getInnerFd(int fd) {
-    // std::cout << "_fd = " << fd << std::endl;
-    std::map<int, InnerFd *  >::iterator it = _innerFds.find(fd);
-    if (it != _innerFds.end()) {
-        return(it->second);
-    }
-    return (NULL);
-};
+const struct sockaddr_in* Client::getSocketAddress( void ) const
+{
+    return (&this->clientInfo);
+}
 
-void Client::addInnerFd(InnerFd *obj) {
-    if (obj) {
-        _innerFds.insert(std::pair<int, InnerFd *>(obj->_fd, obj));
-    }
-};
+char* Client::inet_ntoa(struct in_addr clAddr) const
+{
+    static char ip[INET_ADDRSTRLEN];
+    
+    uint32_t ipaddr = htonl(clAddr.s_addr);
 
-void Client::removeInnerFd(int fd) {
-    std::map<int, InnerFd *>::iterator it = _innerFds.find(fd);
-    if (it != _innerFds.end()) {
-        delete it->second;
-        _innerFds.erase(fd);
-        EvManager::delEvent(fd, EvManager::read);
-        EvManager::delEvent(fd, EvManager::write);
-    }
-};
+    snprintf(ip, sizeof(ip), "%u.%u.%u.%u",
+        (ipaddr >> 24) & 0xFF,
+        (ipaddr >> 16) & 0xFF,
+        (ipaddr >> 8) & 0xFF,
+        ipaddr & 0xFF
+    );
+    return (ip);
+}

@@ -10,7 +10,7 @@ std::map<std::string, std::string> Cgi::_env;
 
 int Cgi::execute(Client &client) {
     char *argv[3];
-    const std::string &argv1 = client.getCurrentLoc().getCgi(client.getExtension()).second;
+    const std::string &argv1 = client.getSrv().getCgi(client.getExtension()).second;
     argv[0] = const_cast<char *>(argv1.c_str());
     const std::string &argv2 =  client.getPath();
     argv[1] = const_cast<char *>(argv2.c_str());
@@ -57,28 +57,36 @@ int Cgi::execute(Client &client) {
 char **Cgi::initEnv(Client const &client)
 {
     char *pwd;
-    const ServerCore &srv = client.getCurrentLoc();
+    const HTTPServer &srv = client.getSrv();
+    // client.showHeaders();
+    // // std::cout << client.findInMap("Content-Length") << std::endl;
+    // // std::cout << client.findInMap("Content-Type") << std::endl;
+
+    // std::cout << "_______________________________" << std::endl;
+    // std::cout << client.getRequestBody() << "   ::   " << client.getRequestBody().size() << std::endl;
+    // std::cout << "_______________________________" << std::endl;
 
     pwd = getcwd(NULL, 0);
-    _env["AUTH_TYPE"] = "";
+
+    _env["AUTH_TYPE"] = "Basic";
     _env["CONTENT_LENGTH"] = std::to_string(client.getRequestBody().size());
-    _env["CONTENT_TYPE"] = "application/x-www-form-urlencoded";
+    _env["CONTENT_TYPE"] = client.findInMap("Content-Type");
     _env["GATEWAY_INTERFACE"] = "CGI/1.1";
     _env["PATH_INFO"] = pwd + client.getPath();
     _env["PATH_TRANSLATED"] = pwd + client.getPath();
     _env["QUERY_STRING"] = client.getQueryString();
-    _env["REMOTE_ADDR"] = "";
-    _env["REMOTE_HOST"] = "::1";
-    _env["REMOTE_IDENT"] = "";
-    _env["REMOTE_USER"] = "";
+    _env["REMOTE_ADDR"] = std::string(client.inet_ntoa(client.getSocketAddress()->sin_addr));
+    _env["REMOTE_HOST"] = client.findInMap("Host");
+    _env["REMOTE_USER"] = client.getUser(pwd);
     _env["REQUEST_METHOD"] = client.getMethod();
-    _env["SCRIPT_NAME"] = "/post.php";
+    _env["SCRIPT_NAME"] = client.getPath();
     _env["SCRIPT_FILENAME"] = pwd + std::string("/") + client.getPath();
     _env["SERVER_NAME"] = "webserv";
-    _env["SERVER_PORT"] = "3000";
+    _env["SERVER_PORT"] = client.getServerPort();
     _env["SERVER_PROTOCOL"] = "HTTP/1.1";
     _env["SERVER_SOFTWARE"] = "webserv/1.0";
     _env["SERVER_WRITE_PATH"] = srv.getUploadDir();
+    _env["UPLOAD_DIR"] = srv.getUploadDir();
     _env["LC_CTYPE"] = "C.UTF-8";
     _env["REDIRECT_STATUS"] = "true";
 	free(pwd);
