@@ -68,6 +68,11 @@ char **Cgi::initEnv(Client const &client)
 
     pwd = getcwd(NULL, 0);
 
+    std::cout << "MULTIPART -----------------------------------------------------------" << std::endl;
+    // std::cout << client.getRequestBody() << std::endl;
+    
+    std::cout << "MULTIPART -----------------------------------------------------------" << std::endl;
+
     _env["AUTH_TYPE"] = "Basic";
     _env["CONTENT_LENGTH"] = std::to_string(client.getRequestBody().size());
     _env["CONTENT_TYPE"] = client.findInMap("Content-Type");

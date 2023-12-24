@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 06:37:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/23 23:02:16 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/24 13:48:32 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <string>
 #include <sstream>
 #include <sys/types.h>
-#include <wait.h>
+#include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <fcntl.h>

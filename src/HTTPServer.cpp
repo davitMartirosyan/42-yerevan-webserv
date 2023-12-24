@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/12 21:59:18 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/24 17:14:09 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "Cgi.hpp"
 #include "EvManager.hpp"
 #include "InnerFd.hpp"
+#include "Types.hpp"
 
 size_t longestMatch(std::string const &s1, std::string const &s2);
 
@@ -313,7 +314,16 @@ void HTTPServer::get(Client &client) {
                     EvManager::addEvent(fd, EvManager::read);
                     this->addInnerFd(new InnerFd(fd, client, client.getResponseBody(),  EvManager::read));
                 }
-            client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/" + client.getExtension()));
+            std::map<std::string, std::string>::iterator mime = Types::MimeTypes.find(client.getExtension());
+            std::string mimeType;
+            if (mime != Types::MimeTypes.end())
+                mimeType = mime->second;
+            else
+                mimeType = "text/plain";
+            
+            
+            client.addHeader(std::pair<std::string, std::string>("Content-Type", mimeType));
+            // client.addHeader(std::pair<std::string, std::string>("Content-Type", "text/" + client.getExtension()));
         }
     } else {
         throw ResponseError(404, "not found");
@@ -342,7 +352,7 @@ void HTTPServer::post(Client &client) {
             this->addInnerFd(new InnerFd(fd, client, fileContent, EvManager::write));
         }
     }
-    client.addHeader(std::pair<std::string, std::string>("content-type", "text/plain"));
+    client.addHeader(std::pair<std::string, std::string>("Content-type", "text/html"));
 };
 
 void HTTPServer::del(Client &client) {

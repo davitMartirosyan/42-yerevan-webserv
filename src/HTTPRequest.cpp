@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/07 21:47:39 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/24 17:00:35 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,7 +234,8 @@ void HTTPRequest::setExtension(const std::string &path) {
     size_t pos = _relativePath.rfind(".");
     std::string tmpExtension = _relativePath.substr(pos + 1);
     if (tmpExtension.find("/") == std::string::npos) {
-        _extension = tmpExtension;
+        _extension = HTTPRequest::trim(tmpExtension);
+        std::cout <<  "_extension = " << _extension <<  "$" << std::endl;
     }
     // std::cout << "_extension = " << _extension << "$" << std::endl;
 }
