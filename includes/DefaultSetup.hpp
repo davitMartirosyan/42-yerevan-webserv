@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 14:06:06 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/11/25 23:52:39 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/25 23:45:50 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #define CONFIGS "./conf/"
 #define DFLT CONFIGS"webserv.conf"
 #define HTTP_VERSION "HTTP/1.1"
-
+#define DEFAULT_ROOT "/var/www/"
 typedef int         sock_t;
 #include "HTTPCoreException.hpp"
 #endif

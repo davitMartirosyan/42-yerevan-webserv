@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/12 21:59:18 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/26 01:23:01 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,7 @@ void HTTPServer::push__serverName(std::string const &srvName)
 
 const Location* HTTPServer::find(std::string const &prefix) const
 {
+    //TODO find right location
     std::string path = prefix;
     size_t sl = HTTPRequest::slashes(path);
     for(size_t i = 0; i <= sl; i++)

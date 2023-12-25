@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/17 15:29:27 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/26 00:20:01 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -321,24 +321,32 @@ void Parser::tolower(std::string &s)
 void Parser::create_server(ServerManager &mgn, std::list<Token>::iterator& ch)
 {
     HTTPServer *srv = new HTTPServer();
-    std::list<Token>::iterator next = ch;
-    next++;
-    while (next != tokens.end())
+    try
     {
-        if (next->type == DIRECTIVE)
-            s_directive(next, *srv);
-        if (next->type == CONTEXT && context_keyword(next->token) == "server") {
-            break;
-        }
-        if (next->type == CONTEXT)
-            location(next, *srv);
+        std::list<Token>::iterator next = ch;
         next++;
+        while (next != tokens.end())
+        {
+            if (next->type == DIRECTIVE)
+                s_directive(next, *srv);
+            if (next->type == CONTEXT && context_keyword(next->token) == "server") {
+                break;
+            }
+            if (next->type == CONTEXT)
+                location(next, *srv);
+            next++;
+        }
+        int srvIndex = mgn.used(*srv);
+        if (srvIndex == -1) {
+            mgn.push_back(srv);
+        } else {
+            mgn[srvIndex]->push(*srv);
+        }
     }
-    int srvIndex = mgn.used(*srv);
-    if (srvIndex == -1) {
-        mgn.push_back(srv);
-    } else {
-        mgn[srvIndex]->push(*srv);
+    catch (HTTPCoreException const &e)
+    {
+        delete srv;
+        throw HTTPCoreException(e.what());        
     }
 }
 
@@ -424,6 +432,7 @@ void Parser::s_directive(std::list<Token>::iterator& node, HTTPServer &srv)
         (this->*(f->second))(d_val, srv);
     }
 }
+
 
 void Parser::d_listen(std::string &d_val, HTTPServer &srv)
 {

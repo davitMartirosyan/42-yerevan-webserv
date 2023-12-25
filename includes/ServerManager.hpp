@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:52:27 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/07 18:34:31 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/25 23:23:29 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class ServerManager : public std::vector<HTTPServer *>
     public:
         ServerManager(const char *configfile);
         ~ServerManager();
+        void clearInstances( void );
     public:
         void printFds( void );
     public:

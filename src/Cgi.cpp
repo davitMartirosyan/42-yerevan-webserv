@@ -57,7 +57,7 @@ char **Cgi::initEnv(Client const &client)
 {
     char *pwd;
     const ServerCore &srv = client.getCurrentLoc();
-
+    char *clientIp = client.inet_ntoa(client.getSocketAddress()->sin_addr);
     pwd = getcwd(NULL, 0);
     _env["AUTH_TYPE"] = "Basic";
     _env["CONTENT_LENGTH"] = std::to_string(client.getRequestBody().size());
@@ -66,7 +66,7 @@ char **Cgi::initEnv(Client const &client)
     _env["PATH_INFO"] = pwd + client.getPath();
     _env["PATH_TRANSLATED"] = pwd + client.getPath();
     _env["QUERY_STRING"] = client.getQueryString();
-    _env["REMOTE_ADDR"] = std::string(client.inet_ntoa(client.getSocketAddress()->sin_addr));
+    _env["REMOTE_ADDR"] = clientIp;
     _env["REMOTE_HOST"] = client.findInMap("Host");
     _env["REMOTE_USER"] = client.getUser(pwd);
     _env["REQUEST_METHOD"] = client.getMethod();
@@ -81,7 +81,7 @@ char **Cgi::initEnv(Client const &client)
     _env["LC_CTYPE"] = "C.UTF-8";
     _env["REDIRECT_STATUS"] = "true";
 	free(pwd);
-
+    delete clientIp;
     char **envp = new char *[_env.size() + 1];
 
 	int i = 0;

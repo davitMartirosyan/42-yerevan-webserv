@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/07 21:51:02 by maharuty         ###   ########.fr       */
+/*   Updated: 2023/12/25 23:26:18 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,7 +249,13 @@ ServerManager::~ServerManager()
     }
 }
 
-
+void ServerManager::clearInstances( void )
+{
+    for (size_t i = 0; i < this->size(); i++) {
+        delete (*this)[i];
+    }
+    
+}
 
 /*************************************************************
 Finding correct HTTPServer funtions based on ::ServerManager::
