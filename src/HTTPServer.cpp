@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/26 01:23:01 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/27 21:23:51 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,14 +116,38 @@ const Location* HTTPServer::find(std::string const &prefix) const
 {
     //TODO find right location
     std::string path = prefix;
-    size_t sl = HTTPRequest::slashes(path);
-    for(size_t i = 0; i <= sl; i++)
+    // size_t sl = HTTPRequest::slashes(path);
+    // for(size_t i = 0; i <= sl; i++)
+    // {
+    //     std::map<std::string, Location>::const_iterator route = locations.find(path);
+    //     if (route != locations.end()) {
+    //         return (&route->second);
+    //     }
+    //     path = path.substr(0, path.find_last_of("/"));
+    // }
+    std::cout << "Locations" << std::endl;
+    std::map<std::string, Location>::const_iterator route = locations.begin();
+    for(; route != locations.end(); route++)
     {
-        std::map<std::string, Location>::const_iterator route = locations.find(path);
-        if (route != locations.end()) {
-            return (&route->second);
+        size_t i = 0, j = 0;
+        size_t flag = 0;
+        std::string tmp = route->first;
+        std::cout << ":" << path << ": " <<  " |" <<  tmp << "|" << std::endl;
+        if (tmp[0] != '/')
+        {
+            tmp = "/" + tmp;
+            flag = 1;
         }
-        path = path.substr(0, path.find_last_of("/"));
+        while (path[i] == tmp[i] && i < path.size())
+        {
+            std::cout << "{" << path[i] << "}" << "  ::  " << tmp[i] << std::endl;
+            i++;
+        }
+        std::cout << "Matches: " << i << " times" << std::endl;
+        std::cout << "Sizeof Path: " << path.size() << std::endl;
+        std::cout << "Sizeof Prefix: " << tmp.size() << std::endl;
+        std::cout << "Flag is added: " << flag << std::endl;
+        std::cout << "***" << std::endl;
     }
     return (NULL);
 }
