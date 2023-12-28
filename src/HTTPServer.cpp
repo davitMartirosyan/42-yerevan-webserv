@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 23:57:39 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/27 21:23:51 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/12 21:59:18 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ HTTPServer::HTTPServer( void )
     methodsMap["GET"] = &HTTPServer::get;
     methodsMap["POST"] = &HTTPServer::post;
     methodsMap["DELETE"] = &HTTPServer::del;
+    methodsMap["HEAD"] = &HTTPServer::head;
 }
 
 HTTPServer::~HTTPServer()
@@ -99,9 +100,9 @@ void HTTPServer::setIp(std::string const &ipv)
     this->ip = ipv;
 }
 
-void HTTPServer::push(std::string const &prefix, Location locationDirective)
+void HTTPServer::push(std::string const &prefix, Location const &locationDirective)
 {
-    this->locations.insert(std::make_pair(prefix, locationDirective));
+    this->_locations.insert(std::make_pair(prefix, locationDirective));
 }
 
 
@@ -114,40 +115,25 @@ void HTTPServer::push__serverName(std::string const &srvName)
 
 const Location* HTTPServer::find(std::string const &prefix) const
 {
-    //TODO find right location
     std::string path = prefix;
-    // size_t sl = HTTPRequest::slashes(path);
-    // for(size_t i = 0; i <= sl; i++)
-    // {
-    //     std::map<std::string, Location>::const_iterator route = locations.find(path);
-    //     if (route != locations.end()) {
-    //         return (&route->second);
-    //     }
-    //     path = path.substr(0, path.find_last_of("/"));
-    // }
-    std::cout << "Locations" << std::endl;
-    std::map<std::string, Location>::const_iterator route = locations.begin();
-    for(; route != locations.end(); route++)
+    // std::cout << "\n\n\n--------\npath = " << path << std::endl;
+    size_t sl = HTTPRequest::slashes(path);
+
+    std::map<std::string, Location>::const_iterator it = _locations.begin();
+    // std::cout << "_locations.size() = " << _locations.size() << std::endl;
+    // while (it != _locations.end()) {
+    //     std::cout << "_locations.end() = "  << it->first << " " << it->second.getLocation() << std::endl;
+    //     ++it;
+    // } 
+
+    for(size_t i = 0; i <= sl; i++)
     {
-        size_t i = 0, j = 0;
-        size_t flag = 0;
-        std::string tmp = route->first;
-        std::cout << ":" << path << ": " <<  " |" <<  tmp << "|" << std::endl;
-        if (tmp[0] != '/')
-        {
-            tmp = "/" + tmp;
-            flag = 1;
+        std::map<std::string, Location>::const_iterator route = _locations.find(path);
+        if (route != _locations.end()) {
+            return (&route->second);
         }
-        while (path[i] == tmp[i] && i < path.size())
-        {
-            std::cout << "{" << path[i] << "}" << "  ::  " << tmp[i] << std::endl;
-            i++;
-        }
-        std::cout << "Matches: " << i << " times" << std::endl;
-        std::cout << "Sizeof Path: " << path.size() << std::endl;
-        std::cout << "Sizeof Prefix: " << tmp.size() << std::endl;
-        std::cout << "Flag is added: " << flag << std::endl;
-        std::cout << "***" << std::endl;
+        // std::cout << "path = " << path << std::endl;
+        path = path.substr(0, path.find_last_of("/"));
     }
     return (NULL);
 }
@@ -159,7 +145,7 @@ std::vector<std::string> const &HTTPServer::get_serverNames( void ) const
 
 std::map<std::string, Location> const &HTTPServer::getLocations( void ) const
 {
-    return (locations);
+    return (_locations);
 }
 
 
@@ -260,37 +246,56 @@ InnerFd *HTTPServer:: getInnerFd(int fd) {
 
 const Location* HTTPServer::findMatching(std::string const &realPath) const
 {
+    // std::map<std::string, Location>::const_iterator it = _locations.begin();
+    // std::cout << "_locations.size() = " << _locations.size() << std::endl;
+    // while (it != _locations.end()) {
+    //     std::cout << "_locations.end() = "  << it->first << "$ " << std::endl;
+    //     ++it;
+    // } 
+    // std::cout << "realPath = " << realPath << std::endl;
     std::map<std::string, Location>::const_iterator loc;
-    std::map<std::string, Location>::const_iterator match;
+    std::map<std::string, Location>::const_iterator match = _locations.cend();
     size_t longestMatchSize = 0;
     size_t currentMatch = 0;
-    for(loc = locations.begin(); loc != locations.end(); loc++)
+    for(loc = _locations.begin(); loc != _locations.end(); loc++)
     {
         currentMatch = longestMatch(loc->first, realPath);
-        if (longestMatchSize < currentMatch)
+        // std::cout << currentMatch << std::endl;
+        if (longestMatchSize < currentMatch && currentMatch != 0)
         {
             match = loc;
             longestMatchSize = currentMatch;
         }
-        else if (longestMatchSize == currentMatch)
+        else if (longestMatchSize == currentMatch && currentMatch != 0)
         {
             if (match->first < loc->first)
                 match = loc;
         }
     }
+    if (match == _locations.cend()) 
+    {
+        return (NULL);
+    }
+    // std::cout << "match->first = " << match->first << std::endl;
     return (&match->second);
 }
 
 size_t longestMatch(std::string const &s1, std::string const &s2)
 {
     size_t match = 0;
-    for(size_t i = 0; i < s1.size(); i++)
+    size_t i = 0;
+
+    for(; i < s1.size(); i++)
     {
         if (s1[i] != s2[i])
             break;
         match++;
     }
-    return (match);
+    if (match == 0 || ((s1[i] == '\0') && (s2[i - 1] == '/' || s2[i] == '\0' || s2[i] == '/')))
+    {
+        return (match);
+    }
+    return (0);
 }
 
 void HTTPServer::get(Client &client) {
@@ -333,10 +338,11 @@ void HTTPServer::get(Client &client) {
 };
 
 void HTTPServer::post(Client &client) {
+    // client.addHeader(std::pair<std::string, std::string>("content-type", "text/html"));
     if (client.isCgi() == true) {
         int fd = Cgi::execute(client);
         client.setCgiPipeFd(fd);
-    } else {
+    } else if (client.findInMap("Content-Type").find("multipart/form-data") != std::string::npos) {
         std::map<std::string, std::string> &uploadedFiles = client.getUploadedFiles();
         std::map<std::string, std::string>::iterator it = uploadedFiles.begin();
         for (; it != uploadedFiles.end(); ++it) {
@@ -350,7 +356,7 @@ void HTTPServer::post(Client &client) {
             client.addInnerFd(new InnerFd(fd, client, fileContent, EvManager::write));
         }
     }
-    client.addHeader(std::pair<std::string, std::string>("content-type", "text/html"));
+    HTTPServer::get(client);
 };
 
 void HTTPServer::del(Client &client) {
@@ -359,13 +365,22 @@ void HTTPServer::del(Client &client) {
     };
 };
 
+void HTTPServer::head(Client &client) {
+    std::cout << client.getMethod() << " " <<  client.getPath() << std::endl;
+    HTTPServer::get(client);
+    client.setBody("");
+    std::cout << client.getResponseLine() << client.getResponseHeader() << client.getResponseBody();
+};
+
 void HTTPServer::processing(Client &client)
 {
+    std::cout << client.getMethod() << " " << client.getPath() << std::endl;
     std::map<std::string, void (HTTPServer::*)(Client&)>::iterator function = methodsMap.find(client.getMethod());
     if (function != methodsMap.end() && client.getCurrentLoc().findMethod(client.getMethod()) != NULL)
     {
        (this->*(function->second))(client);
     } else {
+        std::cout << "Method Not Allowed\n";
         throw ResponseError(405, "Method Not Allowed");
     }
 }

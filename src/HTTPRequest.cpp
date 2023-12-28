@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 22:14:54 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/27 21:24:37 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/07 21:47:39 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ HTTPRequest::HTTPRequest(void)
     reqLineEnd = 0;
     bodyEnd = 0;
     _bodySize = 0;
-    statusCode = 0;
     _maxSizeRequest = 0;
     _isHeaderReady = false;
     _isBodyReady = false;
@@ -70,7 +69,7 @@ std::string const &HTTPRequest::getExtension() const {
     return (_extension);
 };
 
-std::string HTTPRequest::getHttpRequest() const {
+std::string const &HTTPRequest::getHttpRequest() const {
     return (httpRequest);
 }
 
@@ -111,8 +110,8 @@ void HTTPRequest::charChange(std::string &str, char s, char d)
 
 std::string HTTPRequest::findInMap(std::string key) const
 {
-    std::map<std::string, std::string>::const_iterator in = httpHeaders.find(key);
-    if (in != httpHeaders.end()) {
+    std::map<std::string, std::string>::const_iterator in = _httpHeaders.find(key);
+    if (in != _httpHeaders.end()) {
         return (in->second);
     }
     std::string nill;
@@ -121,9 +120,9 @@ std::string HTTPRequest::findInMap(std::string key) const
 
 void HTTPRequest::multipart(void)
 {
-    std::map<std::string, std::string>::iterator it =  httpHeaders.find("Content-Type");
+    std::map<std::string, std::string>::iterator it =  _httpHeaders.find("Content-Type");
 
-    if(it == httpHeaders.end())
+    if(it == _httpHeaders.end())
     {
         throw ResponseError(411, "Length Required");
     }
@@ -133,10 +132,10 @@ void HTTPRequest::multipart(void)
     if (posEqualsign == std::string::npos) {
         throw ResponseError(428, "Precondition Required posEqualsign");
     }
-    boundary = "--" + contentType.substr(posEqualsign + 1);
-    boundaryEnd = boundary + "--";
-    size_t boundaryPos = _body.find(boundary);
-    size_t endPos = _body.find(boundaryEnd);
+    _boundary = "--" + contentType.substr(posEqualsign + 1);
+    _boundaryEnd = _boundary + "--";
+    size_t boundaryPos = _body.find(_boundary);
+    size_t endPos = _body.find(_boundaryEnd);
     do {
         size_t filenameStart = _body.find("filename", boundaryPos);
 
@@ -145,7 +144,7 @@ void HTTPRequest::multipart(void)
         }
         filenameStart += strlen("filename") + 2;
         std::string filename = _body.substr(filenameStart, _body.find("\"", filenameStart) - filenameStart);
-        boundaryPos = _body.find(boundary, filenameStart);
+        boundaryPos = _body.find(_boundary, filenameStart);
         size_t contentStart = _body.find("\r\n\r\n", filenameStart) + strlen("\r\n\r\n");
         std::string fileContent = _body.substr(contentStart, boundaryPos - contentStart - strlen("\r\n"));
         _uploadedFiles[filename] = fileContent;
@@ -155,7 +154,7 @@ void HTTPRequest::multipart(void)
 void HTTPRequest::showHeaders( void ) const
 {
     std::map<std::string, std::string>::const_iterator it;
-    for(it = httpHeaders.begin(); it != httpHeaders.end(); it++)
+    for(it = _httpHeaders.begin(); it != _httpHeaders.end(); it++)
     {
         std::cout << it->first << " = " << it->second << std::endl;
     }
@@ -198,13 +197,13 @@ std::string HTTPRequest::middle_slash(std::string const &s1, char s, std::string
     return (newString);
 }
 
-int HTTPRequest::in(std::string const &method)
-{
-    std::vector<std::string>::iterator it = std::find(methods.begin(), methods.end(), method);
-    if (it != methods.end())
-        return (1);
-    return (0);
-}
+// int HTTPRequest::in(std::string const &method)
+// {
+//     std::vector<std::string>::iterator it = std::find(_methods.begin(), _methods.end(), method);
+//     if (it != _methods.end())
+//         return (1);
+//     return (0);
+// }
 
 std::string HTTPRequest::dir_content(std::string const &realPath)
 {
@@ -248,16 +247,16 @@ void HTTPRequest::checkPath(const HTTPServer &srv)
         queryString = _path.substr(use+1);
         _path = _path.substr(0, use);
     }
-    _location = srv.find(_path);
+    // std::cout << "_path = " << _path << std::endl;
+    _location = srv.findMatching(_path); // TODO dont find location
     if (_location)
     {
-        std::cout << "|" << _path << "|" << std::endl;
         if (_location->getRedirection().empty() == false) {
             checkRedirect(_location->getLocation(), _location->getRedirection().begin()->second);
         }
         pathChunks = pathChunking(_path);
-        
-        _relativePath = middle_slash(srv.getRoot(), '/', _path);
+        _relativePath = _location->getRoot() + "./" + _path;
+        // _relativePath = "./" + middle_slash(_location->getRoot(), '/', _path); // TODO check it
         std::vector<std::string> indexes = _location->getIndexFiles();
 
         for (size_t i = 0; i < indexes.size(); i++) {
@@ -273,26 +272,13 @@ void HTTPRequest::checkPath(const HTTPServer &srv)
         if (_location->getCgi(_extension).first.empty() == false) {
             _isCgi = true;
         }
-        std::cout << "*******LOCATION*****" << std::endl;
-        std::cout << "_location root: " << _location->getRoot() << std::endl;
-        std::cout << "_path: " << _path << std::endl;
-        std::cout << "_relativePath: " << _relativePath << std::endl;
-        std::cout << "+_+_+_+_+_+_+_+_+" << std::endl;
-        for(size_t i = 0; i < pathChunks.size(); i++)
-        {
-            std::cout << ":" << pathChunks[i] << ":" << std::endl;
-        }    
-        std::cout << "***********************" << std::endl;
     }
     else {
-        std::cout << "********ROOT********" << std::endl;
-        std::cout << "_path: " << _path << std::endl;
-        std::cout << "_relativePath: " << _relativePath << std::endl;    
-        std::cout << "***********************" << std::endl;
         if (srv.getRedirection().empty() == false && _path == "/") {
             checkRedirect("/", srv.getRedirection().begin()->second);
         }
-        _relativePath = middle_slash(srv.getRoot(), '/', _path);
+        _relativePath = srv.getRoot() + "./" + _path;
+        // _relativePath = "./" + middle_slash(srv.getRoot(), '/', _path);
         if (_path == "/") {
 
             std::vector<std::string> indexes = srv.getIndexFiles();
@@ -310,72 +296,12 @@ void HTTPRequest::checkPath(const HTTPServer &srv)
             _isCgi = true;
         }
     }
-
-
+        // std::cout << "************" << std::endl;;
+        // std::cout << "_relativePath: " << _relativePath << std::endl;
+        // std::cout << "_path: " << _path << std::endl;
+        // std::cout << "************" << std::endl;
     setExtension(_relativePath);
 }
-
-// void HTTPRequest::checkPath(const HTTPServer &srv)
-// {
-//     size_t use = 0;
-//     if ((use = _path.find_first_of("?")) != std::string::npos)
-//     {
-//         queryString = _path.substr(use+1);
-//         _path = _path.substr(0, use);
-//     }
-//     _location = srv.find(_path);
-//     if (_location)
-//     {
-//         std::cout << "PATH: is Location" << std::endl;
-//         if (_location->getRedirection().empty() == false) {
-//             checkRedirect(_location->getLocation(), _location->getRedirection().begin()->second);
-//         }
-//         pathChunks = pathChunking(_path);
-//         _relativePath = middle_slash(srv.getRoot(), '/', _path);
-//         std::vector<std::string> indexes = _location->getIndexFiles();
-
-//         for (size_t i = 0; i < indexes.size(); i++) {
-//             std::string path = _relativePath;
-//             path += "/";
-//             path += indexes[i];
-
-//             if (access(path.c_str(), R_OK) == 0) {
-//                 _relativePath = path;
-//                 break ;
-//             }
-//         }
-
-//         std::cout << "********************" << std::endl;
-//         std::cout << "_path: " <<  _path << std::endl;
-//         std::cout << "_relativePath: " << _relativePath << std::endl;
-//         std::cout << "********************" << std::endl;
-
-//     }
-//     else {
-//         std::cout << "PATH: is Server ROOT" << std::endl;
-//         if (srv.getRedirection().empty() == false && _path == "/") {
-//             checkRedirect("/", srv.getRedirection().begin()->second);
-//         }
-//         _relativePath = middle_slash(srv.getRoot(), '/', _path);
-//         if (_path == "/") {
-
-//             std::vector<std::string> indexes = srv.getIndexFiles();
-
-//             for (size_t i = 0; i < indexes.size(); i++) {
-//                 std::string path = _relativePath + indexes[i];
-
-//                 if (access(path.c_str(), R_OK) == 0) {
-//                     _relativePath = path;
-//                     break ;
-//                 }
-//             }
-//         }
-//     }
-//     setExtension(_relativePath);
-//     if (srv.getCgi(_extension).first.empty() == false) {
-//         _isCgi = true;
-//     }
-// }
 
 std::vector<std::string> HTTPRequest::pathChunking(std::string const &rPath)
 {

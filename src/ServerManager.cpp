@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerManager.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maharuty <maharuty@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 00:05:52 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/25 23:26:18 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/07 21:51:02 by maharuty         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,14 +148,14 @@ void ServerManager::start() {
                 }
                 if (client->isRequestReady() && client->isStarted() == false) {
                     client->setStartStatus(true);
-                    // std::cout << "request received " << std::endl;
+                    std::cout << "request received " << std::endl;
                     client->parseBody();
                     generateResponse(*client);
                 }
             } else if (client->isResponseReady() && event.first == EvManager::write) {
                 // std::cout << "sendResponse" << std::endl;
                 if (client->sendResponse() == true) {
-                    // std::cout << "response sent" << std::endl;
+                    std::cout << "response sent" << std::endl;
                     closeConnetcion(*client);
                     continue ;
                 }
@@ -249,7 +249,8 @@ ServerManager::~ServerManager()
     }
 }
 
-void ServerManager::clearInstances( void )
+
+void ServerManager::clearInstances( void ) // TODO pop it
 {
     for (size_t i = 0; i < this->size(); i++) {
         delete (*this)[i];

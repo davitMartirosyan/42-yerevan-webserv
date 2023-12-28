@@ -31,7 +31,6 @@ class Client : public HTTPRequest, public HTTPResponse
         void parseHeader();
         void parseBody();
         bool sendResponse();
-        void setResponseLine(std::string const &);
         const HTTPServer &getSrv( void ) const;
         HTTPServer &getSrv( void );
         HTTPServer &getDefaultSrv( void );
@@ -50,12 +49,14 @@ class Client : public HTTPRequest, public HTTPResponse
         sock_t serverFd;
         HTTPServer &_defaultSrv;
         HTTPServer *_subSrv;
-        std::string _responseLine;
         std::time_t	 _lastSeen;
         std::time_t	 _cgiStartTime;
         int _cgiPipeFd;
         int _cgiPID;
         struct sockaddr_in clientInfo;
+    private:
+        Client &operator=(const Client &);
+        Client(const Client &);
 };
 
 #endif

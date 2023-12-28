@@ -6,7 +6,7 @@
 /*   By: dmartiro <dmartiro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/02 00:30:12 by dmartiro          #+#    #+#             */
-/*   Updated: 2023/12/26 00:20:01 by dmartiro         ###   ########.fr       */
+/*   Updated: 2023/12/17 15:29:27 by dmartiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ Parser::Parser(const char *confFile)
     location_directives["cgi"] = &Parser::l_cgi;
     location_directives["upload_dir"] = &Parser::l_upload_dir;
 }
-
 
 Parser::~Parser()
 {
@@ -343,10 +342,10 @@ void Parser::create_server(ServerManager &mgn, std::list<Token>::iterator& ch)
             mgn[srvIndex]->push(*srv);
         }
     }
-    catch (HTTPCoreException const &e)
+    catch(const HTTPCoreException& e)
     {
         delete srv;
-        throw HTTPCoreException(e.what());        
+        throw e;
     }
 }
 
@@ -362,6 +361,7 @@ void Parser::location(std::list<Token>::iterator& node, HTTPServer &srv)
         throw HTTPCoreException("Location: Syntax is not valid");
     comp.clear();
     Location loc(location_Components[1]);
+    loc.setRoot(srv.getRoot());
     while (node->type != OPENBRACE)
         node++;    
     while (node->type != CLOSEBRACE)
@@ -422,8 +422,9 @@ void Parser::s_directive(std::list<Token>::iterator& node, HTTPServer &srv)
         node->token = HTTPRequest::trim(node->token);
         d_val = remove_extraSpace(node->token.substr(i+1));
     }
-    if (d_key.empty() || d_val.empty())
+    if (d_key.empty() || d_val.empty()) {
         throw HTTPCoreException("Directive Value: Value Can't be NULL");
+    }
     node->token[i] = ' ';
     
     FuncDir f = directives.find(d_key);
@@ -432,7 +433,6 @@ void Parser::s_directive(std::list<Token>::iterator& node, HTTPServer &srv)
         (this->*(f->second))(d_val, srv);
     }
 }
-
 
 void Parser::d_listen(std::string &d_val, HTTPServer &srv)
 {
@@ -585,6 +585,7 @@ void Parser::l_methods(std::string &d_val, Location &loc)
 {
     std::stringstream loc_methods(d_val);
     std::string method;
+    loc.dropMethods();
     while (std::getline(loc_methods, method, ' '))
         loc.pushMethods(method);
 }
