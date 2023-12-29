@@ -77,6 +77,7 @@ Types::Types( void )
 
 
 Types &Types::GetInstance(const std::string& value) {
+    (void)value;
     return (singleton_);
 };
 

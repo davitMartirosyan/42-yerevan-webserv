@@ -16,10 +16,10 @@ ServerCore::ServerCore() {
 	_autoindex = false;
 	_redirect = false;
 	client_body_size = 0;
+	index.push_back("index.html");
 	_methods.push_back("GET");
     _methods.push_back("POST");
-    _methods.push_back("DEL");
-    // _methods.push_back("HEAD");
+    _methods.push_back("DELETE");
 };
 
 

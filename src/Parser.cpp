@@ -466,6 +466,7 @@ void Parser::d_index(std::string &d_val, HTTPServer &srv)
 {
     std::stringstream srv_indexes(d_val);
     std::string index;
+    srv.dropIndexes();
     while (std::getline(srv_indexes, index, ' '))
         srv.pushIndex(index);
 }
