@@ -1,19 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>404 - Page Not Found</title>
     <style>
-        body{
-            display:flex;
+        /* Basic styling for the error page */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background-color: #f6f7f9;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #1877f2;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        a {
+            color: #1877f2;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
+
 <body>
-    <h1>404</h1>
+    <div class="container">
+        <h1>Sorry, this page isn't available</h1>
+        <p>The link you followed may be broken, or the page may have been removed. <br>Go <a href="/">back to the homepage</a> or try searching.</p>
+    </div>
 </body>
+
 </html>

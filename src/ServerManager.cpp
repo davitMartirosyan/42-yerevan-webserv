@@ -179,6 +179,7 @@ void ServerManager::start() {
 void ServerManager::generateErrorResponse(const ResponseError& e, Client &client) {
     std::string response;
     std::string resBody;
+    std::cout << e.getStatusCode() << std::endl;
     // std::cout << "generateErrorResponse\n";
     if (e.getStatusCode() == 301) {
         client.addHeader(std::make_pair("Location", client.getRedirectPath()));

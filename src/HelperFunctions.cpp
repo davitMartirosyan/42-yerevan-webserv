@@ -10,7 +10,7 @@
 std::string fileToString(std::string const &fileName) {
     std::ifstream file(fileName.c_str());
 	std::string fileContent;
-
+    std::cout << "FILENAME: " << fileName << std::endl;
     if (file.is_open()) {
 		std::ostringstream stream;
 		
