@@ -30,7 +30,7 @@ class Client : public HTTPRequest, public HTTPResponse
         int receiveRequest();
         void parseHeader();
         void parseBody();
-        bool sendResponse();
+        int sendResponse();
         const HTTPServer &getSrv( void ) const;
         HTTPServer &getSrv( void );
         HTTPServer &getDefaultSrv( void );
@@ -43,20 +43,24 @@ class Client : public HTTPRequest, public HTTPResponse
         void removeInnerFd(int fd);
         const ServerCore &getCurrentLoc() const;
     private:
-        void readChunkedRequest();
+        bool readChunkedRequest();
+        void multipart(void);
         std::map<int, InnerFd *> _innerFds;                   // [Clients inner fds]
         sock_t _fd;
         sock_t serverFd;
         HTTPServer &_defaultSrv;
         HTTPServer *_subSrv;
         std::time_t	 _lastSeen;
-        std::time_t	 _cgiStartTime;
+        std::time_t	 _cgiStartTime;  // TODO start when all body sent to cgi.
         int _cgiPipeFd;
         int _cgiPID;
         struct sockaddr_in clientInfo;
     private:
         Client &operator=(const Client &);
         Client(const Client &);
+    private:
+        bool _isChunkStarted;
+        size_t _chunkSize;
 };
 
 #endif

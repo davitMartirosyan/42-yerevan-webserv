@@ -27,7 +27,7 @@ Parser::Parser(const char *confFile)
     directives["autoindex"] = &Parser::d_autoindex;
     directives["allow_methods"] = &Parser::d_methods;
     directives["error_page"] = &Parser::d_err_page;
-    directives["client_body_size"] = &Parser::d_body_size;
+    directives["client_body_max_size"] = &Parser::d_body_size;
     directives["return"] = &Parser::d_redirect;
     directives["cgi"] = &Parser::d_cgi;
     directives["upload_dir"] = &Parser::d_upload_dir;
@@ -38,7 +38,7 @@ Parser::Parser(const char *confFile)
     location_directives["allow_methods"] = &Parser::l_methods;
     location_directives["error_page"] = &Parser::l_err_page;
     location_directives["return"] = &Parser::l_redirect;
-    location_directives["client_body_size"] = &Parser::l_body_size;
+    location_directives["client_body_max_size"] = &Parser::l_body_size;
     location_directives["cgi"] = &Parser::l_cgi;
     location_directives["upload_dir"] = &Parser::l_upload_dir;
 }
@@ -451,7 +451,7 @@ void Parser::d_root(std::string &d_val, HTTPServer &srv)
     size_t spaceFound = d_val.find(" ");
     if (spaceFound != std::string::npos)
         throw HTTPCoreException("Root: directive should has one value");
-    if (d_val[d_val.size()-1] != '/')
+    if (d_val[d_val.size() - 1] != '/')
         d_val.append("/");
     srv.setRoot(d_val);
 }
@@ -509,7 +509,7 @@ void Parser::d_body_size(std::string &d_val, HTTPServer &srv)
 {
     size_t spaceFound = d_val.find(" ");
     if (spaceFound != std::string::npos)
-        throw HTTPCoreException("Client_Body_Size: Directive should has one value");
+        throw HTTPCoreException("client_body_max_size: Directive should has one value");
     for(size_t i = 0; i < d_val.size(); i++)
         if (!std::isdigit(d_val[i]))
             throw HTTPCoreException("Body_size: Size should be an INTEGER");
@@ -565,7 +565,7 @@ void Parser::l_root(std::string &d_val, Location &loc)
     size_t spaceFound = d_val.find(" ");
     if (spaceFound != std::string::npos)
         throw HTTPCoreException("Root: No Matching directive value syntax");
-    if (d_val[d_val.size()-1] != '/')
+    if (d_val[d_val.size() - 1] != '/')
         d_val.append("/");
     loc.setRoot(d_val);
 }
@@ -615,7 +615,7 @@ void Parser::l_body_size(std::string &d_val, Location &loc)
 {
     size_t spaceFound = d_val.find(" ");
     if (spaceFound != std::string::npos)
-        throw HTTPCoreException("Client_Body_Size: Directive should has one value");
+        throw HTTPCoreException("client_body_max_size: Directive should has one value");
     for(size_t i = 0; i < d_val.size(); i++)
         if (!std::isdigit(d_val[i]))
             throw HTTPCoreException("Body_size: Size should be an INTEGER");

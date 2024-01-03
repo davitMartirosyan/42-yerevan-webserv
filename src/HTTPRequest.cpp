@@ -19,15 +19,13 @@ HTTPRequest::HTTPRequest(void)
     reqLineEnd = 0;
     bodyEnd = 0;
     _bodySize = 0;
-    _maxSizeRequest = 0;
     _isHeaderReady = false;
     _isBodyReady = false;
     _isRequestReady = false;
+    _isInProgress = false;
     _isOpenConnection = false;
     _isCgi = false;
     _isChunked = false;
-    _isChunkNewLineCuted = true;
-    _chunkSize = std::string::npos;
     _location = NULL;
 }
 
@@ -79,6 +77,14 @@ std::map<std::string, std::string> &HTTPRequest::getUploadedFiles() {
 
 bool HTTPRequest::isRequestReady() const {
     return (_isRequestReady);
+}
+
+bool HTTPRequest::isBodyReady() const {
+    return (_isBodyReady);
+}
+
+bool HTTPRequest::isInProgress() const {
+    return (_isInProgress);
 }
 
 std::string HTTPRequest::rtrim(const std::string &str)
@@ -135,45 +141,31 @@ std::string HTTPRequest::findInMap(std::string key) const
     return (nill);
 }
 
-void HTTPRequest::multipart(void)
-{
+void HTTPRequest::setBoundary() {
     std::map<std::string, std::string>::iterator it =  _httpHeaders.find("Content-Type");
-
     if(it == _httpHeaders.end())
     {
-        throw ResponseError(411, "Length Required");
+        throw ResponseError(500, "Internal Server Error");
     }
-    std::string contentType = it->second;
-    contentType.erase(0, contentType.find(";")+1);
-    size_t posEqualsign = contentType.find("=");
-    if (posEqualsign == std::string::npos) {
-        throw ResponseError(428, "Precondition Required posEqualsign");
-    }
-    _boundary = "--" + contentType.substr(posEqualsign + 1);
-    _boundaryEnd = _boundary + "--";
-    size_t boundaryPos = _body.find(_boundary);
-    size_t endPos = _body.find(_boundaryEnd);
-    do {
-        size_t filenameStart = _body.find("filename", boundaryPos);
-
-        if(filenameStart == std::string::npos) {
-            throw ResponseError(428, "Precondition Required filenameStart == std::string::npos");
+    if (it->second.find("multipart/form-data") != std::string::npos) {
+        std::string contentType = it->second;
+        contentType.erase(0, contentType.find(";") + 1);
+        size_t posEqualsign = contentType.find("=");
+        if (posEqualsign == std::string::npos) {
+            return ;
         }
-        filenameStart += strlen("filename") + 2;
-        std::string filename = _body.substr(filenameStart, _body.find("\"", filenameStart) - filenameStart);
-        boundaryPos = _body.find(_boundary, filenameStart);
-        size_t contentStart = _body.find("\r\n\r\n", filenameStart) + strlen("\r\n\r\n");
-        std::string fileContent = _body.substr(contentStart, boundaryPos - contentStart - strlen("\r\n"));
-        _uploadedFiles[filename] = fileContent;
-    } while (boundaryPos < endPos);
+        _boundary = "--" + contentType.substr(posEqualsign + 1);
+        _boundaryEnd = _boundary + "--";
+    }
 }
 
 void HTTPRequest::showHeaders( void ) const
 {
+    std::ofstream osf("showHeaders.log");
     std::map<std::string, std::string>::const_iterator it;
     for(it = _httpHeaders.begin(); it != _httpHeaders.end(); it++)
     {
-        std::cout << it->first << " = " << it->second << std::endl;
+        osf << it->first << " = " << it->second << std::endl;
     }
 }
 
@@ -327,6 +319,7 @@ void HTTPRequest::checkPath(const HTTPServer &srv)
         setExtension(_relativePath);
         if (srv.getCgi(_extension).first.empty() == false) {
             _isCgi = true;
+            this->setCgiPath(srv.getCgi(_extension).second);
         }
     }
     // std::cout << "_relativePath = " << _relativePath << std::endl;

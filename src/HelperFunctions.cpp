@@ -10,7 +10,7 @@
 std::string fileToString(std::string const &fileName) {
     std::ifstream file(fileName.c_str());
 	std::string fileContent;
-    std::cout << "FILENAME: " << fileName << std::endl;
+
     if (file.is_open()) {
 		std::ostringstream stream;
 		
@@ -26,7 +26,7 @@ std::string fileToString(std::string const &fileName) {
 bool readFromFd(int fd, std::string &str) {
     char buf[READ_BUFFER];
     int readSize = read(fd, buf, READ_BUFFER);
-
+    // std::cout << "readSize = " << readSize << std::endl;
     if (readSize == -1) {
         return (true);
     }
@@ -37,14 +37,19 @@ bool readFromFd(int fd, std::string &str) {
     return (false);
 };
 
-bool writeInFd(int fd, std::string &str) {
-    size_t writeSize = str.size() < WRITE_BUFFER ?  str.size() : WRITE_BUFFER;
+std::ofstream wofs("writeInFd.log");
 
-    int readSize = write(fd, str.c_str(), writeSize);
-    if (readSize == -1) {
-        return (false);
+bool writeInFd(int fd, std::string &str) {
+    if (str.size() != 0) {
+        size_t writeSize = str.size() < WRITE_BUFFER ?  str.size() : WRITE_BUFFER;
+
+        int res = write(fd, str.c_str(), writeSize);
+        wofs << "res = " << res << std::endl;
+        if (res == -1) {
+            return (false);
+        }
+        str.erase(0, res);
     }
-    str.erase(0, readSize);
     return (str.empty());
 };
 

@@ -24,7 +24,10 @@ Client::Client(sock_t clfd, sock_t srfd, HTTPServer &srv) : _defaultSrv(srv)
     _subSrv = NULL;
     _cgiPipeFd = -1;
     _cgiPID = -1;
+    _acceptedBodySize = 0;
     _lastSeen = time(NULL);
+    _isChunkStarted = false;
+    _chunkSize = 0;
 }
 
 Client::~Client()
@@ -52,37 +55,123 @@ std::string Client::getServerPort( void ) const {
     return (_defaultSrv.getPort());
 };
 
-void Client::readChunkedRequest() {
+std::ofstream ofs("_requestBuf.log");
+
+void Client::multipart(void)
+{
+    // std::cout << "multipart\n";
+    size_t posHeaderEnd = _body.find("\r\n\r\n");
+    // while (size_t posHeaderEnd = _body.find("\r\n\r\n") != std::string::npos
+    //         || (_isChunkStarted == true && _requestBuf.empty() == false)) {
+        if (posHeaderEnd != std::string::npos && _isChunkStarted == false) {
+            size_t filenameStart = _body.find("filename");
+            if (filenameStart != std::string::npos) {
+                filenameStart += strlen("filename") + 2;
+                _fileName = _body.substr(filenameStart, _body.find("\"", filenameStart) - filenameStart);
+                _body.erase(0, posHeaderEnd + strlen("\r\n\r\n"));
+                int fd = open((this->getCurrentLoc().getUploadDir() + _fileName).c_str(),  O_WRONLY | O_TRUNC | O_CREAT, S_IRWXU);
+                if (fd == -1) {
+                    throw ResponseError(500, "Internal Server Error");
+                }
+                EvManager::addEvent(fd, EvManager::write);
+                this->addInnerFd(new InnerFd(fd, *this,  _uploadedFiles[_fileName], EvManager::write));
+                _isChunkStarted = true;
+            } else {
+                throw ResponseError(428, "Precondition Required posEqualsign");
+            }
+        }
+        if (_isChunkStarted == true) {
+
+            size_t secondBoundaryPos = _body.find(_boundary);
+            size_t cutLen;
+            if (secondBoundaryPos != std::string::npos) {
+                cutLen = secondBoundaryPos;
+                _isChunkStarted = false;
+            } else {
+                cutLen = _body.size();
+            }
+            _uploadedFiles[_fileName].append(_body.substr(0, cutLen));
+            _body.erase(0, cutLen);
+        }
+    // }
+
+
+
+
+
+
+    // if (isWriting == true) {
+    //     size_t boundaryPos = _body.find(_boundary);
+    //     if (boundaryPos == std::string::npos) {
+    //         boundaryPos = _body.size();
+    //     } else {
+    //         boundaryPos -= strlen("\r\n");
+    //         isWriting = false;
+    //     }
+    //     _uploadedFiles[_fileName].append(_body.substr(0, boundaryPos));
+    //     _body.erase(0, boundaryPos + _boundary.size() + 1);
+    // }
+
+    // size_t boundaryPos = _body.find(_boundary);
+    // size_t endPos = _body.find(_boundaryEnd);
+
+    // if (boundaryPos != std::string::npos && boundaryPos != endPos) {
+    //     size_t secondBoundaryPos = _body.find(_boundary, boundaryPos + _boundary.size());
+    //     if (_body.find("\r\n\r\n", boundaryPos) == std::string::npos) {
+    //         return ;
+    //     }
+    //     size_t filenameStart = _body.find("filename", boundaryPos);
+    //     if (filenameStart == std::string::npos) {
+    //         throw ResponseError(428, "Precondition Required posEqualsign");
+    //     }
+    //     filenameStart += strlen("filename") + 2;
+    //     size_t contentStart = _body.find("\r\n\r\n", filenameStart) + strlen("\r\n\r\n");
+    //     size_t cutLen = secondBoundaryPos - contentStart - strlen("\r\n");
+    //     _uploadedFiles[_filename].append(_body.substr(contentStart, cutLen));
+    //     _body.erase(0, cutLen);
+    // }
+}
+
+bool Client::readChunkedRequest() {
     char *ptr;
-    if (_isChunkNewLineCuted == false) {
-        size_t pos = _requestBuf.find("\r\n");
+    // std::cout << "readChunkedRequest\n";
+    size_t pos = _requestBuf.find("\r\n");
+    while ((pos != std::string::npos)
+        || (_isChunkStarted == true && _requestBuf.empty() == false)) {
         if (pos != std::string::npos && pos == 0) {
             _requestBuf.erase(0, strlen("\r\n"));
-            _isChunkNewLineCuted = true;
+            pos = _requestBuf.find("\r\n");
+            continue ;
         }
-    }
-    if (_chunkSize == std::string::npos && _requestBuf.find("\r\n") != std::string::npos && _isChunkNewLineCuted == true) {
-        _chunkSize =  std::strtoul(_requestBuf.c_str(), &ptr, 16);
-        if (_chunkSize == 0) {
-            _isBodyReady = true;
-            _isRequestReady = true;
-            return ;
+        if (_isChunkStarted == false) {
+            _chunkSize =  std::strtoul(_requestBuf.c_str(), &ptr, 16); // TODO check with client body max size
+            ofs << "_chunkSize = " << _chunkSize << std::endl;
+            if (_chunkSize == 0) {
+                return true;
+            }
+            size_t posEndl = _requestBuf.find("\r\n");
+            _requestBuf.erase(0, posEndl + strlen("\r\n"));
+            _isChunkStarted = true;
+        } 
+        if (_isChunkStarted == true) {
+            size_t existChunkSize = _chunkSize < _requestBuf.size() ? _chunkSize : _requestBuf.size();
+            _body.append(_requestBuf.c_str(), existChunkSize);
+            _requestBuf.erase(0, existChunkSize);
+            _chunkSize -= existChunkSize;
+            if (_chunkSize == 0) {
+                _isChunkStarted = false;
+            }
         }
-        size_t posEndl = _requestBuf.find("\r\n");
-        _requestBuf.erase(0, posEndl + strlen("\r\n"));
+        pos = _requestBuf.find("\r\n");
     }
-    size_t existChunkSize = _chunkSize < _requestBuf.size() ? _chunkSize : _requestBuf.size();
-    _body.append(_requestBuf.c_str(), existChunkSize);
-    if (existChunkSize == _chunkSize) {
-        _isChunkNewLineCuted = false;
-        _chunkSize = std::string::npos;
-    }
+    return false;
 }
 
 int Client::receiveRequest() {
     char buf[READ_BUFFER];
     errno = 0;
     int rdSize = recv(_fd, buf, sizeof(buf), 0);
+    // std::cout << "rdSize = " << rdSize << std::endl;
     if (rdSize == -1) { 
         if (time(NULL) - _lastSeen == LAST_SENN_RIMEOUT) {
             return (-1);
@@ -100,45 +189,61 @@ int Client::receiveRequest() {
             return 0;
         }
         _isHeaderReady = true;
-
         httpRequest  = _requestBuf.substr(0, headerEndPos);
         _requestBuf.erase(0, headerEndPos + strlen("\r\n\r\n"));
         this->parseHeader();
-        std::map<std::string, std::string>::const_iterator it = _httpHeaders.find("Content-Length");
-        if (it != _httpHeaders.end()) {
-            char *ptr;
-            _bodySize = std::strtoul(it->second.c_str(), &ptr, 10);
-            if (_bodySize > this->getCurrentLoc().getClientBodySize()) {
-                throw ResponseError(413, "Content Too Large");
-            }
-        }
-        it = _httpHeaders.find("Transfer-Encoding");
+        this->showHeaders();
+        std::map<std::string, std::string>::const_iterator it = _httpHeaders.find("Transfer-Encoding");
         if (it != _httpHeaders.end() && (it->second.find("Chunked") != std::string::npos ||  it->second.find("chunked") != std::string::npos)) {
             if (it->second.find("Chunked") != std::string::npos ||  it->second.find("chunked") != std::string::npos) {
                 _isChunked = true;
+                std::cout << "_isChunked = true" << std::endl;
             } else {
                 throw ResponseError(400, "Bad Request");
             }
         }
+        it = _httpHeaders.find("Content-Length");
+        if (it != _httpHeaders.end()) {
+            char *ptr;
+            _bodySize = std::strtoul(it->second.c_str(), &ptr, 10);
+            std::cout << "_bodySize = " << _bodySize << std::endl;
+            if (_bodySize > this->getCurrentLoc().getClientBodySize()) {
+                throw ResponseError(413, "Content Too Large");
+            }
+            this->setBoundary();
+        } else if (_isChunked == false && this->getMethod() == "POST") {
+            throw ResponseError(411 , "Length Required");
+        }
     }
-    if (_isHeaderReady == true) {
+    if (_isHeaderReady == true ) {
+        _isInProgress = true;
         if (_isChunked ) {
-            readChunkedRequest();
+            // std::cout << "_bodySize = " << _bodySize << std::endl;
+            // std::cout << "_isChunked = " << _isChunked << std::endl;
+            if (readChunkedRequest() == true) {
+                // std::cout << "readChunkedRequest\n";
+                _isBodyReady = true;
+                _isRequestReady = true;
+            }
+            return (0);
+        } else  if (_bodySize == 0 || this->getMethod() == "GET") {
+            _isBodyReady = true;
+            _isRequestReady = true;
+            _requestBuf.clear();
             return (0);
         } else {
-            if (_bodySize == 0) {
-                // EvManager::delEvent(_fd, EvManager::read);
-                _isBodyReady = true;
-                _isRequestReady = true;
-                return (0);
-            }
             _body.append(_requestBuf.c_str(), _requestBuf.size());
+            _acceptedBodySize += _requestBuf.size();
             _requestBuf.clear();
-            if (_bodySize <= _body.size()) {
-                _body.erase(_bodySize);
-                // EvManager::delEvent(_fd, EvManager::read);
+            if (_bodySize <= _acceptedBodySize) {
+                _body.erase(_body.size() - (_acceptedBodySize - _bodySize));
+                std::cout << "_isRequestReady = true;\n";
                 _isBodyReady = true;
                 _isRequestReady = true;
+            }
+            // this->parseBody();
+            if (_isCgi == false && _contentType.find("multipart/form-data") != std::string::npos) {
+                this->multipart();
             }
         }
     }
@@ -160,6 +265,9 @@ void Client::parseHeader()
         method = trim(request.substr(0, request.find_first_of(" ")));
         request.erase(0, request.find_first_of(" ") + 1);
         _path = trim(request.substr(0, request.find_first_of(" ")));
+        if (_path.size() > 2048) {
+            throw ResponseError(414, "URI Too Long");
+        }
         request.erase(0, request.find_first_of(" ") + 1);
         version = trim(request.substr(0, request.find("\r\n")));
     }
@@ -182,37 +290,40 @@ void Client::parseHeader()
         _subSrv = _defaultSrv.getSubServerByName(it->second);
     }
     HTTPRequest::checkPath(this->getSrv());
+    _contentType = _httpHeaders["Content-Type"];
 }
 
-void Client::parseBody()
-{
-    if (method == "POST") {
-        if (_isCgi == false) {
-            if (this->findInMap("Content-Type").find("multipart/form-data") != std::string::npos) {
-                multipart();
-            }
-        }
-    }
-}
+// void Client::parseBody()
+// {
+//     if (method == "POST") {
+//         if (_isCgi == false) {
+//             if (this->findInMap("Content-Type").find("multipart/form-data") != std::string::npos) {
+//                 multipart();
+//             }
+//         }
+//     }
+// }
 
-bool Client::sendResponse() {
+int Client::sendResponse() {
     if (_responseLine.empty() == false) {
         size_t sendSize = WRITE_BUFFER < _responseLine.size() ? WRITE_BUFFER : _responseLine.size();
-        if (send(_fd, _responseLine.c_str(), sendSize, 0) <= 0) {
-            return (false);
+        int res = send(_fd, _responseLine.c_str(), sendSize, 0);
+        if (res == -1 || res == 0) {
+            return (-1);
         }
         _responseLine.erase(0, sendSize);
-    }
-    else if (_header.empty() == false) {
+    } else if (_header.empty() == false) {
         size_t sendSize = WRITE_BUFFER < _header.size() ? WRITE_BUFFER : _header.size();
-        if (send(_fd, _header.c_str(), sendSize, 0) <= 0) {
-            return (false);
+        int res = send(_fd, _header.c_str(), sendSize, 0);
+        if (res == -1 || res == 0) {
+            return (-1);
         }
         _header.erase(0, sendSize);
     } else if (_responseBody.empty() == false) {
         size_t sendSize = WRITE_BUFFER < _responseBody.size() ? WRITE_BUFFER : _responseBody.size();
-        if (send(_fd, _responseBody.c_str(), sendSize, 0) <= 0) {
-            return (false);
+        int res = send(_fd, _responseBody.c_str(), sendSize, 0);
+        if (res == -1 || res == 0) {
+            return (-1);
         }
         _responseBody.erase(0, sendSize);
     }
@@ -244,6 +355,7 @@ void Client::setCgiStartTime() {
 
 bool Client::checkCgi() {
     if (_cgiPID != -1) {
+        // std::cout << ":checkCgi\n";
         int status;
         int waitRet;
         waitRet = waitpid(_cgiPID, &status, WNOHANG);
@@ -263,7 +375,12 @@ bool Client::checkCgi() {
         }
         if (waitRet != 0 && WIFEXITED(status)) {
             _cgiPID = -1;
+            // std::ofstream osf("cgi_output.log");
+            // char buf[2000];
+            // buf[read(_cgiPipeFd, buf, 1999)] = '\0';
+            // osf << buf;
             if (WEXITSTATUS(status) != 0) {
+                // osf << this->getRequestBody();
                 std::cout << "WEXITSTATUS(status) = " << WEXITSTATUS(status) << std::endl;
                 throw ResponseError(500, "Internal Server Error");
             }
