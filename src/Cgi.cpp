@@ -89,7 +89,6 @@ char **Cgi::initEnv(Client const &client)
     _env["LC_CTYPE"] = "C.UTF-8";
     _env["REDIRECT_STATUS"] = "true";
 	free(pwd);
-
     //  pwd = getcwd(NULL, 0);
     // _env["AUTH_TYPE"] = "";
     // _env["CONTENT_LENGTH"] =  my_to_string(client.getRequestBody().size());
@@ -113,11 +112,7 @@ char **Cgi::initEnv(Client const &client)
     // _env["UPLOAD_DIR"] = pwd + std::string("/")  + srv.getUploadDir();
     // _env["LC_CTYPE"] = "C.UTF-8";
     // _env["REDIRECT_STATUS"] = "true";
-    
-
-
     char **envp = new char *[_env.size() + 1];
-
 	int i = 0;
     std::ofstream ofs("env.log");
 	for (std::map<std::string, std::string>::iterator it = _env.begin(); it != _env.end(); ++it)
