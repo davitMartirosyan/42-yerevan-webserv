@@ -37,14 +37,14 @@ bool readFromFd(int fd, std::string &str) {
     return (false);
 };
 
-std::ofstream wofs("writeInFd.log");
+// std::ofstream wofs("writeInFd.log");
 
 bool writeInFd(int fd, std::string &str) {
     if (str.size() != 0) {
         size_t writeSize = str.size() < WRITE_BUFFER ?  str.size() : WRITE_BUFFER;
 
         int res = write(fd, str.c_str(), writeSize);
-        wofs << "res = " << res << std::endl;
+        // wofs << "res = " << res << std::endl;
         if (res == -1) {
             return (false);
         }

@@ -55,7 +55,7 @@ std::string Client::getServerPort( void ) const {
     return (_defaultSrv.getPort());
 };
 
-std::ofstream ofs("_requestBuf.log");
+// std::ofstream ofs("_requestBuf.log");
 
 void Client::multipart(void)
 {
@@ -145,7 +145,7 @@ bool Client::readChunkedRequest() {
         }
         if (_isChunkStarted == false) {
             _chunkSize =  std::strtoul(_requestBuf.c_str(), &ptr, 16); // TODO check with client body max size
-            ofs << "_chunkSize = " << _chunkSize << std::endl;
+            // ofs << "_chunkSize = " << _chunkSize << std::endl;
             if (_chunkSize == 0) {
                 return true;
             }
