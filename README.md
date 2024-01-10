@@ -24,7 +24,8 @@ Happy coding with 42-yerevan-webserv! 🚀
   - `allow_methods`: Explicitly define allowed HTTP methods for this server.
   - `upload_dir`: Configure the directory where the server should store files from multipart form data.
   - `error_page`: Craft custom error pages based on response status codes.
-  - `return`: Set up redirection URLs for specific scenarios.
+  - `return`: Set up redirection URLs for specific scenarios.	
+  - `cgi`: Enable CGI script execution for handling Python and PHP scripts.
 
 - **Makefile Mastery:**
   - `make`: Build 42-yerevan-webserv.
@@ -50,7 +51,8 @@ server {
     upload_dir /path/to/uploads;
     error_page 404 /404.html;
     return 301 https://example.com$request_uri;
-    
+    cgi php /path/to/php-cgi;
+	
     location /api {
         allow_methods GET POST DELETE;
         root /path/to/api;
