@@ -39,7 +39,7 @@ Happy coding with `42-yerevan-webserv!` 🚀
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/your-username/42-yerevan-webserv.git
+   git clone https://github.com/davitmartirosyan/42-yerevan-webserv.git
    cd 42-yerevan-webserv
 
 # Example Configuration File
