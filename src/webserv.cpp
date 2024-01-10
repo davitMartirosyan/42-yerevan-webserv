@@ -26,11 +26,10 @@ int main(int ac, char **av)
         {
             mgn[i]->up();
         }
-        signal(SIGPIPE, SIG_IGN); // TODO
         mgn.start();
     }
     catch(std::exception const &e)
     {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 }

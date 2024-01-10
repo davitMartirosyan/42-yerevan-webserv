@@ -27,6 +27,7 @@ class Client : public HTTPRequest, public HTTPResponse
         sock_t getFd( void ) const;
         sock_t getServerFd( void ) const;
         std::string getServerPort( void ) const;
+        const std::string &getTmpToChild() const;
         int receiveRequest();
         void parseHeader();
         void parseBody();
@@ -46,12 +47,13 @@ class Client : public HTTPRequest, public HTTPResponse
         bool readChunkedRequest();
         void multipart(void);
         std::map<int, InnerFd *> _innerFds;                   // [Clients inner fds]
+        std::vector<std::string> _tmpFiles;
         sock_t _fd;
         sock_t serverFd;
         HTTPServer &_defaultSrv;
         HTTPServer *_subSrv;
         std::time_t	 _lastSeen;
-        std::time_t	 _cgiStartTime;  // TODO start when all body sent to cgi.
+        std::time_t	 _cgiStartTime;
         int _cgiPipeFd;
         int _cgiPID;
         struct sockaddr_in clientInfo;

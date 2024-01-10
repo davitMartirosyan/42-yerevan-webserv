@@ -28,11 +28,20 @@ HTTPServer::HTTPServer( void )
     methodsMap["GET"] = &HTTPServer::get;
     methodsMap["POST"] = &HTTPServer::post;
     methodsMap["DELETE"] = &HTTPServer::del;
-    methodsMap["HEAD"] = &HTTPServer::head;
+    // methodsMap["HEAD"] = &HTTPServer::head;
 }
 
 HTTPServer::~HTTPServer()
 {
+    for (size_t i = 0; i < _srvs.size(); i++)
+    {
+        delete _srvs[i];
+    }
+    std::map<sock_t, Client *>::iterator it = _clnt.begin();
+    while (it != _clnt.end()) {
+        delete it->second;
+        ++it;
+    }
     
 }
 
@@ -142,19 +151,21 @@ void HTTPServer::up()
 
 void HTTPServer::push(sock_t clFd, Client *clt)
 {
-    clnt.insert(std::make_pair(clFd, clt));
+    if (clt != NULL)
+        _clnt.insert(std::make_pair(clFd, clt));
 }
 
-void HTTPServer::push(HTTPServer &srv) {
-    _srvs.push_back(srv);
+void HTTPServer::push(HTTPServer *srv) {
+    if (srv != NULL)
+        _srvs.push_back(srv);
 };
 
 HTTPServer *HTTPServer::getSubServerByName(std::string const &serverName) {
     for (size_t i = 0; i < _srvs.size(); ++i) {
-        std::vector<std::string> &srvNames =  _srvs[i]._serverName;
+        std::vector<std::string> &srvNames =  _srvs[i]->_serverName;
         std::vector<std::string>::const_iterator it = std::find(srvNames.begin(),srvNames.end(), serverName);
         if (it != srvNames.end()) {
-            return (&_srvs[i]);
+            return (_srvs[i]);
         }
     }
     return (NULL);
@@ -162,7 +173,7 @@ HTTPServer *HTTPServer::getSubServerByName(std::string const &serverName) {
 
 bool HTTPServer::exist(sock_t fd)
 {
-    return (clnt.find(fd) != clnt.end());
+    return (_clnt.find(fd) != _clnt.end());
 }
 
 
@@ -176,7 +187,7 @@ bool HTTPServer::operator==(HTTPServer const &sibling) const
 
 bool HTTPServer::operator==(sock_t fd) const
 {
-    if (clnt.find(fd) != clnt.end()) {
+    if (_clnt.find(fd) != _clnt.end()) {
       return (true);
     } 
     return (false);
@@ -184,8 +195,8 @@ bool HTTPServer::operator==(sock_t fd) const
 
 Client* HTTPServer::getClient(sock_t fd)
 {
-    std::map<sock_t, Client*>::iterator it = clnt.find(fd);
-    if (it != clnt.end()) {
+    std::map<sock_t, Client*>::iterator it = _clnt.find(fd);
+    if (it != _clnt.end()) {
         return (it->second);
     }
     return (NULL);
@@ -193,21 +204,19 @@ Client* HTTPServer::getClient(sock_t fd)
 
 void HTTPServer::removeClient(sock_t fd)
 {
-    std::map<sock_t, Client*>::iterator it = clnt.find(fd);
+    std::map<sock_t, Client*>::iterator it = _clnt.find(fd);
 
-    if (it != clnt.end()) {
+    if (it != _clnt.end()) {
         delete it->second;
-        clnt.erase(it);
-        EvManager::delEvent(fd, EvManager::read);
-        EvManager::delEvent(fd, EvManager::write);
+        _clnt.erase(it);
     }
     return ;
 }
 
 InnerFd *HTTPServer:: getInnerFd(int fd) {
-    std::map<sock_t, Client *>::iterator it = clnt.begin();
+    std::map<sock_t, Client *>::iterator it = _clnt.begin();
     
-    while (it != clnt.end()) {
+    while (it != _clnt.end()) {
         InnerFd *innerFd = it->second->getInnerFd(fd);
 
         if (innerFd) {
@@ -298,8 +307,8 @@ void HTTPServer::get(Client &client) {
                 if (fd == -1) {
                     throw ResponseError(500, "Internal Server Error");
                 }
-                EvManager::addEvent(fd, EvManager::read);
-                EvManager::addEvent(fd, EvManager::write);
+                EvManager::addEvent(fd, EvManager::read, EvManager::inner);
+                EvManager::addEvent(fd, EvManager::write, EvManager::inner);
                 client.addInnerFd(new InnerFd(fd, client, client.getResponseBody(),  EvManager::read));
             }
 
@@ -322,29 +331,8 @@ void HTTPServer::post(Client &client) {
         int fd = Cgi::execute(client);
         client.setCgiPipeFd(fd);
     } else {
-        client.getResponseBody() = "ok";
-        client.addHeader(std::pair<std::string, std::string>("Content-Length", my_to_string(client.getResponseBody().size())));
-        client.buildHeader();
-        client.isResponseReady() = true;
+        throw ResponseError(501, "Not Implemented");
     }
-    // } else if (client.findInMap("Content-Type").find("multipart/form-data") != std::string::npos) {
-    //     std::map<std::string, std::string> &uploadedFiles = client.getUploadedFiles();
-    //     std::map<std::string, std::string>::iterator it = uploadedFiles.begin();
-    //     std::cout << "uploadedFiles = " << uploadedFiles.size() << std::endl;
-    //     for (; it != uploadedFiles.end(); ++it) {
-    //         const std::string &fileName = it->first;
-    //         std::string &fileContent = it->second;
-    //         // std::cout << "client.getCurrentLoc().getUploadDir() + fileName).c_str() = " << (client.getCurrentLoc().getUploadDir() + fileName).c_str() << std::endl;
-    //         int fd = open((client.getCurrentLoc().getUploadDir() + fileName).c_str(),  O_WRONLY | O_TRUNC | O_CREAT, S_IRWXU);
-    //         // std::cout << "fd = " << fd << std::endl;
-    //         if (fd == -1) {
-    //             throw ResponseError(500 , "Internal Server Error");
-    //         }
-    //         EvManager::addEvent(fd, EvManager::write);
-    //         client.addInnerFd(new InnerFd(fd, client, fileContent, EvManager::write));
-    //     }
-    //     HTTPServer::get(client);
-    // }
 };
 
 void HTTPServer::del(Client &client) {
@@ -357,24 +345,24 @@ void HTTPServer::del(Client &client) {
     client.isResponseReady() = true;
 };
 
-void HTTPServer::head(Client &client) {
-    std::cout << client.getMethod() << " " <<  client.getPath() << std::endl;
-    HTTPServer::get(client);
-    client.setBody("");
-    std::cout << client.getResponseLine() << client.getResponseHeader() << client.getResponseBody();
-};
+// void HTTPServer::head(Client &client) {
+//     std::cout << client.getMethod() << " " <<  client.getPath() << std::endl;
+//     HTTPServer::get(client);
+//     client.setBody("");
+//     std::cout << client.getResponseLine() << client.getResponseHeader() << client.getResponseBody();
+// };
 
 void HTTPServer::processing(Client &client)
 {
-    std::cout << client.getMethod() << " " << client.getPath() << std::endl;
-    std::cout << "cgi status" << " " << client.isCgi() << std::endl;
+    // std::cout << client.getMethod() << " " << client.getPath() << std::endl;
+    // std::cout << "cgi status" << " " << client.isCgi() << std::endl;
     // client.showHeaders();
     std::map<std::string, void (HTTPServer::*)(Client&)>::iterator function = methodsMap.find(client.getMethod());
-    if (function != methodsMap.end() && (client.getCurrentLoc().findMethod(client.getMethod()) != NULL || client.isCgi())) // TODO remove it
+    if (function != methodsMap.end() && (client.getCurrentLoc().findMethod(client.getMethod()) != NULL))
     {
        (this->*(function->second))(client);
     } else {
-        std::cout << "Method Not Allowed\n\n\n\n\n\n\n\n";
+        // std::cout << "Method Not Allowed\n\n\n\n\n\n\n\n";
         throw ResponseError(405, "Method Not Allowed");
     }
 }

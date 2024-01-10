@@ -3,9 +3,9 @@
 #include <errno.h>
 #include <string.h>
 
-int EvManager::_i = 0;
 int EvManager::_numEvents = 0;
 const int EvManager::CLIENT_LIMIT;
+
 #ifdef __linux__
         fd_set          EvManager::_rfds;
         fd_set          EvManager::_wfds;
@@ -18,6 +18,7 @@ const int EvManager::CLIENT_LIMIT;
         int EvManager::_curFd;
 #else
         int EvManager::_kq = 0;
+        std::map<int, std::time_t>   EvManager::_fdActiveSet;
         struct kevent EvManager::_evList[1000];
 #endif
 
@@ -32,7 +33,8 @@ bool EvManager::start() {
     return (true);
 }
 
-bool EvManager::addEvent(int fd, Flag flag) {
+bool EvManager::addEvent(int fd, Flag flag, socketType type) {
+    (void)type;
     if (flag == read) {
         _fdRSet.insert(fd);
         FD_SET(fd, &_rfds);
@@ -54,26 +56,28 @@ bool EvManager::delEvent(int fd, Flag flag) {
     if (flag == read) {
         FD_CLR(fd, &_rfds);
         _fdRSet.erase(fd);
-        // if (fd == _nfds - 1 && _fdWSet.find(fd) == _fdWSet.end()) {
-        //     for (int maxFd = _nfds; maxFd >= 0; maxFd--) {
-        //         if (FD_ISSET(maxFd, &_rfds)) {
-        //             _nfds = maxFd + 1;
-        //             break;
-        //         }
-        //     }
-        // }
+
     } else if (flag == write) {
         FD_CLR(fd, &_wfds);
         _fdWSet.erase(fd);
-        // if (fd == _nfds - 1 && _fdRSet.find(fd) == _fdRSet.end()) {
-        //     for (int maxFd = _nfds; maxFd >= 0; maxFd--) {
-        //         if (FD_ISSET(maxFd, &_rfds)) {
-        //             _nfds = maxFd + 1;
-        //             break;
-        //         }
-        //     }
-        // }
+
     }
+    if (_fdWSet.empty() == false) {
+        int a = *_fdWSet.rbegin() + 1;
+
+        if (a > _nfds) {
+            _nfds = a;
+        }
+    }
+
+    if (_fdRSet.empty() == false) {
+        int a = *_fdRSet.rbegin() + 1;
+
+        if (a > _nfds) {
+            _nfds = a;
+        }
+    }
+
 
     return (true);
 }
@@ -83,7 +87,9 @@ std::pair<EvManager::Flag, int> EvManager::listen() {
         if (_curFd == 3) {
             _activeRfds = _rfds;
             _activeWfds = _wfds;
+            // std::cout << "_numEvents = " << _numEvents << std::endl;
             _numEvents = select(_nfds, &_activeRfds, &_activeWfds, NULL, NULL);
+            // std::cout << "_numEvents = " << _numEvents << std::endl;
             if (_numEvents == -1) {
                 throw std::runtime_error(std::string("kevent: ") + strerror(errno));
             }
@@ -114,13 +120,16 @@ bool EvManager::start() {
     return (true);
 }
 
-bool EvManager::addEvent(int fd, Flag flag) {
+bool EvManager::addEvent(int fd, Flag flag, socketType type) {
     if (_kq != 0) {
         int evFlag = getFlag(flag);
         struct kevent evSet;
 
         EV_SET(&evSet, fd, evFlag, EV_ADD, 0, 0, NULL);
         kevent(_kq, &evSet, 1, NULL, 0, NULL);
+        if (type == client) {
+            _fdActiveSet[fd] = std::time(NULL);
+        }
         return (true);
     }
     return (false);
@@ -133,15 +142,34 @@ bool EvManager::delEvent(int fd, Flag flag) {
 
         EV_SET(&evSet, fd, evFlag, EV_DELETE, 0, 0, NULL);
         kevent(_kq, &evSet, 1, NULL, 0, NULL);
+        _fdActiveSet.erase(fd);
         return (true);
     }
     return (false);
 }
 
+#include <limits.h>
+
 std::pair<EvManager::Flag, int> EvManager::listen() {
+    struct timespec timeout;
+    static std::vector<int>             _fdToRemove;
+
+    timeout.tv_sec = KEEP_ALIVE_TIMEOUT;
+    timeout.tv_nsec = 0;
     while (_numEvents == 0) {
-        _numEvents = kevent(_kq, NULL, 0, _evList, CLIENT_LIMIT, NULL);
-        // std::cout << "_numEvents = " << _numEvents << std::endl;
+        if (_fdToRemove.empty() == false) {
+            int tmp = *--_fdToRemove.end();
+            _fdToRemove.pop_back();
+            return (std::pair<EvManager::Flag, int>(EvManager::eof, tmp));
+        }
+        _numEvents = kevent(_kq, NULL, 0, _evList, INT_MAX, &timeout);
+        
+        for (std::pair<std::map<int, std::time_t>::iterator, std::map<int, std::time_t>::iterator> it = std::make_pair(_fdActiveSet.begin(), _fdActiveSet.end());
+                it.first != it.second; ++it.first) {
+            if (it.first->second < std::time(NULL) - KEEP_ALIVE_TIMEOUT) {
+                _fdToRemove.push_back(it.first->first);
+            }
+        }
     }
 
     if (_numEvents == -1) {
@@ -163,6 +191,11 @@ std::pair<EvManager::Flag, int> EvManager::listen() {
     }
 
     std::pair<EvManager::Flag, int> result(flag, _evList[_numEvents - 1].ident);
+    std::map<int, std::time_t>::iterator it = _fdActiveSet.find(_evList[_numEvents - 1].ident);
+
+    if (it != _fdActiveSet.end()) {
+        it->second = time(NULL);
+    }
     --_numEvents;
     return (result);
 }

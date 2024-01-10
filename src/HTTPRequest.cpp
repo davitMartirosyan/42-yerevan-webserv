@@ -266,7 +266,7 @@ void HTTPRequest::checkPath(const HTTPServer &srv)
     _location = srv.findMatching(_path);
     if (_location)
     {
-        std::cout << "_location = " <<  _location->getLocation() << std::endl;
+        // std::cout << "_location = " <<  _location->getLocation() << std::endl;
         if (_location->getRedirection().empty() == false) {
             checkRedirect(_location->getLocation(), _location->getRedirection().begin()->second);
         }

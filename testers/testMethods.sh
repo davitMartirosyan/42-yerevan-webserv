@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER_URL="http://127.0.0.1:$1/"
+SERVER_URL="http://127.0.0.1:8080/"
 
 test_request() {
     local METHOD="$1"
