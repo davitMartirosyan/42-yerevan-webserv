@@ -5,10 +5,8 @@ Welcome to **42-yerevan-webserv**, an advanced C++ web server designed with the 
 ## Special Thanks
 
 Many thanks to my friend [Vahan](https://github.com/vahannn) for their invaluable contributions and collaborative efforts in building this project.
-
 Feel free to contribute, report bugs, or share your ideas by opening an issue or submitting a pull request.
-
-Happy coding with 42-yerevan-webserv! 🚀
+Happy coding with **`42-yerevan-webserv!`** 🚀
 
 
 ## Features
@@ -52,7 +50,7 @@ server {
     error_page 404 /404.html;
     return 301 https://example.com$request_uri;
     cgi php /path/to/php-cgi;
-	
+
     location /api {
         allow_methods GET POST DELETE;
         root /path/to/api;
