@@ -1,12 +1,12 @@
-# AwesomeWebServer
+# 42-webserv
 
-Welcome to AwesomeWebServer, a powerful and lightweight C++ web server inspired by Nginx. This web server is designed to handle HTTP requests with a focus on simplicity, performance, and extensibility. Whether you're hosting a static website or building a dynamic application, AwesomeWebServer has you covered.
+Welcome to 42-webserv, a powerful and lightweight C++ web server inspired by Nginx. This web server is designed to handle HTTP requests with a focus on simplicity, performance, and extensibility. Whether you're hosting a static website or building a dynamic application, 42-webserv has you covered.
 
 ## Features
 
 - **Configuration Flexibility:** Define your server's behavior precisely using a configuration file. Customize virtual server contexts and fine-tune settings for different locations within those servers.
 
-- **Supported HTTP Methods:** AwesomeWebServer supports the following HTTP methods: GET, POST, DELETE. Handle various types of requests seamlessly.
+- **Supported HTTP Methods:** 42-webserv supports the following HTTP methods: GET, POST, DELETE. Handle various types of requests seamlessly.
 
 - **Server Directives:**
   - **listen:** Specify IP and port for the server to bind to.
@@ -18,8 +18,8 @@ Welcome to AwesomeWebServer, a powerful and lightweight C++ web server inspired 
   - **return:** Set up redirection URLs for specific scenarios.
 
 - **Makefile Usage:**
-  - `make`: Build the AwesomeWebServer.
-  - `make re`: Rebuild the AwesomeWebServer.
+  - `make`: Build the 42-webserv.
+  - `make re`: Rebuild the 42-webserv.
   - `make clean`: Clean object files.
   - `make fclean`: Clean object files and the executable.
 
@@ -27,8 +27,8 @@ Welcome to AwesomeWebServer, a powerful and lightweight C++ web server inspired 
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/your-username/AwesomeWebServer.git
-   cd AwesomeWebServer
+   git clone https://github.com/davitmartirosyan/42-yerevan-webserv.git
+   cd 42-webserv
 
 ## Example Server Configuration
 
