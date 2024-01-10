@@ -24,6 +24,10 @@ Happy coding with `42-yerevan-webserv!` 🚀
   - `error_page`: Craft custom error pages based on response status codes.
   - `return`: Set up redirection URLs for specific scenarios.	
   - `cgi`: Enable CGI script execution for handling Python and PHP scripts.
+  - `index`: Specify the default index file.
+  - `autoindex`: Enable directory listing when no index file is found.
+  - `client_max_body_size`: Set the maximum allowed size of the client request body.
+
 
 - **Makefile Mastery:**
   - `make`: Build 42-yerevan-webserv.
