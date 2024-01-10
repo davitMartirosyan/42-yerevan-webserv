@@ -18,13 +18,13 @@ Happy coding with 42-yerevan-webserv! 🚀
 - **Supported HTTP Methods:** 42-yerevan-webserv proudly supports essential HTTP methods: GET, POST, DELETE. Empower your applications with versatile request handling.
 
 - **Server Directives:**
-  - **`listen`:** Specify the IP and port for the server to bind to.
-  - **`root`:** Set the root path of the server directory.
-  - **`server_name`:** Specify names that HTTP clients can send via the Host header in HTTP requests.
-  - **`allow_methods`:** Explicitly define allowed HTTP methods for this server.
-  - **`upload_dir`:** Configure the directory where the server should store files from multipart form data.
-  - **`error_page`:** Craft custom error pages based on response status codes.
-  - **`return`:** Set up redirection URLs for specific scenarios.
+  - `listen`: Specify the IP and port for the server to bind to.
+  - `root`: Set the root path of the server directory.
+  - `server_name`: Specify names that HTTP clients can send via the Host header in HTTP requests.
+  - `allow_methods`: Explicitly define allowed HTTP methods for this server.
+  - `upload_dir`: Configure the directory where the server should store files from multipart form data.
+  - `error_page`: Craft custom error pages based on response status codes.
+  - `return`: Set up redirection URLs for specific scenarios.
 
 - **Makefile Mastery:**
   - `make`: Build 42-yerevan-webserv.
