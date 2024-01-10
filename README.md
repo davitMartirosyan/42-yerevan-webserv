@@ -6,7 +6,7 @@ Welcome to **42-yerevan-webserv**, an advanced C++ web server designed with the 
 
 Many thanks to my friend [Vahan](https://github.com/vahannn) for their invaluable contributions and collaborative efforts in building this project.
 Feel free to contribute, report bugs, or share your ideas by opening an issue or submitting a pull request.
-Happy coding with **`42-yerevan-webserv!`** 🚀
+Happy coding with `42-yerevan-webserv!` 🚀
 
 
 ## Features
